@@ -132,13 +132,43 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
   background: var(--chem-green); animation: blink 1.4s steps(1) infinite;
 }
 .spot:focus-visible { outline: none; }
-.spot:focus-visible .ph { border: 1px solid var(--chem-green); outline: 2px solid var(--chem-green); outline-offset: 3px; }
-.spot:focus-visible .spot-tag { color: var(--chem-green); }
-@media (hover: hover) {
-  .spot:hover .ph { border-color: var(--chem-green); border-style: solid; }
-  .spot:hover .spot-tag { color: var(--chem-green); }
+.spot:focus-visible .ph { outline: 2px solid var(--chem-green); outline-offset: 3px; }
+
+/* LIGHTS OFF, THINGS GLOW: like the /GLW print, every object and card
+   gives off green light under the cursor (or the finger: .lit is added
+   by JavaScript while it touches). */
+.spot .ph { transition: border-color .2s ease, filter .35s ease, opacity .2s ease; }
+.spot-tag { transition: color .2s ease, text-shadow .35s ease, opacity .2s ease; }
+.ficha, .guest, .tx, .tv { transition: border-color .2s ease, filter .35s ease; }
+.spot.lit .ph, .spot:focus-visible .ph {
+  border-style: solid; border-color: var(--chem-green);
+  filter: brightness(1.2) drop-shadow(0 0 6px rgba(184,224,32,.65)) drop-shadow(0 0 22px rgba(184,224,32,.35));
 }
-.spot:active .ph { border-color: var(--chem-green); border-style: solid; }
+.spot.lit .spot-tag, .spot:focus-visible .spot-tag { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
+.ficha.lit, .guest.lit, .tv.lit,
+.ficha:focus-within, .guest:focus-within {
+  border-color: var(--chem-green);
+  filter: drop-shadow(0 0 8px rgba(184,224,32,.45)) drop-shadow(0 0 26px rgba(184,224,32,.2));
+}
+.tx.lit span:nth-child(2) { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
+@media (hover: hover) {
+  .spot:hover .ph {
+    border-style: solid; border-color: var(--chem-green);
+    filter: brightness(1.2) drop-shadow(0 0 6px rgba(184,224,32,.65)) drop-shadow(0 0 22px rgba(184,224,32,.35));
+  }
+  .spot:hover .spot-tag { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
+  .ficha:hover, .guest:hover, .tv:hover {
+    border-color: var(--chem-green);
+    filter: drop-shadow(0 0 8px rgba(184,224,32,.45)) drop-shadow(0 0 26px rgba(184,224,32,.2));
+  }
+  .tx:hover span:nth-child(2) { text-shadow: 0 0 10px rgba(184,224,32,.7); }
+}
+/* While it jumps, the object dissolves into its particles. */
+.spot.jumping .ph, .spot.jumping .spot-tag { opacity: 0; }
+
+/* The canvas the quantum jump is drawn on, over everything but the grain. */
+.cab-quantum { position: absolute; inset: 0; z-index: 16; width: 100%; height: 100%; pointer-events: none; }
+.cab-quantum[hidden] { display: none; }
 
 /* The dial sits at the right edge, so its tag grows to the left. */
 .spot-frecuencia { height: auto; align-items: flex-end; }

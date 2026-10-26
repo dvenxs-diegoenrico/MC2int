@@ -323,7 +323,8 @@ function build() {
         </figure>
       </div>`)}
 
-    <div class="cab-flash" aria-hidden="true"></div>`;
+    <div class="cab-flash" aria-hidden="true"></div>
+    <canvas class="cab-quantum" hidden aria-hidden="true"></canvas>`;
 
   document.body.append(root);
 
@@ -333,14 +334,25 @@ function build() {
   // Navigation, for every button in the layer.
   root.addEventListener("click", (event) => {
     const go = event.target.closest("[data-go]");
-    if (go) {
+    if (go && !jumping) {
       lastSpot = go.dataset.go;
       history.pushState({ fromHub: true }, "", "#cabina/" + go.dataset.go);
-      openScreen(go.dataset.go);
+      quantumJump(go, () => openScreen(go.dataset.go, true));
     }
     if (event.target.closest("[data-back]")) back();
     if (event.target.closest("[data-lights-on]")) leaveTo(null);
   });
+  // Touch screens have no hover: the object lights up while the finger is on it.
+  const glowing = ".spot, .ficha, .guest, .tx, .tv";
+  root.addEventListener("pointerdown", (event) => {
+    const target = event.pointerType !== "mouse" && event.target.closest(glowing);
+    if (target) target.classList.add("lit");
+  });
+  const unlight = () => {
+    for (const lit of root.querySelectorAll(".lit:not(.jumping)")) setTimeout(() => lit.classList.remove("lit"), 350);
+  };
+  root.addEventListener("pointerup", unlight);
+  root.addEventListener("pointercancel", unlight);
   root.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && STATIONS[current]) { event.preventDefault(); back(); }
   });
@@ -467,10 +479,13 @@ function route() {
   openScreen(STATIONS[name] ? name : "hub");
 }
 
-function openScreen(name) {
+function openScreen(name, quiet = false) {
   if (name === current) return;
+  const previous = current;
   stopStation(current);
-  if (!noMotion.matches) {
+  // Back from a station: the object it came from rematerializes in the hub.
+  const returning = name === "hub" && STATIONS[previous] && $(`[data-go="${previous}"]`);
+  if (!returning && !quiet && !noMotion.matches) {
     const flash = $(".cab-flash");
     flash.classList.remove("on");
     void flash.offsetWidth;   // restart the animation
@@ -478,6 +493,7 @@ function openScreen(name) {
   }
   show(name);
   current = name;
+  if (returning) quantumJump(returning, null, true);   // measured now that the hub is visible
   if (name === "hub") {
     refreshHub();
     parallaxOn = !noMotion.matches;
@@ -549,6 +565,117 @@ function setupParallax() {
     target.x = target.y = 0;
     kick();
   });
+}
+
+
+/* ---------------------------------------------------------------
+   THE QUANTUM JUMP between screens
+   The object you touched breaks into particles. On the way, each
+   particle is in superposition: every frame it shows up in one of
+   several possible places, and the further it travels the fewer
+   places are left. They collapse into the green line of the signal,
+   the line opens into the next screen, and the light fades.
+   Going back plays it in reverse: the line closes and the particles
+   fly home, so the object rematerializes where it was.
+   --------------------------------------------------------------- */
+let jumping = false;
+
+function quantumJump(el, swap, reverse = false) {
+  if (noMotion.matches || !el) { swap?.(); return; }
+  jumping = true;
+  const canvas = $(".cab-quantum"), ctx = canvas.getContext("2d");
+  const W = root.clientWidth, H = root.clientHeight, ratio = window.devicePixelRatio || 1;
+  canvas.width = W * ratio;
+  canvas.height = H * ratio;
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+  canvas.hidden = false;
+
+  // One particle per cell of the object, at most ~900.
+  const box = el.querySelector(".ph").getBoundingClientRect(), frame0 = root.getBoundingClientRect();
+  const step = Math.max(5, Math.sqrt((box.width * box.height) / 900));
+  const lineY = H / 2;
+  const green = token("--chem-green"), ivory = token("--ivory");
+  const particles = [];
+  for (let x = box.left; x < box.right; x += step) {
+    for (let y = box.top; y < box.bottom; y += step) {
+      particles.push({
+        hx: x - frame0.left + Math.random() * step, hy: y - frame0.top + Math.random() * step,
+        tx: Math.random() * W, ty: lineY + (Math.random() - .5) * 3,
+        ghosts: [0, 1].map(() => [(Math.random() - .5) * 90, (Math.random() - .5) * 90]),
+        color: Math.random() < .85 ? green : ivory,
+        size: Math.random() < .3 ? 3 : 2,
+      });
+    }
+  }
+
+  const ease = (t) => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  // p = 0: the particles are the object; p = 1: they are the line.
+  function drawParticles(p) {
+    const spread = Math.sin(Math.PI * p);   // most uncertain halfway
+    for (const q of particles) {
+      let x = q.hx + (q.tx - q.hx) * p, y = q.hy + (q.ty - q.hy) * p - spread * 40;
+      const roll = Math.random();
+      ctx.globalAlpha = 1;
+      if (roll < spread * .55) {
+        // Measured somewhere else this frame…
+        const [gx, gy] = q.ghosts[roll < spread * .27 ? 0 : 1];
+        x += gx * spread;
+        y += gy * spread;
+      } else if (roll > 1 - spread * .25) {
+        // …or faintly in both places at once.
+        ctx.globalAlpha = .35;
+        ctx.fillStyle = q.color;
+        ctx.fillRect(x + q.ghosts[0][0] * spread, y + q.ghosts[0][1] * spread, q.size, q.size);
+      }
+      ctx.fillStyle = q.color;
+      ctx.fillRect(x, y, q.size, q.size);
+    }
+    ctx.globalAlpha = p * p;
+    ctx.fillStyle = green;
+    ctx.fillRect(0, lineY - 1, W, 2);
+    ctx.globalAlpha = 1;
+  }
+  // b = 0: a thin line; b = 1: a band of light over the whole screen.
+  function drawBand(b, alpha) {
+    const h = 2 + (H - 2) * b;
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = green;
+    ctx.fillRect(0, lineY - h / 2, W, h);
+    ctx.globalAlpha = 1;
+  }
+
+  const DURATION = reverse ? 800 : 950, SPLIT = reverse ? .4 : .55;
+  const start = performance.now();
+  let swapped = false;
+  el.classList.add("lit", "jumping");
+  if (reverse) { swap?.(); swapped = true; }
+
+  (function tick(now) {
+    if (!open) { canvas.hidden = true; jumping = false; el.classList.remove("jumping", "lit"); return; }
+    const t = Math.min(1, (now - start) / DURATION);
+    ctx.clearRect(0, 0, W, H);
+    if (!reverse) {
+      if (t < SPLIT) drawParticles(ease(t / SPLIT));
+      else {
+        if (!swapped) { swapped = true; el.classList.remove("jumping", "lit"); swap?.(); }
+        const b = ease((t - SPLIT) / (1 - SPLIT));
+        drawBand(b, (1 - b) * .85);
+      }
+    } else if (t < SPLIT) {
+      const b = 1 - ease(t / SPLIT);
+      drawBand(b, .25 + (1 - b) * .6);
+    } else {
+      drawParticles(1 - ease((t - SPLIT) / (1 - SPLIT)));
+    }
+    if (t < 1) return void requestAnimationFrame(tick);
+    ctx.clearRect(0, 0, W, H);
+    canvas.hidden = true;
+    jumping = false;
+    if (reverse) {
+      el.classList.remove("jumping");
+      setTimeout(() => el.classList.remove("lit"), 500);   // it glows a moment after landing
+    }
+  })(start);
 }
 
 
