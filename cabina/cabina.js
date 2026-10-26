@@ -23,7 +23,7 @@
    --------------------------------------------------------------- */
 const MEDIA = {
   photos: {
-    fondo:      "photos/fondo-estudio.jpg",   // FOTO: la cabina completa, de fondo del hub (se recorta sola en vertical y horizontal)
+    fondo:      "photos/fondo-estudio.jpg",   // FOTO: la sala vista por el vidrio (pared 01 del cuarto 360°)
     ventana:    "",   // FOTO: el vidrio de la cabina hacia la sala   → sala de huéspedes
     monitor:    "",   // FOTO: la tele / monitor de la cabina         → canal mc²
     archivero:  "",   // FOTO: el archivero                           → archivo
@@ -36,6 +36,10 @@ const MEDIA = {
     ripe:       "",   // FOTO: sesión invitada RiPE
     sonicranch: "photos/sesion-sonic-ranch.jpg",   // FOTO: sesión invitada Sonic Ranch
   },
+  // FOTO 360: one panorama of the real control room (the phone's
+  // panorama mode, 360° wide). It wraps around the 8 walls; while it is
+  // empty each wall keeps its own texture and pared 01 shows "fondo".
+  panorama: "",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "",
@@ -78,6 +82,20 @@ const LLAVES = {
 const LOTE = "lote 01 · session 01";
 
 const COORDS = "31.4456°N 106.0078°W";
+
+// The 360° room: 8 walls around you, one object on each, in this order
+// (turning right). The last wall is the light switch: the way out.
+const WALLS = [
+  { nombre: "el vidrio",         station: "huespedes", photo: "fondo", sign: true },
+  { nombre: "la consola",        station: "consola" },
+  { nombre: "la perilla",        station: "frecuencia" },
+  { nombre: "la tele",           station: "canal" },
+  { nombre: "el archivero",      station: "archivo" },
+  { nombre: "la hoja de sesión", station: "acta" },
+  { nombre: "la ranura",         station: "llave" },
+  { nombre: "el apagador",       lights: true },
+];
+const STEP = 360 / WALLS.length;   // degrees between two walls
 
 // The hotspots: station number, what it is in the room, which photo.
 const STATIONS = {
@@ -215,16 +233,31 @@ function build() {
       ${onAir("boot-sign")}
     </section>
 
-    <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina: elige un objeto">
-      <div class="cab-layer" data-depth="0.15">
-        ${ph("fondo", "fondo · la cabina completa", "ph-fondo")}
-        ${onAir("hub-sign")}
-        ${spot("huespedes")}
+    <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina, 360°: gira y elige un objeto">
+      <div class="room" id="room">
+        <div class="ring" id="ring">
+          ${WALLS.map((wall, i) => `
+            <div class="wall" data-wall="${i}" style="${MEDIA.panorama ? `background: var(--mottle) url('${MEDIA.panorama}') calc(var(--wall-w) * ${-i}) center / calc(var(--wall-w) * ${WALLS.length}) 100% no-repeat` : ""}"
+                 ${wall.photo && !MEDIA.panorama ? `data-photo="${wall.photo}"` : ""}>
+              <p class="wall-tag" aria-hidden="true">pared ${String(i + 1).padStart(2, "0")} // ${wall.nombre}</p>
+              ${wall.sign ? onAir("hub-sign") : ""}
+              ${wall.station ? spot(wall.station) : ""}
+              ${wall.lights ? `
+                <button class="spot spot-apagador" type="button" data-lights-on aria-label="apagador: prender la luz y salir de la cabina">
+                  ${ph("apagador", "apagador")}
+                  <span class="spot-tag" aria-hidden="true"><b>00</b> // prender la luz ↗</span>
+                </button>` : ""}
+            </div>`).join("")}
+        </div>
       </div>
-      <div class="cab-layer" data-depth="0.4">${spot("canal")}${spot("archivo")}</div>
-      <div class="cab-layer" data-depth="0.7">${spot("consola")}${spot("frecuencia")}${spot("acta")}${spot("llave")}</div>
-      <div class="cab-layer cab-dust" data-depth="1.1" aria-hidden="true">${dust}</div>
-      <p class="hub-hint"><span>mueve el dedo · toca un objeto</span><span id="hub-status"></span></p>
+      <div class="cab-dust" aria-hidden="true">${dust}</div>
+      <button class="cab-btn gyro" id="gyro" type="button" aria-pressed="false" hidden>mover el teléfono: off</button>
+      <div class="hub-nav">
+        <button class="cab-btn turn" id="turn-left" type="button" aria-label="girar a la izquierda">‹</button>
+        <p><span id="rumbo"></span><span id="hub-status"></span></p>
+        <button class="cab-btn turn" id="turn-right" type="button" aria-label="girar a la derecha">›</button>
+      </div>
+      <p class="sr-only" id="hub-live" aria-live="polite"></p>
     </section>
 
     ${station("frecuencia", `
@@ -395,7 +428,7 @@ function build() {
     else if (!booting) route();
   });
 
-  setupParallax();
+  setupRoom();
   setupFrecuencia();
   setupConsola();
   setupCanal();
@@ -534,7 +567,7 @@ function openScreen(name, quiet = false) {
   if (returning) quantumJump(returning, null, true);   // measured now that the hub is visible
   if (name === "hub") {
     refreshHub();
-    parallaxOn = !noMotion.matches;
+    room.start();
     const from = lastSpot && $(`[data-go="${lastSpot}"]`);
     (from || $(".cab-hub")).focus({ preventScroll: true });
   } else {
@@ -545,7 +578,7 @@ function openScreen(name, quiet = false) {
 }
 
 function stopStation(name) {
-  if (name === "hub") parallaxOn = false;
+  if (name === "hub") room.stop();
   stops[name]?.();
 }
 
@@ -563,46 +596,167 @@ function refreshHub() {
   $(".spot-llave").classList.toggle("done", state.llaves.length > 0);
   $(".spot-acta").classList.toggle("done", Boolean(state.acta));
   $("#hub-status").textContent =
-    "señal " + (state.sintonizada ? "sintonizada" : "calibrada") + " · llaves " + state.llaves.length;
+    "arrastra para girar · señal " + (state.sintonizada ? "sintonizada" : "calibrada") + " · llaves " + state.llaves.length;
 }
 
 
 /* ---------------------------------------------------------------
-   THE HUB: parallax
-   Each layer has a depth. The pointer (finger or mouse) sets a target,
-   and every frame each layer slides a little toward it, times its
-   depth. The loop stops as soon as everything has settled.
+   THE HUB: a 360° room
+   The 8 walls stand in a circle around you. Each wall carries its own
+   CSS perspective, with the eye at the center of the circle, so the
+   browser never has to sort walls in 3D (that left some unpainted).
+   Turning the room is one number, the angle:
+   - drag (finger or mouse): the room follows you, a flick carries on
+     a little, and it settles on the nearest wall;
+   - ‹ › buttons, arrow keys, or Tab to an object: it turns to it;
+   - "mover el teléfono": the phone's compass turns it (asks first on
+     iPhone).
+   Walls far behind you are not drawn, but stay in the Tab order.
    --------------------------------------------------------------- */
-let parallaxOn = false;
+const room = { start() {}, stop() {} };
 
-function setupParallax() {
-  const hub = $(".cab-hub");
-  const layers = [...hub.querySelectorAll(".cab-layer")].map((layer) => ({ layer, depth: Number(layer.dataset.depth) }));
-  const target = { x: 0, y: 0 }, pos = { x: 0, y: 0 };
-  let frame = 0;
+function setupRoom() {
+  const hub = $(".cab-hub"), stage = $("#room");
+  const walls = [...root.querySelectorAll(".wall")];
+  const heading = $("#rumbo"), live = $("#hub-live"), gyroButton = $("#gyro");
+  let angle = 0, target = 0, frame = 0, width = 390, radius = 470, spoken = -1;
+  const wrap = (d) => ((d % 360) + 540) % 360 - 180;                   // -180..180
+  const facing = (a) => ((Math.round(a / STEP) % WALLS.length) + WALLS.length) % WALLS.length;
 
+  // On phones a wall is as wide as the screen; on big screens it takes
+  // two thirds of it, so the walls beside it don't stretch too far off
+  // screen (browsers stop painting a wall pushed that far). The radius
+  // makes the 8 walls meet edge to edge.
+  function size() {
+    const box = hub.getBoundingClientRect();
+    width = Math.min(box.width, Math.max(420, box.height * .75, box.width * .66));
+    radius = width / (2 * Math.tan(Math.PI / WALLS.length));
+    hub.style.setProperty("--wall-w", width.toFixed(1) + "px");
+  }
+
+  function render() {
+    const r = radius.toFixed(1);
+    for (const wall of walls) {
+      const offset = wrap(wall.dataset.wall * STEP - angle);   // where this wall is, seen from the center
+      const far = Math.abs(offset) > STEP * 1.6;
+      wall.classList.toggle("far", far);
+      if (!far) wall.style.transform = `perspective(${r}px) translateZ(${r}px) rotateY(${(-offset).toFixed(2)}deg) translateZ(-${r}px)`;
+    }
+    const deg = ((Math.round(angle) % 360) + 360) % 360;
+    heading.textContent = "rumbo " + String(deg).padStart(3, "0") + "° · " + WALLS[facing(angle)].nombre;
+  }
+  function announce() {
+    const n = facing(angle);
+    if (n !== spoken) { live.textContent = "pared " + (n + 1) + ": " + WALLS[n].nombre; spoken = n; }
+  }
   function tick() {
     frame = 0;
-    pos.x += (target.x - pos.x) * .08;
-    pos.y += (target.y - pos.y) * .08;
-    for (const { layer, depth } of layers) {
-      layer.style.transform = `translate3d(${(-pos.x * depth * 22).toFixed(2)}px, ${(-pos.y * depth * 14).toFixed(2)}px, 0)`;
-    }
-    if (Math.abs(target.x - pos.x) + Math.abs(target.y - pos.y) > .002) kick();
+    angle += (target - angle) * .14;
+    if (Math.abs(target - angle) < .05) angle = target;
+    render();
+    if (angle !== target) frame = requestAnimationFrame(tick);
+    else announce();
   }
-  function kick() { if (!frame && parallaxOn) frame = requestAnimationFrame(tick); }
+  function turnTo(next) {
+    target = next;
+    if (noMotion.matches) { angle = target; render(); announce(); }
+    else if (!frame) frame = requestAnimationFrame(tick);
+  }
+  const snap = (a) => Math.round(a / STEP) * STEP;
+  const turn = (walls) => turnTo(snap(target) + walls * STEP);
 
-  hub.addEventListener("pointermove", (event) => {
-    const box = hub.getBoundingClientRect();
-    target.x = ((event.clientX - box.left) / box.width - .5) * 2;
-    target.y = ((event.clientY - box.top) / box.height - .5) * 2;
-    kick();
+  // Dragging. A drag is not a tap: the click that follows it is swallowed.
+  let dragging = false, moved = false, startX = 0, startAngle = 0, lastX = 0, lastT = 0, speed = 0;
+  hub.addEventListener("pointerdown", (event) => {
+    if (event.button > 0 || event.target.closest(".hub-nav, .gyro")) return;
+    dragging = true;
+    moved = false;
+    startX = lastX = event.clientX;
+    lastT = event.timeStamp;
+    speed = 0;
+    gyroOff();
+    startAngle = angle;
+    cancelAnimationFrame(frame);
+    frame = 0;
   });
-  hub.addEventListener("pointerleave", (event) => {
-    if (event.pointerType !== "mouse") return;
-    target.x = target.y = 0;
-    kick();
+  window.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const dx = event.clientX - startX;
+    if (!moved && Math.abs(dx) < 8) return;
+    moved = true;
+    speed = (event.clientX - lastX) / Math.max(1, event.timeStamp - lastT);   // px per ms
+    lastX = event.clientX;
+    lastT = event.timeStamp;
+    angle = target = startAngle - dx * STEP / width;
+    render();
   });
+  const release = () => {
+    if (!dragging) return;
+    dragging = false;
+    // A flick carries the room on, but never more than one wall further.
+    const carry = Math.max(-STEP * .75, Math.min(STEP * .75, -speed * 220 * STEP / width));
+    if (moved) turnTo(snap(angle + carry));
+    else if (angle !== target) turnTo(target);
+  };
+  window.addEventListener("pointerup", release);
+  window.addEventListener("pointercancel", release);
+  hub.addEventListener("click", (event) => {
+    if (!moved) return;
+    moved = false;
+    event.stopPropagation();
+    event.preventDefault();
+  }, true);
+
+  $("#turn-left").addEventListener("click", () => turn(-1));
+  $("#turn-right").addEventListener("click", () => turn(1));
+  hub.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") { event.preventDefault(); turn(-1); }
+    if (event.key === "ArrowRight") { event.preventDefault(); turn(1); }
+  });
+  // Tab to an object on another wall: the room turns to face it.
+  hub.addEventListener("focusin", (event) => {
+    const wall = event.target.closest(".wall");
+    if (wall) turnTo(target + wrap(wall.dataset.wall * STEP - target));
+    stage.scrollLeft = stage.scrollTop = 0;   // focus must never scroll the room
+  });
+  stage.addEventListener("scroll", () => { stage.scrollLeft = stage.scrollTop = 0; });
+
+  // The phone's compass. Turning left (alpha grows) shows the wall on the left.
+  let gyro = null;
+  const onTilt = (event) => {
+    if (event.alpha == null || !gyro) return;
+    if (gyro.base == null) { gyro.base = event.alpha; gyro.from = angle; }
+    angle = target = gyro.from - wrap(event.alpha - gyro.base);
+    render();
+  };
+  function gyroLabel(on) {
+    gyroButton.textContent = "mover el teléfono: " + (on ? "on" : "off");
+    gyroButton.setAttribute("aria-pressed", String(on));
+  }
+  async function gyroOn() {
+    try {
+      const ask = window.DeviceOrientationEvent && DeviceOrientationEvent.requestPermission;
+      if (ask && (await DeviceOrientationEvent.requestPermission()) !== "granted") return;
+    } catch { return; }
+    gyro = { base: null };
+    window.addEventListener("deviceorientation", onTilt);
+    gyroLabel(true);
+  }
+  function gyroOff() {
+    if (!gyro) return;
+    gyro = null;
+    window.removeEventListener("deviceorientation", onTilt);
+    gyroLabel(false);
+    turnTo(snap(angle));
+  }
+  if (matchMedia("(pointer: coarse)").matches && "DeviceOrientationEvent" in window) {
+    gyroButton.hidden = false;
+    gyroButton.addEventListener("click", () => (gyro ? gyroOff() : gyroOn()));
+  }
+
+  window.addEventListener("resize", () => { if (current === "hub") { size(); render(); } });
+  room.start = () => { size(); render(); announce(); };
+  room.stop = () => gyroOff();
 }
 
 

@@ -85,19 +85,30 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .cab-boot p { margin: 0; color: var(--muted); letter-spacing: .14em; }
 .boot-pct { display: inline-block; min-width: 4ch; text-align: right; color: var(--ivory); }
 
-/* ---------- 2. EL HUB (2.5D) ----------
-   Four flat layers. JavaScript slides each one a different distance
-   when the finger or the mouse moves: the far wall barely moves, the
-   desk moves more, the dust in front moves the most. */
-.cab-hub { position: relative; flex: 1; overflow: hidden; touch-action: none; outline: none; }
+/* ---------- 2. EL HUB: a 360° room ----------
+   .ring is a screen-sized frame in the middle; the 8 walls sit in it
+   and JavaScript gives each one its place around you. */
+.cab-hub { position: relative; flex: 1; overflow: hidden; touch-action: none; outline: none; cursor: grab; }
 .cab-hub[hidden] { display: none; }
-.cab-layer { position: absolute; inset: 0; pointer-events: none; will-change: transform; }
-.cab-layer > * { pointer-events: auto; }
-.cab-hub:not([hidden]) .cab-layer { animation: cab-layer-in .9s steps(5) both; }
-.cab-hub:not([hidden]) .cab-layer:nth-child(2) { animation-delay: .12s; }
-.cab-hub:not([hidden]) .cab-layer:nth-child(3) { animation-delay: .24s; }
-.cab-hub:not([hidden]) .cab-layer:nth-child(4) { animation-delay: .36s; }
+.cab-hub:active { cursor: grabbing; }
+.room { position: absolute; inset: 0; overflow: hidden; }
+.ring {
+  position: absolute; top: 0; left: 50%; height: 100%;
+  width: var(--wall-w, 390px); margin-left: calc(var(--wall-w, 390px) / -2);
+}
+.wall {
+  position: absolute; inset: 0; will-change: transform;
+  background: var(--mottle) var(--wash) center / 300px;
+  border-left: 1px solid var(--line);
+  transition: opacity .3s ease;
+}
+/* Pared 01, the glass: the live room seen through it. */
+.wall.has-photo { background-color: var(--mottle); background-size: cover; background-position: center; }
+.wall.has-photo::before { content: ""; position: absolute; inset: 0; background: var(--washed-black); opacity: .3; pointer-events: none; }
+.wall.far { opacity: 0; pointer-events: none; }
+.cab-hub:not([hidden]) .room { animation: cab-layer-in .9s steps(5) both; }   
 @keyframes cab-layer-in { from { opacity: 0; } }
+.wall-tag { position: absolute; left: 1rem; top: 1rem; z-index: 1; margin: 0; color: var(--sepia); font-size: .58rem; letter-spacing: .16em; }
 
 /* Placeholders: a mottled card, dashed edge, labelled "FOTO: …".
    Put a path in MEDIA.photos (cabina.js) and the real photo replaces it. */
@@ -110,11 +121,6 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 }
 .ph.has-photo { background: var(--mottle) center / cover no-repeat; border-style: solid; border-color: var(--line); color: transparent; }
 
-.ph-fondo {
-  position: absolute; inset: -4%; border: 0; border-radius: 0; opacity: .55;
-  place-items: start; padding: calc(4% + .9rem) calc(4% + 1rem);
-}
-.ph-fondo.has-photo { opacity: .7; }
 
 /* Each object is a button: the photo, and a tag under it. */
 .spot {
@@ -175,32 +181,31 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .spot-frecuencia .ph { flex: none; width: 100%; aspect-ratio: 1; border-radius: 50%; }
 .spot-frecuencia .ph::after { top: 14%; right: 14%; }
 
-/* Phones (portrait first): the room stacked from the glass down to the desk. */
-.spot-huespedes  { --x: 22%; --y: 9%;  --w: 56%; --h: 14%; }
-.spot-canal      { --x: 5%;  --y: 27%; --w: 44%; --h: 19%; }
-.spot-archivo    { --x: 58%; --y: 25%; --w: 37%; --h: 27%; }
-.spot-consola    { --x: 5%;  --y: 55%; --w: 56%; --h: 15%; }
-.spot-frecuencia { --x: 69%; --y: 57%; --w: 25%; }
-.spot-acta       { --x: 5%;  --y: 75%; --w: 38%; --h: 12%; }
-.spot-llave      { --x: 52%; --y: 78%; --w: 42%; --h: 8%; }
-/* Wide screens: the same room seen from the producer's chair. */
-@media (min-aspect-ratio: 4/3) {
-  .spot-huespedes  { --x: 32%; --y: 13%; --w: 36%; --h: 26%; }
-  .spot-canal      { --x: 6%;  --y: 14%; --w: 22%; --h: 30%; }
-  .spot-archivo    { --x: 74%; --y: 10%; --w: 19%; --h: 44%; }
-  .spot-consola    { --x: 22%; --y: 55%; --w: 38%; --h: 24%; }
-  .spot-frecuencia { --x: 63%; --y: 57%; --w: 9%; }
-  .spot-acta       { --x: 6%;  --y: 56%; --w: 13%; --h: 28%; }
-  .spot-llave      { --x: 74%; --y: 62%; --w: 19%; --h: 15%; }
-}
+/* One object per wall, centered on it. */
+.wall .spot-huespedes  { --x: 12%; --y: 26%; --w: 76%; --h: 34%; }
+.wall .spot-consola    { --x: 8%;  --y: 30%; --w: 84%; --h: 30%; }
+.wall .spot-frecuencia { --x: 24%; --y: 26%; --w: 52%; align-items: center; }
+.wall .spot-canal      { --x: 14%; --y: 24%; --w: 72%; --h: 36%; }
+.wall .spot-archivo    { --x: 22%; --y: 16%; --w: 56%; --h: 54%; }
+.wall .spot-acta       { --x: 24%; --y: 20%; --w: 52%; --h: 48%; }
+.wall .spot-llave      { --x: 16%; --y: 38%; --w: 68%; --h: 13%; }
+.wall .spot-apagador   { --x: 35%; --y: 32%; --w: 30%; --h: 24%; align-items: center; }
+.wall .spot-frecuencia .spot-tag, .wall .spot-apagador .spot-tag { text-align: center; }
 
+.cab-dust { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .cab-dust i { position: absolute; width: 2px; height: 2px; background: var(--ivory); opacity: .22; }
 
-.hub-hint {
-  position: absolute; left: 1rem; right: 1rem; bottom: .7rem; z-index: 3; margin: 0;
-  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-  color: var(--muted); font-size: .6rem; letter-spacing: .14em; pointer-events: none;
+/* Under the room: ‹ the heading › */
+.hub-nav {
+  position: absolute; left: .8rem; right: .8rem; bottom: .7rem; z-index: 3;
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .8rem; align-items: center;
 }
+.hub-nav p { margin: 0; display: grid; gap: .15rem; text-align: center; }
+.hub-nav #rumbo { color: var(--chem-green); font-size: .62rem; letter-spacing: .14em; }
+.hub-nav #hub-status { color: var(--muted); font-size: .56rem; letter-spacing: .12em; }
+.turn { width: 44px; padding: 0; font-size: 1.1rem; background: var(--washed-black); }
+.gyro { position: absolute; top: .7rem; right: .8rem; z-index: 3; min-height: 36px; padding: .4rem .6rem; font-size: .58rem; background: var(--washed-black); }
+.gyro[aria-pressed="true"] { color: var(--chem-green); border-color: var(--chem-green); }
 
 /* ---------- LIVE SESSION ----------
    The studio light over the glass. Off, it is a dead tube; when the
@@ -226,8 +231,7 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 @keyframes onair-hum { 0%, 96%, 100% { opacity: 1; } 97% { opacity: .6; } 98% { opacity: .95; } }
 .cab-boot .onair { margin-top: 1.2rem; visibility: hidden; }
 .cab-boot .onair.on { visibility: visible; }
-.cab-hub .onair { position: absolute; left: 50%; top: 2%; transform: translateX(-50%); }
-@media (min-aspect-ratio: 4/3) { .cab-hub .onair { top: 3%; } }
+.cab-hub .onair { position: absolute; left: 50%; top: 11%; transform: translateX(-50%); }
 
 /* ---------- AL AIRE: the single, under the fragment in Frecuencia ---------- */
 .fq-air { margin-top: 1.8rem; padding: 1rem 0 0 1.1rem; border-left: 2px solid var(--chem-green); outline: none; }
@@ -431,10 +435,9 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .acta-preview canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
 
 /* Nothing moves for people who turn motion off (the store's own rule
-   already stops every animation; this also freezes the parallax). */
+   already stops every animation; the room turns without easing). */
 @media (prefers-reduced-motion: reduce) {
   .cab::after { animation: none; }
-  .cab-layer { transform: none !important; }
 }
 
 /* Canal MC²: a YouTube transmission fills the old screen, under the scanlines. */
