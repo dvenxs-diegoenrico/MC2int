@@ -47,7 +47,10 @@ El reproductor solo se carga en ese momento. Para el siguiente single, cambia `S
 
 ### Video
 
-- `MEDIA.canal`: las 4 transmisiones del canal mc² (tx-01 a tx-04). Cada una tiene título y `video`; si `video` está vacío, sale "sin señal". Usa mp4 (H.264) para que funcione en iPhone.
+- `MEDIA.canal`: las 4 transmisiones del canal mc² (tx-01 a tx-04). Cada una lleva título y uno de estos dos:
+  - `video`: un archivo mp4 (H.264, para que funcione en iPhone);
+  - `youtube`: el id de un video de YouTube (lo que va después de `youtu.be/`). Con `inicio` y `fin` en segundos pasa solo un fragmento.
+  Sin ninguno, sale "sin señal". **tx-01 ya es el lyric video de Todo Cae.**
 
 ### Textos y datos de prueba
 

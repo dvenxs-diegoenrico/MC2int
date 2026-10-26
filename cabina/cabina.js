@@ -39,9 +39,11 @@ const MEDIA = {
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "",
-  // VIDEO: the transmissions of Canal MC². Empty video = "sin señal".
+  // VIDEO: the transmissions of Canal MC². Each one is a video file
+  // (video) or a YouTube video (youtube = its id, the part after youtu.be/).
+  // inicio / fin (seconds) play only a fragment of it. Nothing = "sin señal".
   canal: [
-    { id: "tx-01", titulo: "toma completa · sala principal", video: "" },
+    { id: "tx-01", titulo: "todo cae · lyric video", youtube: "7zEhOL9S19s" },
     { id: "tx-02", titulo: "la cabina, de noche",            video: "" },
     { id: "tx-03", titulo: "tornillo, tx · camino al estudio", video: "" },
     { id: "tx-04", titulo: "mesa de mezcla · overdubs",      video: "" },
@@ -57,7 +59,7 @@ const SINGLE = {
   links: [
     ["Spotify", "https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh"],
     ["Apple Music", "https://music.apple.com/mx/album/todo-cae/6805595531?i=6805595532"],
-    ["YouTube Music", "https://music.youtube.com/channel/UCm-DCC0_38Z2KfyXJHYXz7w"],
+    ["YouTube", "https://youtu.be/7zEhOL9S19s"],
   ],
 };
 
@@ -284,7 +286,7 @@ function build() {
       <ul class="tx-list">
         ${MEDIA.canal.map((tx, i) => `
           <li><button class="tx" type="button" data-tx="${i}">
-            <b>${esc(tx.id)}</b><span>${esc(tx.titulo)}</span><span>${tx.video ? "al aire" : "sin señal"}</span>
+            <b>${esc(tx.id)}</b><span>${esc(tx.titulo)}</span><span>${tx.video || tx.youtube ? "al aire" : "sin señal"}</span>
           </button></li>`).join("")}
       </ul>
       <p class="st-note">VIDEO: cada transmisión es un placeholder.</p>`)}
@@ -1013,12 +1015,27 @@ function setupConsola() {
 /* ---------------------------------------------------------------
    03 CANAL MC²
    An old TV. Picking a transmission "searches" for a moment; with a
-   video file it plays, without one it stays "sin señal".
+   video it plays, without one it stays "sin señal". YouTube videos use
+   the privacy-enhanced player (youtube-nocookie.com), created only when
+   picked and removed when you leave, so nothing keeps playing.
    --------------------------------------------------------------- */
 function setupCanal() {
   const screen = $("#tv-screen"), message = $("#tv-msg"), video = screen.querySelector("video");
   const noise = makeStatic(screen.querySelector("canvas"), () => .85);
   let timer = 0;
+
+  function clearYoutube() { screen.querySelector("iframe")?.remove(); }
+  function youtube(tx) {
+    const params = new URLSearchParams({ autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 });
+    if (tx.inicio) params.set("start", tx.inicio);
+    if (tx.fin) params.set("end", tx.fin);
+    const frame = el("iframe");
+    frame.src = "https://www.youtube-nocookie.com/embed/" + encodeURIComponent(tx.youtube) + "?" + params;
+    frame.title = tx.titulo + " · canal mc²";
+    frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+    frame.allowFullscreen = true;
+    screen.append(frame);
+  }
 
   function say(title, line, searching) {
     message.hidden = false;
@@ -1033,9 +1050,13 @@ function setupCanal() {
       clearTimeout(timer);
       video.pause();
       video.hidden = true;
+      clearYoutube();
       say("sintonizando", tx.id + "…", true);
       timer = setTimeout(() => {
-        if (tx.video) {
+        if (tx.youtube) {
+          youtube(tx);
+          message.hidden = true;
+        } else if (tx.video) {
           video.src = tx.video;
           video.hidden = false;
           message.hidden = true;
@@ -1048,7 +1069,14 @@ function setupCanal() {
   }
 
   starts.canal = () => noise.start();
-  stops.canal = () => { noise.stop(); clearTimeout(timer); video.pause(); };
+  stops.canal = () => {
+    noise.stop();
+    clearTimeout(timer);
+    video.pause();
+    clearYoutube();
+    say("sin señal", "canal mc² · en espera", false);
+    for (const button of root.querySelectorAll("[data-tx]")) button.removeAttribute("aria-current");
+  };
 }
 
 

@@ -436,3 +436,6 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
   .cab::after { animation: none; }
   .cab-layer { transform: none !important; }
 }
+
+/* Canal MC²: a YouTube transmission fills the old screen, under the scanlines. */
+.tv-screen iframe { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; border: 0; }
