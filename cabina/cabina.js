@@ -31,6 +31,7 @@ const MEDIA = {
     perilla:    "",   // FOTO: la perilla, vista desde arriba (cuadrada) → frecuencia
     hoja:       "",   // FOTO: la hoja de sesión (track sheet)        → acta
     ranura:     "",   // FOTO: la ranura de la llave                  → llave
+    apagador:   "",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
     boveda:     "photos/sesion-fender.jpg",   // FOTO: lo que abre la llave MC2-TEE-01
     mits:       "",   // FOTO: sesión invitada MITS
     ripe:       "",   // FOTO: sesión invitada RiPE
