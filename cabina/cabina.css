@@ -1,0 +1,372 @@
+/* =================================================================
+   LA CABINA — the lights-off layer of the site
+   index.html loads this file only when someone presses "Apagar la
+   luz", so the store never pays for it.
+
+   Doctrina: only the store's own tokens (--washed-black, --mottle,
+   --ivory, --chem-green, --sepia, --muted, --line) and its two
+   typefaces. Green is the only accent. Texture comes from SVG noise
+   (grain, mottle, scanlines, cracks), never from gradients or shadows:
+   a 40-year-old garment from day one.
+   ================================================================= */
+
+html.cabina-on, html.cabina-on body { overflow: hidden; }
+
+.cab {
+  /* Fine film grain, the mottled wash (same filter as the store's body),
+     scanlines and the "cracked print" mask of the store's lockup. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95  0 0 0 0 .93  0 0 0 0 .9  0 0 0 1.6 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  --wash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2  0 0 0 0 .19  0 0 0 0 .18  0 0 0 1.4 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --scan: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='3'%3E%3Crect width='4' height='1' fill='%23000' fill-opacity='.45'/%3E%3C/svg%3E");
+  --cracks: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -14 10.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; flex-direction: column;
+  background: var(--washed-black); color: var(--ivory);
+  font: 400 .78rem/1.5 var(--font-mono); letter-spacing: .06em;
+  /* The status bar is translucent: keep everything clear of the notch. */
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  overflow: hidden; overscroll-behavior: none;
+  touch-action: manipulation;          /* no double-tap zoom */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  -webkit-user-select: none; user-select: none;
+}
+.cab[hidden] { display: none; }
+
+/* The grain sits over everything and jitters like film. */
+.cab::after {
+  content: ""; position: absolute; inset: -80px; z-index: 20; pointer-events: none;
+  background: var(--grain) 0 0 / 160px; opacity: .08;
+  animation: cab-grain .5s steps(3) infinite;
+}
+@keyframes cab-grain { 33% { transform: translate(-37px, 21px); } 66% { transform: translate(18px, -44px); } }
+
+/* A short burst of static between screens, like changing the channel. */
+.cab-flash {
+  position: absolute; inset: 0; z-index: 15; pointer-events: none; opacity: 0;
+  background: var(--washed-black) var(--grain) 0 0 / 90px;
+}
+.cab-flash.on { animation: cab-flash .24s steps(3) forwards; }
+@keyframes cab-flash { from { opacity: 1; } to { opacity: 0; } }
+
+/* ---------- THE BAR: coordinates on every screen ---------- */
+.cab-bar {
+  position: relative; z-index: 10;
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: .55rem 1rem; border-bottom: 1px solid var(--line);
+}
+.cab-bar[hidden] { display: none; }
+.cab-coords { color: var(--chem-green); letter-spacing: .04em; white-space: nowrap; }
+.cab-bar .cab-coords { font-size: .7rem; }
+
+.cab-btn {
+  min-height: 44px; padding: .55rem .85rem;
+  background: none; color: var(--ivory); border: 1px solid var(--muted); border-radius: 2px;
+  font: 400 .7rem var(--font-mono); letter-spacing: .14em; cursor: pointer; white-space: nowrap;
+  transition: color .2s ease, border-color .2s ease, background-color .2s ease;
+}
+.cab-btn.solid { background: var(--ivory); color: var(--washed-black); border-color: var(--ivory); font-weight: 700; }
+.cab-btn:disabled { opacity: .45; cursor: not-allowed; }
+@media (hover: hover) {
+  .cab-btn:not(:disabled):hover { color: var(--chem-green); border-color: var(--chem-green); }
+  .cab-btn.solid:not(:disabled):hover { background: var(--chem-green); border-color: var(--chem-green); color: var(--washed-black); }
+}
+.cab-btn:not(:disabled):active { color: var(--chem-green); border-color: var(--chem-green); }
+.cab-btn.solid:not(:disabled):active { background: var(--chem-green); color: var(--washed-black); }
+
+/* ---------- 1. ENTRADA ---------- */
+.cab-boot {
+  flex: 1; display: grid; place-content: center; justify-items: center; gap: 1.1rem;
+  padding: 1rem; text-align: center;
+}
+.cab-boot[hidden] { display: none; }
+.cab-boot .cab-coords { font-size: clamp(1rem, 5vw, 1.6rem); }
+.cab-boot p { margin: 0; color: var(--muted); letter-spacing: .14em; }
+.boot-pct { display: inline-block; min-width: 4ch; text-align: right; color: var(--ivory); }
+
+/* ---------- 2. EL HUB (2.5D) ----------
+   Four flat layers. JavaScript slides each one a different distance
+   when the finger or the mouse moves: the far wall barely moves, the
+   desk moves more, the dust in front moves the most. */
+.cab-hub { position: relative; flex: 1; overflow: hidden; touch-action: none; outline: none; }
+.cab-hub[hidden] { display: none; }
+.cab-layer { position: absolute; inset: 0; pointer-events: none; will-change: transform; }
+.cab-layer > * { pointer-events: auto; }
+.cab-hub:not([hidden]) .cab-layer { animation: cab-layer-in .9s steps(5) both; }
+.cab-hub:not([hidden]) .cab-layer:nth-child(2) { animation-delay: .12s; }
+.cab-hub:not([hidden]) .cab-layer:nth-child(3) { animation-delay: .24s; }
+.cab-hub:not([hidden]) .cab-layer:nth-child(4) { animation-delay: .36s; }
+@keyframes cab-layer-in { from { opacity: 0; } }
+
+/* Placeholders: a mottled card, dashed edge, labelled "FOTO: …".
+   Put a path in MEDIA.photos (cabina.js) and the real photo replaces it. */
+.ph {
+  display: grid; place-items: center; padding: .4rem;
+  border: 1px dashed var(--muted); border-radius: 2px;
+  background: var(--mottle) var(--wash) center / 300px;
+  color: var(--sepia); font-size: .56rem; letter-spacing: .14em; line-height: 1.35; text-align: center;
+  transition: border-color .2s ease;
+}
+.ph.has-photo { background: var(--mottle) center / cover no-repeat; border-style: solid; border-color: var(--line); color: transparent; }
+
+.ph-fondo {
+  position: absolute; inset: -4%; border: 0; border-radius: 0; opacity: .55;
+  place-items: start; padding: calc(4% + .9rem) calc(4% + 1rem);
+}
+.ph-fondo.has-photo { opacity: .7; }
+
+/* Each object is a button: the photo, and a tag under it. */
+.spot {
+  position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
+  display: flex; flex-direction: column; gap: .35rem;
+  padding: 0; background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.spot .ph { flex: 1; min-height: 0; position: relative; }
+.spot-tag { font-size: .62rem; letter-spacing: .12em; white-space: nowrap; color: var(--ivory); transition: color .2s ease; }
+.spot-tag b { color: var(--chem-green); font-weight: 400; }
+.spot.done .spot-tag::after { content: " · ok"; color: var(--chem-green); }
+/* A small green square blinks on each object: something is on the air here. */
+.spot .ph::after {
+  content: ""; position: absolute; top: 5px; right: 5px; width: 5px; height: 5px;
+  background: var(--chem-green); animation: blink 1.4s steps(1) infinite;
+}
+.spot:focus-visible { outline: none; }
+.spot:focus-visible .ph { border: 1px solid var(--chem-green); outline: 2px solid var(--chem-green); outline-offset: 3px; }
+.spot:focus-visible .spot-tag { color: var(--chem-green); }
+@media (hover: hover) {
+  .spot:hover .ph { border-color: var(--chem-green); border-style: solid; }
+  .spot:hover .spot-tag { color: var(--chem-green); }
+}
+.spot:active .ph { border-color: var(--chem-green); border-style: solid; }
+
+/* The dial sits at the right edge, so its tag grows to the left. */
+.spot-frecuencia { height: auto; align-items: flex-end; }
+.spot-frecuencia .ph { flex: none; width: 100%; aspect-ratio: 1; border-radius: 50%; }
+.spot-frecuencia .ph::after { top: 14%; right: 14%; }
+
+/* Phones (portrait first): the room stacked from the glass down to the desk. */
+.spot-huespedes  { --x: 22%; --y: 5%;  --w: 56%; --h: 17%; }
+.spot-canal      { --x: 5%;  --y: 27%; --w: 44%; --h: 19%; }
+.spot-archivo    { --x: 58%; --y: 25%; --w: 37%; --h: 27%; }
+.spot-consola    { --x: 5%;  --y: 55%; --w: 56%; --h: 15%; }
+.spot-frecuencia { --x: 69%; --y: 57%; --w: 25%; }
+.spot-acta       { --x: 5%;  --y: 75%; --w: 38%; --h: 12%; }
+.spot-llave      { --x: 52%; --y: 78%; --w: 42%; --h: 8%; }
+/* Wide screens: the same room seen from the producer's chair. */
+@media (min-aspect-ratio: 4/3) {
+  .spot-huespedes  { --x: 32%; --y: 7%;  --w: 36%; --h: 30%; }
+  .spot-canal      { --x: 6%;  --y: 14%; --w: 22%; --h: 30%; }
+  .spot-archivo    { --x: 74%; --y: 10%; --w: 19%; --h: 44%; }
+  .spot-consola    { --x: 22%; --y: 55%; --w: 38%; --h: 24%; }
+  .spot-frecuencia { --x: 63%; --y: 57%; --w: 9%; }
+  .spot-acta       { --x: 6%;  --y: 56%; --w: 13%; --h: 28%; }
+  .spot-llave      { --x: 74%; --y: 62%; --w: 19%; --h: 15%; }
+}
+
+.cab-dust i { position: absolute; width: 2px; height: 2px; background: var(--ivory); opacity: .22; }
+
+.hub-hint {
+  position: absolute; left: 1rem; right: 1rem; bottom: .7rem; z-index: 3; margin: 0;
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  color: var(--muted); font-size: .6rem; letter-spacing: .14em; pointer-events: none;
+}
+
+/* ---------- STATIONS (shared) ---------- */
+.cab-station {
+  position: relative; z-index: 2; flex: 1;
+  overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y;
+  padding: 1rem 1rem calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  -webkit-user-select: text; user-select: text;
+}
+.cab-station[hidden] { display: none; }
+.cab-station:not([hidden]) .st-inner { animation: cab-st-in .3s steps(3) both; }
+@keyframes cab-st-in { from { opacity: 0; } }
+.st-inner { max-width: 760px; margin: 0 auto; }
+.st-head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.6rem; }
+.st-code { color: var(--sepia); font-size: .62rem; letter-spacing: .16em; text-align: right; }
+.st-code b { color: var(--chem-green); font-weight: 400; }
+.cab h2 {
+  font: 800 clamp(2.4rem, 11vw, 4.4rem)/.9 var(--font-display); letter-spacing: -.03em;
+  margin: 0 0 .9rem; outline: none;
+}
+.cab h3 { font: 800 1.5rem/1 var(--font-display); letter-spacing: -.02em; margin: 0 0 .4rem; }
+.st-lead { font: 300 1rem/1.55 var(--font-body); letter-spacing: 0; color: rgba(242,238,230,.75); max-width: 52ch; margin: 0 0 1.8rem; }
+.st-note { color: var(--muted); font-size: .64rem; letter-spacing: .08em; margin: .9rem 0 0; }
+.st-tag { color: var(--sepia); font-size: .6rem; letter-spacing: .16em; margin: 0 0 .8rem; }
+.st-tag b { color: var(--chem-green); font-weight: 400; }
+
+/* Old screens: a scanline layer over a pixel canvas of static. */
+.fq-screen, .tv-screen { position: relative; overflow: hidden; background: var(--washed-black); }
+.fq-screen canvas, .tv-screen canvas { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.fq-screen::after, .tv-screen::after { content: ""; position: absolute; inset: 0; z-index: 2; background: var(--scan); pointer-events: none; }
+
+/* ---------- FRECUENCIA ---------- */
+.fq-screen { aspect-ratio: 16 / 7; border: 1px solid var(--line); }
+.fq-read { position: absolute; left: .8rem; bottom: .6rem; z-index: 1; display: flex; gap: .6rem; align-items: baseline; }
+.fq-mhz { font: 700 clamp(1.8rem, 9vw, 3rem)/1 var(--font-mono); letter-spacing: 0; }
+.fq-state { color: var(--sepia); font-size: .66rem; letter-spacing: .16em; }
+.fq.tuned .fq-state { color: var(--chem-green); }
+.fq-controls { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 1.4rem; align-items: center; margin: 1.6rem 0; }
+.dial {
+  position: relative; width: clamp(150px, 42vw, 200px); aspect-ratio: 1; border-radius: 50%;
+  border: 1px solid var(--muted); background: var(--mottle) var(--wash) center / 300px;
+  touch-action: none; cursor: grab;
+}
+.dial.grabbing { cursor: grabbing; }
+.dial:focus-visible { outline-offset: 6px; }
+.dial svg { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--muted); pointer-events: none; }
+.dial-knob {
+  position: absolute; inset: 15%; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--washed-black) var(--grain) 0 0 / 160px;
+  transform: rotate(var(--angle, 0deg));
+}
+.dial-knob::before { content: ""; position: absolute; left: calc(50% - 1px); top: 7%; width: 2px; height: 28%; background: var(--ivory); }
+.fq.tuned .dial-knob::before { background: var(--chem-green); }
+.fq-side { display: grid; gap: .7rem; justify-items: start; }
+.fq-side .st-note { margin: 0; }
+.meter { margin: 0; color: var(--muted); letter-spacing: .08em; white-space: nowrap; overflow: hidden; max-width: 100%; }
+.meter b { color: var(--chem-green); font-weight: 400; }
+
+/* The fragment "in superposition": two versions of each line on top of
+   each other, blurred. --c (0 to 1) is how clean the signal is; when
+   it is fully tuned the fragment collapses into one sharp version. */
+.sp { --c: 0; margin: 1.4rem 0 0; padding-top: 1rem; border-top: 1px solid var(--line); }
+.sp-line { display: grid; margin: 0 0 .3rem; font: 800 clamp(1.4rem, 6.4vw, 2.4rem)/1.05 var(--font-display); letter-spacing: -.02em; }
+.sp-line > span { grid-area: 1 / 1; transition: opacity .3s ease, filter .3s ease, transform .3s ease; }
+.sp-a { opacity: calc(.25 + var(--c) * .75); filter: blur(calc((1 - var(--c)) * 6px)); }
+.sp-b {
+  color: var(--sepia); opacity: calc((1 - var(--c)) * .6); filter: blur(calc((1 - var(--c)) * 3px));
+  transform: translate(calc((1 - var(--c)) * 7px), calc((1 - var(--c)) * -4px));
+}
+.sp.collapsed .sp-a { opacity: 1; filter: none; }
+.sp.collapsed .sp-b { opacity: 0; }
+
+/* ---------- CONSOLA ---------- */
+.take { margin: 0 0 1.4rem; }
+.take-word { display: block; font: 800 clamp(2.2rem, 10vw, 4rem)/.95 var(--font-display); letter-spacing: -.03em; }
+.take-word.od { color: var(--chem-green); }
+.take small { display: block; margin-top: .5rem; color: var(--sepia); font-size: .62rem; letter-spacing: .16em; }
+.desk {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem; max-width: 520px;
+  padding: 1.1rem .4rem 1.2rem; border: 1px solid var(--line);
+  background: var(--mottle) var(--wash) center / 300px;
+}
+.ch { display: grid; justify-items: center; gap: .8rem; }
+/* Masking tape with the channel name, cracked like the print. */
+.ch-tape {
+  padding: .3rem .45rem; background: var(--ivory); color: var(--washed-black);
+  font: 700 .6rem var(--font-mono); letter-spacing: .06em; opacity: .85;
+  transform: rotate(var(--r, -1.5deg));
+  -webkit-mask-image: var(--cracks); mask-image: var(--cracks);
+}
+.ch-db { color: var(--muted); font-size: .58rem; letter-spacing: .06em; }
+.ch-od .ch-db { color: var(--chem-green); }
+/* Vertical faders: a normal range input turned 90°, so it stays a real,
+   keyboard-friendly control in every browser. */
+.fader-slot { position: relative; width: 44px; height: 210px; }
+.fader-slot::before {
+  content: ""; position: absolute; left: calc(50% - 2px); top: 10px; bottom: 10px; width: 4px;
+  background: var(--washed-black); border: 1px solid var(--muted);
+}
+.fader-slot::after {   /* the scale printed beside the slot */
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 7px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='7' height='19'%3E%3Crect width='7' height='1' fill='%236B6B6B'/%3E%3C/svg%3E") repeat-y;
+}
+.fader-slot input {
+  position: absolute; left: 50%; top: 50%; width: 210px; height: 44px; margin: 0;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  -webkit-appearance: none; appearance: none; background: transparent; cursor: ns-resize; touch-action: none;
+}
+.fader-slot input::-webkit-slider-runnable-track { height: 44px; background: transparent; }
+.fader-slot input::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 22px; height: 40px; margin-top: 2px;
+  background: var(--ivory); border: 0; border-radius: 1px;
+}
+.fader-slot input::-moz-range-track { height: 44px; background: transparent; }
+.fader-slot input::-moz-range-thumb { width: 22px; height: 40px; background: var(--ivory); border: 0; border-radius: 1px; }
+.ch-od .fader-slot input::-webkit-slider-thumb { background: var(--chem-green); }
+.ch-od .fader-slot input::-moz-range-thumb { background: var(--chem-green); }
+.fader-slot input:focus-visible { outline: 2px solid var(--chem-green); outline-offset: 2px; }
+
+/* ---------- CANAL MC² ---------- */
+.tv { max-width: 560px; padding: 14px; border: 1px solid var(--muted); border-radius: 6px; background: var(--mottle) var(--wash) center / 300px; }
+.tv-screen { aspect-ratio: 4 / 3; border: 1px solid var(--line); border-radius: 14% / 16%; }
+.tv-screen video { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; object-fit: cover; }
+.tv-msg { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: .4rem; text-align: center; padding: 1rem; }
+.tv-msg[hidden] { display: none; }
+.tv-msg strong { font: 700 clamp(1.1rem, 5vw, 1.6rem) var(--font-mono); letter-spacing: .18em; padding: .1rem .5rem; background: var(--washed-black); }
+.tv-msg span { font-size: .62rem; letter-spacing: .14em; padding: 0 .4rem; background: var(--washed-black); color: var(--sepia); }
+.tv-msg.searching strong { animation: blink 1s steps(1) infinite; }
+.tv-ch { position: absolute; top: 9%; right: 10%; z-index: 3; color: var(--chem-green); font-size: .62rem; }
+.tv-foot { display: flex; justify-content: space-between; gap: 1rem; margin-top: .6rem; color: var(--muted); font-size: .58rem; letter-spacing: .12em; }
+.tx-list { list-style: none; padding: 0; margin: 1.6rem 0 0; border-top: 1px solid var(--line); max-width: 560px; }
+.tx {
+  width: 100%; min-height: 48px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: .8rem; align-items: baseline;
+  padding: .9rem 0; background: none; border: 0; border-bottom: 1px solid var(--line);
+  color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.tx b { color: var(--chem-green); font-weight: 400; }
+.tx span:last-child { color: var(--muted); font-size: .6rem; }
+.tx[aria-current="true"] span:nth-child(2) { color: var(--chem-green); }
+@media (hover: hover) { .tx:hover span:nth-child(2) { color: var(--chem-green); } }
+
+/* ---------- ARCHIVO ---------- */
+.fichas { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.ficha { position: relative; display: grid; gap: .8rem; align-content: start; padding: 1rem; border: 1px solid var(--line); background: var(--mottle) var(--wash) center / 300px; }
+.ficha-top { display: flex; justify-content: space-between; gap: .6rem; padding-bottom: .6rem; border-bottom: 1px solid var(--line); color: var(--sepia); font-size: .6rem; letter-spacing: .16em; }
+.ficha-top b { color: var(--chem-green); font-weight: 700; }
+.ficha-photo { position: relative; aspect-ratio: 1; margin: 0; background: var(--washed-black); overflow: hidden; }
+.ficha-photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1) contrast(1.1); opacity: .85; }
+.ficha dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .35rem .8rem; font-size: .66rem; }
+.ficha dt { color: var(--muted); }
+.ficha dd { margin: 0; }
+.stamp {
+  position: absolute; top: 3.4rem; right: 1.4rem; z-index: 1; padding: .3rem .5rem;
+  border: 1px solid var(--ivory); color: var(--ivory); background: var(--washed-black);
+  font: 700 .62rem var(--font-mono); letter-spacing: .18em; transform: rotate(-6deg);
+  -webkit-mask-image: var(--cracks); mask-image: var(--cracks);
+}
+.ficha .cab-btn { justify-self: start; }
+.in-list { color: var(--chem-green); font-size: .6rem; letter-spacing: .14em; margin: 0; }
+
+/* ---------- LLAVE ---------- */
+.slot-ph { height: 72px; max-width: 26rem; margin-bottom: 1.4rem; }
+.key-form { max-width: 26rem; }
+.key-row { display: flex; gap: .6rem; margin-top: .5rem; }
+.cab-input {
+  flex: 1; min-width: 0; width: 100%; padding: .85rem 1rem;
+  background: var(--washed-black); color: var(--ivory); border: 1px solid var(--muted); border-radius: 2px;
+  font: 400 1rem var(--font-mono); letter-spacing: .12em;   /* 16px: iPhones don't zoom on focus */
+}
+.cab-input::placeholder { color: var(--muted); }
+.cab-input:focus { outline: none; border-color: var(--chem-green); }
+.key-msg { min-height: 1.5em; margin: .7rem 0 0; letter-spacing: .14em; }
+.key-msg.bad { color: var(--sepia); }
+.key-msg.ok { color: var(--chem-green); }
+.key-form.bad .key-row { animation: cab-shake .3s steps(4); }
+@keyframes cab-shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-3px); } }
+.vault { margin-top: 2rem; padding: .2rem 0 .2rem 1.1rem; border-left: 2px solid var(--chem-green); outline: none; }
+.vault[hidden] { display: none; }
+.vault .ph { aspect-ratio: 16 / 9; max-width: 32rem; }
+
+/* ---------- SALA DE HUÉSPEDES ---------- */
+.guests { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.guest { display: grid; gap: .7rem; align-content: start; padding: 1rem; border: 1px solid var(--line); }
+.guest .ph { aspect-ratio: 4 / 3; }
+.guest p { margin: 0; color: var(--sepia); font-size: .64rem; letter-spacing: .14em; }
+
+/* ---------- ACTA ---------- */
+.acta-grid { display: grid; gap: 1.6rem; }
+@media (min-width: 760px) { .acta-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); align-items: start; } }
+.acta-grid .field { margin-top: 0; }
+.acta-actions { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.5rem; }
+.acta-preview { margin: 0; }
+.acta-preview canvas { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
+
+/* Nothing moves for people who turn motion off (the store's own rule
+   already stops every animation; this also freezes the parallax). */
+@media (prefers-reduced-motion: reduce) {
+  .cab::after { animation: none; }
+  .cab-layer { transform: none !important; }
+}

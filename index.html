@@ -19,6 +19,13 @@
   <meta charset="utf-8">
   <!-- This line makes the page fit phone screens. Never delete it. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Saved to a phone's home screen, the site opens full screen like an
+       app, drawing under a translucent status bar (La Cabina uses this). -->
+  <meta name="theme-color" content="#0A0A0A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="MC²">
   <title>MC² — Dstance Official Merch</title>
   <meta name="description" content="Merch oficial de Música Cuántica (MC²) de Dstance. Session 01.">
 
@@ -1739,17 +1746,56 @@
     /* JAVASCRIPT 101
        1. Find an element on the page.
        2. Listen for an event (a click).
-       3. Change something in response. */
+       3. Change something in response.
+
+       LA CABINA: turning the lights off now takes you into La Cabina,
+       the control room where the record was made. Its code lives in
+       cabina/ and is only downloaded the first time the lights go off,
+       so the store loads exactly as fast as before. */
     const lightsButton = document.getElementById("lights");
+    let cabina = null;   // La Cabina's code, once it starts loading
+
+    function setLights(off) {
+      document.documentElement.dataset.lights = off ? "off" : "on";   // the CSS reacts to this
+      lightsButton.textContent = off ? "Prender la luz" : "Apagar la luz";
+      lightsButton.setAttribute("aria-pressed", String(off));
+    }
+
+    // import() fetches a JavaScript file only when it is called.
+    function loadCabina() {
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = "cabina/cabina.css";
+      const cssLoaded = new Promise((resolve, reject) => { css.onload = resolve; css.onerror = reject; });
+      document.head.append(css);
+      return Promise.all([import("./cabina/cabina.js"), cssLoaded]).then(([module]) => module);
+    }
+
+    async function lightsOff() {
+      setLights(true);   // the print glows while La Cabina loads
+      try {
+        cabina ||= loadCabina();
+        (await cabina).enter();
+      } catch {
+        cabina = null;   // it could not load: the store just stays in the dark, like before
+      }
+    }
 
     lightsButton.addEventListener("click", () => {
-      const html = document.documentElement;
-      const isOff = html.dataset.lights === "off";
-
-      html.dataset.lights = isOff ? "on" : "off";          // the CSS reacts to this
-      lightsButton.textContent = isOff ? "Apagar la luz" : "Prender la luz";
-      lightsButton.setAttribute("aria-pressed", String(!isOff));
+      if (document.documentElement.dataset.lights === "off") setLights(false);
+      else lightsOff();
     });
+
+    // A link straight in (…/#cabina) or the back button into it turns the lights off too.
+    const wantsCabina = () => location.hash.startsWith("#cabina");
+    window.addEventListener("hashchange", () => {
+      if (wantsCabina() && !document.documentElement.classList.contains("cabina-on")) lightsOff();
+    });
+    if (wantsCabina()) lightsOff();
+
+    // What La Cabina may use from the store: the products, "Mi lista",
+    // the product pop-up, and a way to turn the light back on.
+    window.MC2 = { findProduct, openProduct, cart: () => cart, lightsOn: () => setLights(false) };
 
     /* THE SIGNAL
        Two loops share one timer:
@@ -1820,7 +1866,8 @@
       // Pause when the rain is off screen, to save battery.
       new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(canvas);
       setInterval(() => {
-        if (!visible || document.hidden) return;
+        // Also paused while La Cabina covers the store.
+        if (!visible || document.hidden || document.documentElement.classList.contains("cabina-on")) return;
         rain();
         decode();
       }, 55);
