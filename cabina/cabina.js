@@ -23,7 +23,7 @@
    --------------------------------------------------------------- */
 const MEDIA = {
   photos: {
-    fondo:      "",   // FOTO: la cabina completa, de fondo del hub (se recorta sola en vertical y horizontal)
+    fondo:      "photos/fondo-estudio.jpg",   // FOTO: la cabina completa, de fondo del hub (se recorta sola en vertical y horizontal)
     ventana:    "",   // FOTO: el vidrio de la cabina hacia la sala   → sala de huéspedes
     monitor:    "",   // FOTO: la tele / monitor de la cabina         → canal mc²
     archivero:  "",   // FOTO: el archivero                           → archivo
@@ -31,10 +31,10 @@ const MEDIA = {
     perilla:    "",   // FOTO: la perilla, vista desde arriba (cuadrada) → frecuencia
     hoja:       "",   // FOTO: la hoja de sesión (track sheet)        → acta
     ranura:     "",   // FOTO: la ranura de la llave                  → llave
-    boveda:     "",   // FOTO: lo que abre la llave MC2-TEE-01
+    boveda:     "photos/sesion-fender.jpg",   // FOTO: lo que abre la llave MC2-TEE-01
     mits:       "",   // FOTO: sesión invitada MITS
     ripe:       "",   // FOTO: sesión invitada RiPE
-    sonicranch: "",   // FOTO: sesión invitada Sonic Ranch
+    sonicranch: "photos/sesion-sonic-ranch.jpg",   // FOTO: sesión invitada Sonic Ranch
   },
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
