@@ -56,7 +56,7 @@ const SINGLE = {
   spotifyEmbed: "https://open.spotify.com/embed/album/135QtRswX1tefmyG1kXxxh?theme=0",
   links: [
     ["Spotify", "https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh"],
-    ["Apple Music", "https://music.apple.com/mx/artist/dstance/1435797154"],
+    ["Apple Music", "https://music.apple.com/mx/album/todo-cae/6805595531?i=6805595532"],
     ["YouTube Music", "https://music.youtube.com/channel/UCm-DCC0_38Z2KfyXJHYXz7w"],
   ],
 };
