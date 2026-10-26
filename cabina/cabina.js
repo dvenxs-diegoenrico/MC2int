@@ -248,9 +248,11 @@ function build() {
           </div>
         </div>
         <div class="sp" id="fq-sp">
-          <p class="st-tag">fragmento en superposición // TEXTO placeholder</p>
-          <p class="sp-line"><span class="sp-a">lo que pasó en la sesión</span><span class="sp-b" aria-hidden="true">lo que pudo haber pasado</span></p>
-          <p class="sp-line"><span class="sp-a">se quedó en el disco.</span><span class="sp-b" aria-hidden="true">se quedó en la sala.</span></p>
+          <!-- Two short lines of Todo Cae. In the static, each one overlaps a
+               line from the verses; tuned, they collapse into the chorus. -->
+          <p class="st-tag">fragmento en superposición // todo cae</p>
+          <p class="sp-line"><span class="sp-a">todo cae en su lugar</span><span class="sp-b" aria-hidden="true">pensando en que perdí</span></p>
+          <p class="sp-line"><span class="sp-a">solo hay que esperar</span><span class="sp-b" aria-hidden="true">cuesta dejarlos ir</span></p>
         </div>
         <div class="fq-air" id="fq-air" hidden tabindex="-1">
           <p class="st-tag">al aire // <b>single 01</b></p>

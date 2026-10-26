@@ -54,7 +54,7 @@ El reproductor solo se carga en ese momento. Para el siguiente single, cambia `S
 
 ### Textos y datos de prueba
 
-- Frecuencia: las dos líneas del fragmento en superposición (en `cabina.js`, busca `sp-line`).
+- Frecuencia: el fragmento en superposición ya usa dos versos de Todo Cae (en `cabina.js`, busca `sp-line`).
 - Llave: el título y el texto de `MC2-TEE-01` en `LLAVES`. Ahí mismo se agregan más llaves.
 - Archivo: `LOTE` ("lote 01 · session 01"). Confirma el número real del lote de lavado.
 - Canal: los títulos de las transmisiones.
