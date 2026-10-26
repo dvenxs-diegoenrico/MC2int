@@ -38,6 +38,12 @@ Solo se descarga al apagar la luz: la tienda carga igual que antes.
 ### Audio
 
 - `MEDIA.frecuencia`: el fragmento que suena al sintonizar 106.0 MHz (mp3 o m4a). Mientras esté vacío suena un acorde de prueba hecho por el navegador.
+  Pon aquí un fragmento de **Todo Cae** (por ejemplo `cabina/audio/todo-cae.mp3`, 30–60 s) y será lo que se escuche al limpiar la estática.
+
+### Todo Cae (`SINGLE` en `cabina.js`)
+
+Al sintonizar 106.0 y colapsar el fragmento aparece "al aire // single 01" con el reproductor oficial de Spotify y los links.
+El reproductor solo se carga en ese momento. Para el siguiente single, cambia `SINGLE` (título, datos, embed y links).
 
 ### Video
 

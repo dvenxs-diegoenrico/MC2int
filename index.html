@@ -212,6 +212,26 @@
     }
     .more { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--sepia); margin-top: .5rem; }
 
+    /* ---------- TODO CAE: the single ----------
+       The cover beside the text; on phones, the cover on top. */
+    .single {
+      max-width: 1200px; margin: 0 auto; padding: 4rem clamp(1rem, 4vw, 3rem);
+      display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: clamp(2rem, 6vw, 5rem); align-items: center;
+    }
+    .single h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.6rem, 8vw, 5rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.2rem;
+    }
+    .single-cover { margin: 0; aspect-ratio: 1 / 1; border: 1px solid var(--line); background: var(--washed-black); }
+    .single-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .single .drop-intro { margin-bottom: 1rem; }
+    .single-tune { margin-top: 1.6rem; }
+    html[data-lights="off"] .single-cover img { filter: brightness(1.4) saturate(1.2); }
+    @media (max-width: 760px) {
+      .single { grid-template-columns: 1fr; }
+      .single-cover { width: min(360px, 100%); }
+    }
+
     /* ---------- STORY ---------- */
     .story { padding: 5rem clamp(1rem, 4vw, 3rem); max-width: 720px; margin: 0 auto; }
     .story p { font-size: 1.1rem; max-width: 62ch; }
@@ -845,6 +865,28 @@
         <a class="btn" href="#session-01">Ver Session 01</a>
         <!-- This button is our first bit of JavaScript (see the bottom of the file). -->
         <button class="btn btn-ghost" id="lights" type="button" aria-pressed="false">Apagar la luz</button>
+      </div>
+    </section>
+
+    <!-- TODO CAE: the first single of the record, already out.
+         "Sintonízala en la cabina" turns the lights off and goes straight
+         to Frecuencia, where the song is the signal to find. -->
+    <section class="single" id="todo-cae" aria-labelledby="single-title">
+      <figure class="single-cover">
+        <img src="photos/todo-cae.jpg" width="1000" height="1000" loading="lazy"
+             alt="Portada de Todo Cae: un perfil casi negro dibujado por ramas iluminadas en verde">
+      </figure>
+      <div>
+        <span class="eyebrow">Single 01 // Música Cuántica</span>
+        <h2 id="single-title">Todo Cae</h2>
+        <p class="drop-intro">El primer single de Música Cuántica ya está al aire. Es la primera señal que sale de la sesión en Sonic Ranch.</p>
+        <p class="disco-note">Dstance · 2026 · 4:29</p>
+        <ul class="listen" aria-label="Escucha Todo Cae">
+          <li><a href="https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh" target="_blank" rel="noopener">Spotify ↗</a></li>
+          <li><a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music ↗</a></li>
+          <li><a href="https://music.youtube.com/channel/UCm-DCC0_38Z2KfyXJHYXz7w" target="_blank" rel="noopener">YouTube Music ↗</a></li>
+        </ul>
+        <a class="btn btn-ghost single-tune" href="#cabina/frecuencia">Sintonízala en la cabina</a>
       </div>
     </section>
 

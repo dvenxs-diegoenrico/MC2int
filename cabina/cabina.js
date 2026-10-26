@@ -48,6 +48,19 @@ const MEDIA = {
   ],
 };
 
+// The single on air. Tuning 106.0 in Frecuencia reveals it, with the
+// official Spotify player (loaded only then, never before).
+const SINGLE = {
+  titulo: "Todo Cae",
+  datos: "dstance · 2026 · 4:29",
+  spotifyEmbed: "https://open.spotify.com/embed/album/135QtRswX1tefmyG1kXxxh?theme=0",
+  links: [
+    ["Spotify", "https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh"],
+    ["Apple Music", "https://music.apple.com/mx/artist/dstance/1435797154"],
+    ["YouTube Music", "https://music.youtube.com/channel/UCm-DCC0_38Z2KfyXJHYXz7w"],
+  ],
+};
+
 // The test keys. Each one opens its own hidden content in the slot.
 // Compared without dashes or spaces, so "mc2 tee 01" works too.
 const LLAVES = {
@@ -142,6 +155,11 @@ function spot(name) {
     </button>`;
 }
 
+// The studio's "on air" light: it turns on when the lights go off.
+function onAir(id) {
+  return `<p class="onair" id="${id}" role="img" aria-label="live session: grabando"><span class="onair-dot" aria-hidden="true"></span><span aria-hidden="true">live session</span></p>`;
+}
+
 function station(name, body) {
   const s = STATIONS[name];
   return `
@@ -192,11 +210,13 @@ function build() {
     <section class="cab-boot" data-screen="boot" aria-label="Entrada">
       <p class="cab-coords">${COORDS}</p>
       <p role="progressbar" aria-label="calibrando la señal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="boot-bar">calibrando la señal… <span class="boot-pct" id="boot-pct">0%</span></p>
+      ${onAir("boot-sign")}
     </section>
 
     <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina: elige un objeto">
       <div class="cab-layer" data-depth="0.15">
         ${ph("fondo", "fondo · la cabina completa", "ph-fondo")}
+        ${onAir("hub-sign")}
         ${spot("huespedes")}
       </div>
       <div class="cab-layer" data-depth="0.4">${spot("canal")}${spot("archivo")}</div>
@@ -229,6 +249,15 @@ function build() {
           <p class="st-tag">fragmento en superposición // TEXTO placeholder</p>
           <p class="sp-line"><span class="sp-a">lo que pasó en la sesión</span><span class="sp-b" aria-hidden="true">lo que pudo haber pasado</span></p>
           <p class="sp-line"><span class="sp-a">se quedó en el disco.</span><span class="sp-b" aria-hidden="true">se quedó en la sala.</span></p>
+        </div>
+        <div class="fq-air" id="fq-air" hidden tabindex="-1">
+          <p class="st-tag">al aire // <b>single 01</b></p>
+          <h3>${esc(SINGLE.titulo)}</h3>
+          <p class="st-note">${esc(SINGLE.datos)}</p>
+          <div class="fq-player" id="fq-player"></div>
+          <ul class="fq-links">
+            ${SINGLE.links.map(([name, url]) => `<li><a class="cab-btn" href="${url}" target="_blank" rel="noopener">${name} ↗</a></li>`).join("")}
+          </ul>
         </div>
         <p class="sr-only" id="fq-live" aria-live="polite"></p>
       </div>`)}
@@ -432,7 +461,8 @@ function leaveTo(then) {
 function boot() {
   booting = true;
   show("boot");
-  const pct = $("#boot-pct"), bar = $("#boot-bar");
+  const pct = $("#boot-pct"), bar = $("#boot-bar"), sign = $("#boot-sign");
+  sign.classList.remove("on");
   const duration = noMotion.matches ? 500 : booted ? 900 : 2600;
   let loaded = false;
   preload().then(() => { loaded = true; });
@@ -450,7 +480,11 @@ function boot() {
       if (target > shown && (noMotion.matches || target === 100 || Math.random() > .4)) shown = target;
       pct.textContent = shown + "%";
       bar.setAttribute("aria-valuenow", shown);
-      if (shown >= 100) return void setTimeout(done, 280);
+      // At 100% the "live session" light flickers on, then the room appears.
+      if (shown >= 100) {
+        sign.classList.add("on");
+        return void setTimeout(done, noMotion.matches ? 300 : booted ? 700 : 1100);
+      }
       requestAnimationFrame(step);
     })(start);
   });
@@ -756,7 +790,7 @@ function setupFrecuencia() {
     sp.style.setProperty("--c", (tuned ? 1 : c * .85).toFixed(3));
     level = tuned ? .05 : 1 - c * .9;
     if (noMotion.matches) noise.draw();
-    if (audio) audio.set(c, tuned);
+    if (audio) quietOrSet(c, tuned);
 
     // Hold the signal for half a second and the fragment collapses.
     if (tuned && !collapsed && !holdTimer) {
@@ -764,9 +798,10 @@ function setupFrecuencia() {
         holdTimer = 0;
         collapsed = true;
         sp.classList.add("collapsed");
-        live.textContent = "señal limpia. el fragmento se colapsó.";
+        live.textContent = "señal limpia. el fragmento se colapsó. al aire: " + SINGLE.titulo + ".";
         state.sintonizada = true;
         saveState();
+        tuneSingle();
       }, 500);
     }
     if (!tuned) {
@@ -776,10 +811,33 @@ function setupFrecuencia() {
     }
   }
 
+  // On air: the single and its player appear under the fragment. The
+  // test chord goes quiet, so it never plays over the song.
+  const air = $("#fq-air"), player = $("#fq-player");
+  function tuneSingle() {
+    if (!MEDIA.frecuencia) audio?.hush();
+    if (!player.firstChild) {
+      const frame = el("iframe");
+      frame.src = SINGLE.spotifyEmbed;
+      frame.title = SINGLE.titulo + " en Spotify";
+      frame.height = 152;
+      frame.loading = "lazy";
+      frame.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+      player.append(frame);
+    }
+    air.hidden = false;
+  }
+
+  // While the single is on air (tuned and collapsed) the test chord stays quiet.
+  function quietOrSet(c, tuned) {
+    if (tuned && collapsed && !MEDIA.frecuencia) audio.hush();
+    else audio.set(c, tuned);
+  }
+
   // Sound needs a tap or a key first (browsers block autoplay).
   function wakeAudio() {
     if (!sound) return;
-    if (!audio) { audio = makeRadio(); if (audio) audio.set(closeness(raw), box.classList.contains("tuned")); }
+    if (!audio) { audio = makeRadio(); if (audio) quietOrSet(closeness(raw), box.classList.contains("tuned")); }
     else audio.resume();
   }
 
@@ -836,7 +894,11 @@ function setupFrecuencia() {
     else { audio?.close(); audio = null; }
   });
 
-  starts.frecuencia = () => { setFreq(raw); noise.start(); };
+  starts.frecuencia = () => {
+    setFreq(raw);
+    noise.start();
+    if (state.sintonizada) tuneSingle();   // found it before: it stays on air
+  };
   stops.frecuencia = () => {
     noise.stop();
     audio?.close();
@@ -905,6 +967,11 @@ function makeRadio() {
       const now = ctx.currentTime;
       hissGain.gain.setTargetAtTime(tuned ? .015 : (1 - c) * .22 + .03, now, .06);
       signalGain.gain.setTargetAtTime(tuned ? .9 : c * c * .6, now, .08);
+    },
+    hush() {
+      const now = ctx.currentTime;
+      hissGain.gain.setTargetAtTime(0, now, .3);
+      signalGain.gain.setTargetAtTime(0, now, .3);
     },
     resume() { ctx.resume(); track?.play().catch(() => {}); },
     close() { track?.pause(); ctx.close(); },
