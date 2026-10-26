@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<!--
+  LESSON 4 — The waiting list (lista de espera)
+  =============================================
+  Session 01 is not on sale yet, so the store stops selling and starts
+  collecting the people who want to know the day of the drop:
+    1. No prices anywhere. Each piece now says "Únete a la lista de espera".
+    2. The cart becomes "tu lista": the pieces you want us to tell you
+       about. It still remembers them after a reload (localStorage).
+    3. A new section, "Lista de espera", with a <form>: leave your email or
+       your WhatsApp. The form checks the contact before sending it.
+    4. "COMING SOON" under the header is now a link to that form.
+    5. A new product: the Bundle Session 01 (the 3 pieces + one extra).
+  Everything from Lessons 1, 2 and 3 is still here: the pop-ups, the
+  size guide, the code rain, the fades and the button animations.
+-->
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <!-- This line makes the page fit phone screens. Never delete it. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MC² — Dstance Official Merch</title>
+  <meta name="description" content="Merch oficial de Música Cuántica (MC²) de Dstance. Session 01.">
+
+  <!-- FONTS: the two typefaces of the MC² doctrina (MC2-DOC-00).
+         Archivo     = display + body. Heavy (800/900) for the MC² lockup and titles.
+         Space Mono  = the "technical studio" voice: coordinates, SKUs, the acta. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------------------------------------------------------------
+       CSS VARIABLES ("design tokens")
+       Define each brand color ONCE here, then reuse it everywhere with
+       var(--name). To apply the brandbook, change only these hex values.
+       --------------------------------------------------------------- */
+    :root {
+      /* Hex values from the brandbook (MC2-DOC-00 doctrina). */
+      --washed-black: #0A0A0A;   /* negro mineral */
+      --mottle:       #2a2925;   /* lighter speckle in the wash */
+      --ivory:        #F2EEE6;   /* marfil print */
+      --chem-green:   #B8E020;   /* verde químico: coordinates, the "signal" */
+      --glow:         #c6ff8a;   /* glow-in-the-dark green (/GLW) */
+      --sepia:        #9E8A6D;   /* aged thread, kickers */
+      --muted:        #6B6B6B;   /* gris: secondary text, rules */
+      --line:         rgba(242,238,230,.16);
+
+      --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+      --font-body:    "Archivo", "Helvetica Neue", Arial, sans-serif;
+      --font-mono:    "Space Mono", ui-monospace, monospace;
+
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    /* MC² is a dark brand, so it stays dark in both light and dark mode. */
+    @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --washed-black: #0A0A0A; } }
+    :root[data-theme="dark"] { --washed-black: #0A0A0A; }
+
+    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+    *, *::before, *::after { box-sizing: inherit; }
+
+    /* The mottled "acid wash" texture, drawn with an SVG noise filter
+       (no image file needed). It covers the top of the page (header, signal and hero
+       on one sheet, so no seams) and fades into plain black below it.
+       --wash-size = a square at least as wide as the screen and 1.2
+       screens tall; the gradient on top fades it out inside that square. */
+    body {
+      --wash-size: max(100vw, 120vh);
+      margin: 0;
+      position: relative;
+      background:
+        linear-gradient(to bottom, transparent 35%, var(--washed-black) 78%) top center / var(--wash-size) var(--wash-size) no-repeat,
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2  0 0 0 0 .19  0 0 0 0 .18  0 0 0 1.4 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") top center / var(--wash-size) var(--wash-size) no-repeat,
+        var(--washed-black);
+      color: var(--ivory);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color .6s ease;
+    }
+
+    a { color: inherit; }
+    :focus-visible { outline: 2px solid var(--chem-green); outline-offset: 3px; }
+
+    /* ---------- HEADER ---------- */
+    .site-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem clamp(1rem, 4vw, 3rem);
+    }
+    .wordmark { text-decoration: none; font-weight: 800; font-size: 1.1rem; letter-spacing: .04em; }
+    .cart-link {
+      background: none; border: 0; color: inherit; cursor: pointer; padding: .4rem 0;
+      text-decoration: none; font-family: var(--font-mono); font-size: .75rem;
+      letter-spacing: .22em; text-transform: uppercase;
+    }
+
+    /* ---------- HERO: the album lockup ---------- */
+    .hero {
+      min-height: 88vh;
+      display: grid; align-content: center;
+      padding: 2rem clamp(1rem, 4vw, 3rem) 4rem;
+    }
+    .lockup {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: clamp(7rem, 30vw, 20rem);
+      line-height: 1;            /* tall enough to hold the ², so the mask never cuts it */
+      letter-spacing: -.03em;
+      /* The padding gives the glow room inside the mask (the mask stops at
+         the box, which cut the glow into a rectangle); the negative margin
+         keeps the lockup exactly where it was. */
+      padding: .12em; margin: -.12em;
+      /* "Cracked print": a noise mask eats small cracks into the letters,
+         like the pre-washed print that breaks apart on the tote. Sparse on
+         purpose: the logo must stay readable. The mask only covers the
+         heading's own box, so everything must sit inside that box. */
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -14 10.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+              mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -14 10.4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E");
+      transition: color .6s ease, text-shadow .6s ease;
+    }
+    /* The ² sits high and small, exactly like the printed lockup. */
+    .lockup sup { font-size: .4em; vertical-align: top; position: relative; top: .24em; line-height: 1; margin-left: .04em; letter-spacing: 0; }
+
+    /* Everything under the lockup speaks in mono, like the tote and the tee. */
+    .album-name, .coords, .acta {
+      font-family: var(--font-mono); text-transform: uppercase; margin: 0;
+    }
+    .album-name { font-size: clamp(.95rem, 2.4vw, 1.35rem); letter-spacing: .14em; margin: 1.4rem 0 .35rem; }
+    .coords { color: var(--chem-green); font-size: clamp(.95rem, 2.4vw, 1.35rem); letter-spacing: .04em; }
+    .acta {
+      list-style: none; padding: 0; margin: 1.8rem 0 2.5rem;
+      color: var(--sepia); font-size: .78rem; letter-spacing: .14em; line-height: 1.9;
+    }
+    .acta .locked { color: var(--ivory); }
+    .acta .fixed { text-transform: none; }   /* shown exactly as written */
+    .rings { display: block; width: 46px; height: 24px; margin-top: .9rem; color: var(--ivory); }
+
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+    .btn {
+      display: inline-block; padding: .9rem 1.6rem;
+      background: var(--ivory); color: var(--washed-black);
+      font: 700 .78rem var(--font-mono); letter-spacing: .2em; text-transform: uppercase; text-decoration: none;
+      border: 0; border-radius: 2px; cursor: pointer;
+    }
+    .btn-ghost { background: none; color: var(--ivory); border: 1px solid var(--muted); }
+
+    /* LIGHTS OFF: when the <html> tag has data-lights="off", the print glows.
+       This mirrors the MC2-TEE-01/GLW tee: ivory by day, green at night. */
+    html[data-lights="off"] body { background: #050505; }
+    html[data-lights="off"] .lockup { color: var(--glow); text-shadow: 0 0 18px var(--glow), 0 0 60px rgba(198,255,138,.45); }
+
+    /* ---------- PRODUCTS ---------- */
+    .drop { padding: 4rem clamp(1rem, 4vw, 3rem); max-width: 1200px; margin: 0 auto; }
+    .eyebrow {
+      display: block; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .32em;
+      text-transform: uppercase; color: var(--chem-green); margin-bottom: 1rem;
+    }
+    .drop h2, .story h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.2rem;
+    }
+    .drop-intro { color: var(--ivory); max-width: 58ch; margin: 0 0 2.5rem; }
+
+    /* CSS GRID: 1 column on phones, 3 columns on wide screens.
+       auto-fit + minmax does that automatically, no extra code. */
+    /* Lesson 4: always three columns (the bundle spans all three), one on phones. */
+    .products { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+    @media (max-width: 640px) { .products { grid-template-columns: 1fr; } }
+
+    .product { display: flex; flex-direction: column; }
+    /* Each photo sits in a square frame. A second photo (optional) is
+       stacked on top and fades in on hover: a peek at a detail. */
+    .product-photo {
+      position: relative; margin: 0;
+      aspect-ratio: 1 / 1; overflow: hidden;
+      border: 1px solid var(--line);
+      background: #5f5e5b;   /* studio grey, shown while the photo loads */
+    }
+    .product-photo img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      transition: opacity .5s ease, transform .8s ease;
+    }
+    .product-photo .alt { opacity: 0; }
+    /* Hover only on devices with a mouse: on iPads and phones a tap would
+       leave the hover look "stuck" after closing the pop-up. */
+    @media (hover: hover) {
+      .product:hover .product-photo .alt { opacity: 1; }
+      .product:hover .product-photo img:only-of-type { transform: scale(1.03); }
+    }
+    .sku {
+      position: absolute; left: .8rem; bottom: .8rem;
+      font-family: var(--font-mono); font-size: .68rem; letter-spacing: .2em;
+      color: var(--chem-green); background: rgba(10,10,10,.72); padding: .3rem .55rem;
+    }
+    .product h3 { font-weight: 800; text-transform: uppercase; letter-spacing: .02em; font-size: 1.1rem; margin: 1rem 0 .3rem; }
+    .product p { margin: 0; color: rgba(242,238,230,.75); font-size: .95rem; }
+    /* Lesson 4: where the price was, the card now invites you to the list. */
+    .price {
+      font-family: var(--font-mono); color: var(--chem-green) !important; font-weight: 700;
+      font-size: .72rem !important; letter-spacing: .18em; text-transform: uppercase; margin-top: .8rem !important;
+    }
+    .more { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: var(--sepia); margin-top: .5rem; }
+
+    /* ---------- STORY ---------- */
+    .story { padding: 5rem clamp(1rem, 4vw, 3rem); max-width: 720px; margin: 0 auto; }
+    .story p { font-size: 1.1rem; max-width: 62ch; }
+
+    /* ---------- FOOTER ---------- */
+    .site-footer {
+      /* A hairline that fades out at both ends instead of a hard rule. */
+      border-top: 1px solid; border-image: linear-gradient(to right, transparent, var(--line) 20%, var(--line) 80%, transparent) 1;
+      font-family: var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+      padding: 2rem clamp(1rem, 4vw, 3rem);
+      display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between;
+      color: var(--muted); font-size: .7rem;
+    }
+    .site-footer nav { display: flex; flex-wrap: wrap; gap: 1.2rem; }
+
+    /* ---------- LESSON 3: THE WHOLE CARD IS CLICKABLE ---------- */
+    .product { position: relative; }
+    .product h3 .open {
+      all: unset; cursor: pointer;
+    }
+    /* The button's ::after stretches over the entire card (the card is
+       position: relative), so a click anywhere on the card hits the button. */
+    .product h3 .open::after { content: ""; position: absolute; inset: 0; }
+    .product:has(.open:focus-visible) h3 { color: var(--chem-green); }
+    @media (hover: hover) { .product:hover h3 { color: var(--chem-green); } }
+    .product:has(.open:focus-visible) { outline: 2px solid var(--chem-green); outline-offset: 6px; }
+
+    /* ---------- LESSON 3: POP-UPS (<dialog>) ---------- */
+    dialog {
+      background: var(--washed-black); color: var(--ivory);
+      border: 1px solid var(--line); padding: 0;
+      max-width: none; max-height: none;
+    }
+    dialog::backdrop { background: rgba(5,5,5,.8); backdrop-filter: blur(3px); }
+    html:has(dialog[open]) { overflow: hidden; }   /* the page behind stops scrolling */
+
+    /* The top bar of each pop-up, like the "chrome" strip of the brandbook. */
+    .bar {
+      position: sticky; top: 0; z-index: 2;
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      padding: .9rem clamp(1rem, 3vw, 2rem);
+      background: var(--washed-black); border-bottom: 1px solid var(--line);
+      font-family: var(--font-mono); font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+    }
+    .bar .code { color: var(--chem-green); }
+    .x {
+      background: none; border: 1px solid var(--line); color: var(--ivory); cursor: pointer;
+      font: 400 1.2rem/1 var(--font-mono); width: 2.2rem; height: 2.2rem;
+    }
+    .x:hover { border-color: var(--ivory); }
+
+    /* Product pop-up */
+    .sheet { width: min(1100px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); overflow: auto; margin: auto; }
+    .pd { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(1.5rem, 4vw, 3rem); padding: 1.5rem clamp(1rem, 3vw, 2rem) 2.5rem; }
+    .pd-main { aspect-ratio: 1 / 1; background: #5f5e5b; border: 1px solid var(--line); }
+    .pd-main img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .thumbs { display: flex; gap: .6rem; margin-top: .6rem; }
+    .thumbs[hidden] { display: none; }   /* display: flex would beat the hidden attribute */
+    .thumbs button {
+      width: 72px; aspect-ratio: 1 / 1; padding: 0; cursor: pointer;
+      background: #5f5e5b; border: 1px solid var(--line); opacity: .6;
+    }
+    .thumbs button[aria-pressed="true"] { border-color: var(--chem-green); opacity: 1; }
+    .thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .pd-name {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2rem, 4.4vw, 3.2rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 .7rem;
+    }
+    .pd-price { font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; letter-spacing: .06em; margin: 0 0 1.4rem; }
+    .pd-details p { margin: 0 0 .9rem; max-width: 60ch; }
+
+    .opt { border: 0; padding: 0; margin: 1.3rem 0 0; }
+    .opt legend, .qty-label {
+      font-family: var(--font-mono); font-size: .68rem; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: .55rem; padding: 0; display: block;
+    }
+    .pills { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .pill { position: relative; }
+    .pill input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+    .pill span {
+      display: inline-block; min-width: 3rem; text-align: center; padding: .6rem .9rem;
+      border: 1px solid var(--muted); cursor: pointer;
+      font: 400 .78rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
+    }
+    .pill input:checked + span { background: var(--ivory); color: var(--washed-black); border-color: var(--ivory); font-weight: 700; }
+    .pill input:focus-visible + span { outline: 2px solid var(--chem-green); outline-offset: 2px; }
+
+    .buy { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; margin-top: 1.3rem; }
+    .buy .btn { flex: 1; min-width: 12rem; }
+
+    .spec-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: .75rem; margin-top: 2rem; }
+    .spec-table td { padding: .65rem 0; border-bottom: 1px solid var(--line); vertical-align: top; letter-spacing: .04em; }
+    .spec-table td:first-child { color: var(--muted); text-transform: uppercase; letter-spacing: .15em; width: 34%; font-size: .66rem; padding-top: .75rem; }
+    .spec-table td:last-child { font-weight: 700; }
+    .care {
+      border-left: 2px solid var(--chem-green); padding: .5rem 0 .5rem 1rem; margin: 1.6rem 0 0;
+      font-family: var(--font-mono); font-size: .74rem; letter-spacing: .04em; color: var(--sepia);
+    }
+
+    /* Cart drawer: a dialog glued to the right edge, full height. */
+    .drawer {
+      margin: 0 0 0 auto; width: min(440px, 100vw); height: 100dvh; max-height: 100dvh;
+      border-width: 0 0 0 1px; overflow: hidden;
+    }
+    .drawer[open] { display: flex; flex-direction: column; animation: slide-in .3s ease; }
+    @keyframes slide-in { from { transform: translateX(100%); } }
+    .cart-lines { list-style: none; margin: 0; padding: 0 clamp(1rem, 3vw, 1.5rem); overflow: auto; flex: 1; }
+    .cart-empty { padding: 2rem clamp(1rem, 3vw, 1.5rem); color: var(--muted); flex: 1; }
+    .line { display: grid; grid-template-columns: 72px 1fr auto; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+    .line-photo { width: 72px; height: 72px; object-fit: cover; background: #5f5e5b; display: block; }
+    .line p { margin: 0; }
+    .line-name { font-weight: 800; text-transform: uppercase; font-size: .95rem; }
+    .line-meta { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sepia); margin-top: .2rem !important; }
+    .line-controls { display: flex; align-items: center; gap: 1rem; margin-top: .7rem; }
+    .remove {
+      background: none; border: 0; padding: 0; cursor: pointer; color: var(--muted);
+      font: 400 .66rem var(--font-mono); letter-spacing: .18em; text-transform: uppercase; text-decoration: underline;
+    }
+    .remove:hover { color: var(--ivory); }
+    .cart-foot { border-top: 1px solid var(--line); padding: 1.2rem clamp(1rem, 3vw, 1.5rem) calc(1.2rem + env(safe-area-inset-bottom, 0px)); }
+    .cart-note { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .1em; color: var(--muted); margin: 0 0 1rem; }
+    .cart-foot .btn { width: 100%; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+    /* Phones: the pop-up fills the screen in one column. iPads keep two. */
+    @media (max-width: 760px) {
+      .sheet { width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; }
+      .pd { grid-template-columns: 1fr; }
+    }
+
+    /* ---------- THE SONIC RANCH POLAROIDS ----------
+       Real Polaroids from the recording session: they bring the same
+       verde químico and black as the brand, so they sit in the background
+       instead of fighting the clothes.
+       Each background photo lives in a ::before layer behind the content
+       (z-index: -1 inside an "isolated" section), so the text never moves. */
+    .hero, .disco { position: relative; isolation: isolate; overflow: hidden; }
+    .hero::before, .disco::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+
+    /* Hero: glowing branches. "lighten" only adds the green light on top of
+       the acid wash, and the mask fades the photo out behind the lockup. */
+    .hero::before {
+      background: url("photos/fondo-ramas.jpg") right center / auto 100% no-repeat;   /* the whole print, full height */
+      mix-blend-mode: lighten; opacity: .75;
+      /* Two masks multiplied: fade in from the left, fade in at the top and out at the bottom. */
+      -webkit-mask-image: linear-gradient(to right, transparent 45%, #000 85%), linear-gradient(to bottom, transparent, #000 18%, #000 60%, transparent);
+      -webkit-mask-composite: source-in;
+              mask-image: linear-gradient(to right, transparent 45%, #000 85%), linear-gradient(to bottom, transparent, #000 18%, #000 60%, transparent);
+              mask-composite: intersect;
+      transition: opacity .6s ease, filter .6s ease;
+    }
+    /* Lights off: the branches glow, like the /GLW print. */
+    html[data-lights="off"] .hero::before { opacity: 1; filter: brightness(1.5) saturate(1.2) contrast(1.4); }   /* contrast keeps the photo's blacks black: no visible box */
+
+    /* El disco: the spotlit field as a faded texture, fading into black at
+       the top and bottom so the section melts into the page. */
+    .disco::before {
+      background: url("photos/fondo-claro.jpg") center 62% / cover no-repeat;
+      opacity: .32;
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+              mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+    }
+    html[data-lights="off"] .disco::before { opacity: .5; }
+    .disco .story {
+      max-width: 1200px;
+      display: grid; grid-template-columns: 1fr minmax(0, 420px); gap: clamp(2rem, 6vw, 5rem); align-items: center;
+    }
+    .disco-note { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--sepia); }
+
+    /* A Polaroid is just the scanned print (white frame included), a little
+       tilted, with a shadow so it looks like it sits on the page. */
+    .polaroid { margin: 0; }
+    .polaroid img {
+      display: block; width: 100%; height: auto;
+      box-shadow: 0 18px 40px rgba(0,0,0,.6);
+      transform: rotate(var(--tilt, 0deg));
+      transition: transform .5s ease;
+    }
+    @media (hover: hover) { .polaroid:hover img { transform: rotate(0deg) scale(1.02); } }
+    .polaroid-main { --tilt: 2.5deg; }
+    .polaroids {
+      grid-column: 1 / -1; width: 100%; max-width: 900px; justify-self: center;
+      list-style: none; margin: 1rem 0 0; padding: 0;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(.8rem, 3vw, 2.5rem);
+    }
+    .polaroids li:nth-child(1) { --tilt: -3deg; }
+    .polaroids li:nth-child(2) { --tilt: 1.5deg; margin-top: 1.5rem; }
+    .polaroids li:nth-child(3) { --tilt: -1deg; }
+
+    @media (max-width: 760px) {
+      .disco .story { grid-template-columns: 1fr; }
+      .polaroid-main { width: min(340px, 86%); margin: 0 auto; }
+      /* On phones the hero photo moves under the lockup instead of beside it. */
+      .hero::before {
+        background-position: center bottom; background-size: cover; opacity: .6;
+        /* Fades in under the lockup and out again before the next section. */
+        -webkit-mask-image: linear-gradient(to bottom, transparent 30%, #000 65%, #000 78%, transparent);
+                mask-image: linear-gradient(to bottom, transparent 30%, #000 65%, #000 78%, transparent);
+      }
+    }
+
+    /* ---------- SIGNAL: "MÚSICA CUÁNTICA COMING SOON" ----------
+       The words sit under the header and "decode" letter by letter out of
+       random characters. Behind everything, a <canvas> draws columns of
+       characters falling like code; it covers the top of the page and a
+       mask fades it out as it falls through the hero. */
+    .signal {
+      position: relative; z-index: 1;
+      height: clamp(5.5rem, 13vw, 7.5rem);
+      display: grid; place-items: center; align-content: center; gap: .5rem;
+      text-decoration: none;   /* Lesson 4: the whole strip is a link to the list */
+    }
+    .rain {
+      position: absolute; top: 0; left: 0; z-index: 0; pointer-events: none;
+      width: 100%; height: min(115vh, 1100px); display: block;
+      -webkit-mask-image: linear-gradient(to bottom, #000 6%, rgba(0,0,0,.45) 22%, rgba(0,0,0,.12) 55%, transparent 85%);
+              mask-image: linear-gradient(to bottom, #000 6%, rgba(0,0,0,.45) 22%, rgba(0,0,0,.12) 55%, transparent 85%);
+    }
+    /* Everything else sits above the rain. */
+    .site-header, main, .site-footer { position: relative; z-index: 1; }
+    /* A soft dark glow behind the words, so the rain never fights them. */
+    .signal::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(closest-side, rgba(10,10,10,.85) 45%, transparent);   /* closest-side: fully clear at the edges, no box */
+    }
+    .signal-text {
+      position: relative; z-index: 1; margin: 0; padding: 0 1rem; text-align: center;
+      font: 700 clamp(.82rem, 3vw, 1.5rem) var(--font-mono);
+      letter-spacing: .18em; text-transform: uppercase; color: var(--ivory);
+    }
+    .signal-text .soon { color: var(--chem-green); }
+    /* The invitation under the words. Its underline draws in on hover,
+       like the header link. */
+    .signal-cta {
+      position: relative; z-index: 1; margin: 0; padding: 0 1rem .1rem; text-align: center;
+      font: 400 clamp(.62rem, 1.8vw, .74rem) var(--font-mono); letter-spacing: .2em; text-transform: uppercase;
+      color: var(--sepia);
+      background: linear-gradient(var(--chem-green), var(--chem-green)) center bottom / 0 1px no-repeat;
+      transition: color .25s ease, background-size .35s ease, letter-spacing .3s ease;
+    }
+    .signal-cta .arrow { display: inline-block; transition: transform .25s ease; }
+    .signal:focus-visible { outline-offset: -4px; }
+    .signal-text .cursor { color: var(--chem-green); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    html[data-lights="off"] .signal { background: #050505; }
+    html[data-lights="off"] .signal-text { color: var(--glow); text-shadow: 0 0 12px var(--glow); }
+    /* Text only screen readers hear (the animated letters are hidden from them). */
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* ---------- ESCUCHA: Dstance's music and social links ---------- */
+    .listen { list-style: none; padding: 0; margin: 1.6rem 0 0; display: flex; flex-wrap: wrap; gap: .6rem; }
+    .listen a {
+      display: inline-block; padding: .65rem 1rem; border: 1px solid var(--muted);
+      font: 700 .7rem var(--font-mono); letter-spacing: .2em; text-transform: uppercase; text-decoration: none;
+    }
+    .listen a:hover { border-color: var(--chem-green); color: var(--chem-green); }
+    .site-footer .social a { color: var(--ivory); }
+
+    /* ---------- GUÍA DE TALLAS ---------- */
+    .size-guide { margin-top: 2rem; }
+    .size-guide h3 {
+      font: 700 .68rem var(--font-mono); letter-spacing: .22em; text-transform: uppercase;
+      color: var(--muted); margin: 0 0 .6rem;
+    }
+    .size-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono); font-size: .75rem; text-align: center; }
+    .size-table th, .size-table td { padding: .6rem .3rem; border-bottom: 1px solid var(--line); }
+    .size-table th { color: var(--muted); font-weight: 400; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; }
+    .size-table td:first-child, .size-table th:first-child { text-align: left; }
+    .size-table td:first-child { font-weight: 700; color: var(--chem-green); }
+    .size-note { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .04em; color: var(--sepia); margin: .8rem 0 0; }
+    .sizes-dialog { width: min(560px, 100vw); }
+    .sizes-dialog .size-guide { margin: 0; padding: 1.4rem clamp(1rem, 3vw, 2rem) 2rem; }
+    .site-footer button.link {
+      background: none; border: 0; padding: 0; cursor: pointer; color: inherit;
+      font: inherit; letter-spacing: inherit; text-transform: inherit; text-decoration: underline;
+    }
+
+    /* ---------- VINYL Y CD ----------
+       Both covers are drawn with CSS only (no photos yet): a sleeve or a
+       jewel case in front, the disc peeking out behind it. On hover the
+       disc slides out a little more and turns, like pulling it out. */
+    .formats { padding: 4rem clamp(1rem, 4vw, 3rem); max-width: 1200px; margin: 0 auto; }
+    .formats h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.2rem;
+    }
+    .format-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 2rem; }
+    .format h3 { font-weight: 800; text-transform: uppercase; letter-spacing: .02em; font-size: 1.1rem; margin: 1rem 0 .3rem; }
+    .format p { margin: 0; color: rgba(242,238,230,.75); font-size: .95rem; }
+    .soon-tag {
+      display: inline-block; margin-top: .8rem !important; padding: .35rem .6rem;
+      border: 1px solid var(--chem-green); color: var(--chem-green) !important;
+      font: 700 .66rem var(--font-mono); letter-spacing: .22em; text-transform: uppercase;
+    }
+    .format-art {
+      position: relative; aspect-ratio: 16 / 11; overflow: hidden;
+      background: radial-gradient(ellipse at 40% 45%, #1d1c19, var(--washed-black) 75%);
+    }
+    .disc {
+      position: absolute; top: 50%; left: 30%; width: 58%; aspect-ratio: 1; border-radius: 50%;
+      transform: translate(-50%, -50%) translateX(28%);
+      transition: transform .8s cubic-bezier(.2,.8,.2,1);
+      display: grid; place-items: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,.6);
+    }
+    .disc span { font: 800 .9rem var(--font-display); letter-spacing: -.02em; }
+    /* Vinyl: grooves are many thin circles; the label is ivory, like the print. */
+    .vinyl .disc {
+      background:
+        radial-gradient(circle, var(--washed-black) 0 3%, var(--ivory) 3.5% 30%, transparent 30.5%),
+        conic-gradient(transparent 0 30deg, rgba(255,255,255,.14) 55deg, transparent 80deg 210deg, rgba(255,255,255,.1) 235deg, transparent 260deg),   /* light catching the grooves */
+        repeating-radial-gradient(circle, #121212 0 2px, #1c1c1c 2px 3px),
+        #111;
+    }
+    .vinyl .disc span { color: var(--washed-black); }
+    /* CD: a rainbow sheen (conic gradient) with a clear center ring. */
+    .cd .disc {
+      width: 52%;
+      background:
+        radial-gradient(circle, var(--washed-black) 0 9%, rgba(242,238,230,.35) 9.5% 15%, transparent 15.5%),
+        conic-gradient(from 30deg, #b9b9b9, #d8f7a0, #9fd8ff, #e7c0ff, #ffe7a8, #b9b9b9, #d8f7a0, #9fd8ff, #b9b9b9);
+    }
+    .cd .disc span { display: none; }
+    .sleeve {
+      position: absolute; top: 50%; left: 30%; width: 58%; aspect-ratio: 1;
+      transform: translate(-50%, -50%);
+      background-color: #161512;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.02' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .2  0 0 0 0 .19  0 0 0 0 .18  0 0 0 1.4 -.55'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: cover;
+      box-shadow: 0 16px 36px rgba(0,0,0,.7);
+      padding: 9%; display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .cd .sleeve {
+      width: 52%;
+      outline: 1px solid rgba(242,238,230,.25); outline-offset: -6px;   /* the clear plastic case */
+    }
+    .sleeve-mark { font: 800 clamp(2rem, 5vw, 3.4rem)/1 var(--font-display); letter-spacing: -.03em; }
+    .sleeve-mark sup { font-size: .4em; vertical-align: top; position: relative; top: .24em; }
+    .sleeve-coords { font: 400 clamp(.5rem, 1vw, .62rem) var(--font-mono); letter-spacing: .06em; color: var(--chem-green); }
+    @media (hover: hover) {
+      .format:hover .disc { transform: translate(-50%, -50%) translateX(62%) rotate(140deg); }
+    }
+    @media (hover: none) {
+      .disc { animation: peek 6s ease-in-out infinite; }
+      @keyframes peek { 0%, 60%, 100% { transform: translate(-50%, -50%) translateX(28%); } 80% { transform: translate(-50%, -50%) translateX(55%) rotate(90deg); } }
+    }
+
+    /* ---------- LESSON 4: THE BUNDLE ----------
+       Same card as the other pieces, but it takes the whole row and puts
+       the photo beside the text. A printed Polaroid (the extra) sits
+       tilted on the photo and straightens when the cursor passes over. */
+    .bundle {
+      grid-column: 1 / -1; margin-top: 2rem;
+      display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: clamp(1.5rem, 5vw, 4rem); align-items: center;
+    }
+    .bundle .product-photo { aspect-ratio: 4 / 5; }
+    .bundle .product-photo img:first-child { object-position: center 30%; }
+    .bundle h3 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; line-height: .95; margin: 0 0 .9rem; }
+    .bundle .kicker { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: var(--chem-green); margin-bottom: .8rem; }
+    .bundle-text p { max-width: 46ch; }
+    .extras { list-style: none; padding: 0; margin: 1.1rem 0 0; display: grid; gap: .45rem; }
+    .extras li {
+      font-family: var(--font-mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase;
+      padding-left: 1.4rem; position: relative;
+    }
+    .extras li::before { content: "+"; position: absolute; left: 0; color: var(--chem-green); }
+    .product-photo .extra-polaroid {
+      inset: auto 6% 7% auto; width: 34%; height: auto; object-fit: contain;
+      box-shadow: 0 18px 40px rgba(0,0,0,.65);
+      transform: rotate(6deg); transition: transform .6s cubic-bezier(.2,.8,.2,1);
+    }
+    @media (max-width: 760px) {
+      .bundle { grid-template-columns: 1fr; margin-top: 1rem; }
+    }
+
+    /* ---------- LESSON 4: LISTA DE ESPERA ----------
+       A <form> with two ways to be told: email or WhatsApp. The studio
+       Polaroid is a faded texture behind it, like the one behind "El disco". */
+    .lista { position: relative; isolation: isolate; overflow: hidden; }
+    .lista::before {
+      content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background: url("photos/fondo-estudio.jpg") center 40% / cover no-repeat;
+      opacity: .22; filter: saturate(.8);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+              mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+    }
+    html[data-lights="off"] .lista::before { opacity: .4; }
+    .lista-inner {
+      max-width: 1200px; margin: 0 auto; padding: 5rem clamp(1rem, 4vw, 3rem);
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px); gap: clamp(2rem, 6vw, 5rem); align-items: center;
+    }
+    .lista h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.2rem;
+    }
+    .lista .polaroid { --tilt: -3deg; width: min(340px, 100%); justify-self: center; }
+    .waitlist { max-width: 34rem; }
+    .field { display: block; margin-top: 1.2rem; }
+    .field input {
+      width: 100%; margin-top: .5rem; padding: .85rem 1rem;
+      background: rgba(10,10,10,.6); color: var(--ivory); border: 1px solid var(--muted); border-radius: 2px;
+      font: 400 1rem var(--font-mono); letter-spacing: .04em;
+      transition: border-color .25s ease, box-shadow .25s ease;
+    }
+    .field input::placeholder { color: var(--muted); }
+    .field input:focus { outline: none; border-color: var(--chem-green); box-shadow: 0 0 0 3px rgba(184,224,32,.18); }
+    .field input[aria-invalid="true"] { border-color: #e0623a; }
+    .field-error { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em; color: #e0623a; margin: .45rem 0 0; min-height: 1em; }
+    /* The pieces you picked ("tu lista"), as small removable tags. */
+    .wish { list-style: none; padding: 0; margin: .5rem 0 0; display: flex; flex-wrap: wrap; gap: .45rem; }
+    .wish li {
+      display: inline-flex; align-items: center; gap: .5rem; padding: .35rem .4rem .35rem .7rem;
+      border: 1px solid var(--line); font: 400 .66rem var(--font-mono); letter-spacing: .1em; text-transform: uppercase;
+      animation: rise .35s ease both;
+    }
+    .wish button {
+      background: none; border: 1px solid transparent; color: var(--muted); cursor: pointer;
+      font: 400 .9rem/1 var(--font-mono); width: 1.4rem; height: 1.4rem; padding: 0;
+      transition: color .2s ease, border-color .2s ease;
+    }
+    .wish-empty { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .04em; color: var(--muted); margin: .5rem 0 0; }
+    .consent { display: flex; gap: .7rem; align-items: flex-start; margin-top: 1.3rem; font-size: .85rem; color: rgba(242,238,230,.75); cursor: pointer; }
+    .consent input { accent-color: var(--chem-green); width: 1.05rem; height: 1.05rem; margin: .15rem 0 0; flex: none; }
+    .waitlist .btn { margin-top: 1.5rem; width: 100%; }
+    .waitlist-note { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .08em; color: var(--muted); margin: .9rem 0 0; }
+    /* After joining: the form steps aside and this message rises in. */
+    .joined { border-left: 2px solid var(--chem-green); padding: .4rem 0 .4rem 1.2rem; animation: rise .6s cubic-bezier(.2,.8,.2,1) both; }
+    .joined h3 { font: 700 .8rem var(--font-mono); letter-spacing: .22em; text-transform: uppercase; color: var(--chem-green); margin: 0 0 .6rem; }
+    .joined p { margin: 0 0 .8rem; }
+    .joined .rings { color: var(--chem-green); animation: entangle 2.4s ease-in-out infinite; }
+    @keyframes entangle { 50% { transform: scaleX(.82); } }
+    .joined .remove { margin-top: .4rem; }
+    @media (max-width: 760px) {
+      .lista-inner { grid-template-columns: 1fr; }
+      .lista .polaroid { width: min(260px, 70%); }
+    }
+
+    /* ---------- AVISO DE PRIVACIDAD, AS A POP-UP ----------
+       Same sheet as the product pop-up. Its text is read from
+       aviso-de-privacidad.html, so there is only one copy to keep up
+       to date; that page still works on its own. */
+    @media (min-width: 761px) { .legal-sheet { width: min(820px, calc(100vw - 2rem)); } }   /* phones: full screen, like the product pop-up */
+    .legal-body { padding: 1.6rem clamp(1rem, 4vw, 2.5rem) 3rem; max-width: 70ch; margin: 0 auto; line-height: 1.65; }
+    .legal-body h1 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -.02em; line-height: .95; margin: .6rem 0 1rem;
+    }
+    .legal-body h2 { font-weight: 700; text-transform: uppercase; letter-spacing: .03em; font-size: 1rem; margin: 2.4rem 0 .6rem; }
+    .legal-body p, .legal-body li { color: rgba(242,238,230,.86); font-weight: 400; }
+    .legal-body ul, .legal-body ol { padding-left: 1.2rem; }
+    .legal-body li + li { margin-top: .35rem; }
+    .legal-body a { color: var(--chem-green); }
+    .legal-body .updated { font: 400 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--sepia); }
+    .legal-body table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .8rem 0; }
+    .legal-body th, .legal-body td { text-align: left; vertical-align: top; padding: .55rem .5rem; border-bottom: 1px solid var(--line); }
+    .legal-body th { font: 400 .64rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .legal-body .table-wrap { overflow-x: auto; }
+    .legal-body .box { border: 1px solid var(--line); padding: 1rem 1.2rem; margin: 1.2rem 0; }
+    .legal-body .fill { background: rgba(184,224,32,.16); color: var(--chem-green); padding: 0 .25em; font-family: var(--font-mono); font-size: .9em; }
+    /* The text rises in block by block, like the product pop-up. */
+    .legal-sheet[open] .legal-body > * { animation: rise .5s cubic-bezier(.2,.8,.2,1) both; }
+    .legal-sheet[open] .legal-body > :nth-child(2) { animation-delay: .05s; }
+    .legal-sheet[open] .legal-body > :nth-child(3) { animation-delay: .1s; }
+    .legal-sheet[open] .legal-body > :nth-child(4) { animation-delay: .15s; }
+    .legal-sheet[open] .legal-body > :nth-child(n+5) { animation-delay: .2s; }
+
+    /* "Tu lista" drawer: no prices, just the pieces and a way to sign up. */
+    .line { grid-template-columns: 72px 1fr; }
+    .cart-foot .cart-note { font-size: .7rem; line-height: 1.6; }
+
+    /* ---------- MOTION: buttons and pop-ups ----------
+       With a mouse (hover: hover), buttons react when the cursor passes
+       over them. Phones and iPads have no cursor, so there the buttons
+       light up while your finger presses them, and the main buttons get
+       a light sweep every few seconds (see "TOUCH SCREENS" below). */
+    .btn, .listen a, .pill span, .x, .remove, .thumbs button, .more {
+      transition: background-color .25s ease, color .25s ease, border-color .25s ease,
+                  transform .25s ease, box-shadow .25s ease, opacity .25s ease, letter-spacing .3s ease;
+    }
+    /* A bright line sweeps across the button on hover, like a scanner. */
+    .btn { position: relative; overflow: hidden; }
+    .btn::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(100deg, transparent 35%, rgba(255,255,255,.5) 50%, transparent 65%);
+      transform: translateX(-120%);
+    }
+    .btn:not(:disabled):active { transform: scale(.97); }
+    /* The cart link draws an underline from left to right. */
+    .cart-link {
+      background: linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat;
+      transition: background-size .3s ease, color .25s ease;
+    }
+    #cart-count { display: inline-block; }
+    #cart-count.bump { animation: bump .45s ease; }   /* the number jumps when something is added */
+    @keyframes bump { 40% { transform: scale(1.7); color: var(--chem-green); } }
+
+    @media (hover: hover) {
+      .btn:not(:disabled):hover {
+        transform: translateY(-2px);
+        background: var(--chem-green); color: var(--washed-black);
+        box-shadow: 0 10px 28px rgba(184,224,32,.28);
+      }
+      .btn:not(:disabled):hover::after { transform: translateX(120%); transition: transform .7s ease; }
+      .btn-ghost:not(:disabled):hover { background: rgba(184,224,32,.08); color: var(--chem-green); border-color: var(--chem-green); }
+      .btn:not(:disabled):active { transform: scale(.97); }
+      .cart-link:hover { background-size: 100% 1px; color: var(--chem-green); }
+      .listen a:hover { transform: translateY(-2px); background: rgba(184,224,32,.08); box-shadow: 0 8px 22px rgba(184,224,32,.18); }
+      .pill:hover span { border-color: var(--ivory); transform: translateY(-1px); }
+      .x:hover { transform: rotate(90deg); border-color: var(--chem-green); color: var(--chem-green); }
+      .thumbs button:hover { opacity: 1; transform: translateY(-2px); }
+      .product:hover .more { color: var(--chem-green); letter-spacing: .3em; }
+      .signal:hover .signal-cta { color: var(--chem-green); background-size: 100% 1px; letter-spacing: .26em; }
+      .signal:hover .signal-cta .arrow { transform: translateX(4px); }
+      .bundle:hover .product-photo .extra-polaroid { transform: rotate(0deg) translateY(-6px) scale(1.04); }
+      .wish button:hover { color: var(--chem-green); border-color: var(--chem-green); }
+    }
+
+    /* TOUCH SCREENS: the same look while the finger is down (:active),
+       and a scanner sweep that crosses the main buttons now and then. */
+    @media (hover: none) {
+      .btn:not(:disabled):active {
+        transform: scale(.97);
+        background: var(--chem-green); color: var(--washed-black);
+        box-shadow: 0 8px 24px rgba(184,224,32,.3);
+      }
+      .btn-ghost:not(:disabled):active { background: rgba(184,224,32,.12); color: var(--chem-green); border-color: var(--chem-green); }
+      .listen a:active { background: rgba(184,224,32,.12); border-color: var(--chem-green); color: var(--chem-green); transform: scale(.97); }
+      .pill:active span { border-color: var(--ivory); transform: scale(.95); }
+      .x:active { transform: rotate(90deg); color: var(--chem-green); }
+      .signal:active .signal-cta { color: var(--chem-green); background-size: 100% 1px; }
+      .btn:not(:disabled)::after {
+        animation: sweep 4.5s ease-in-out infinite;
+        /* green instead of white, so the sweep shows on the ivory button too */
+        background: linear-gradient(100deg, transparent 30%, rgba(184,224,32,.65) 50%, transparent 70%);
+      }
+      .btn-ghost:not(:disabled)::after { animation-delay: .4s; }
+    }
+    @keyframes sweep { 0%, 70% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+
+    /* Pop-ups glide in: they rise and sharpen; the dimmed page fades in.
+       Closing plays the reverse (JavaScript adds .closing, then closes). */
+    dialog[open]::backdrop { animation: fade-in .3s ease; }
+    dialog.closing::backdrop { animation: fade-out .25s ease forwards; }
+    .sheet[open] { animation: sheet-in .4s cubic-bezier(.2,.8,.2,1); }
+    .sheet.closing { animation: sheet-out .25s ease forwards; }
+    .drawer.closing { animation: slide-out .28s ease forwards; }
+    @keyframes fade-in   { from { opacity: 0; } }
+    @keyframes fade-out  { to { opacity: 0; } }
+    @keyframes sheet-in  { from { opacity: 0; transform: translateY(28px) scale(.97); } }
+    @keyframes sheet-out { to { opacity: 0; transform: translateY(18px) scale(.98); } }
+    @keyframes slide-out { to { transform: translateX(100%); } }
+    /* Phones: the pop-up fills the screen, so it slides up from the bottom. */
+    @media (max-width: 760px) {
+      .sheet[open] { animation: sheet-up .4s cubic-bezier(.2,.8,.2,1); }
+      .sheet.closing { animation: sheet-down .28s ease forwards; }
+      @keyframes sheet-up   { from { transform: translateY(100%); } }
+      @keyframes sheet-down { to { transform: translateY(100%); } }
+    }
+    /* Inside the product pop-up, the photo fades in and the text rises
+       one block after another. A new photo picked from the thumbnails
+       fades in too (each one is a new <img>). */
+    .pd-main img { animation: fade-in .45s ease; }
+    .sheet[open] .pd > div:last-child > * { animation: rise .5s cubic-bezier(.2,.8,.2,1) both; }
+    .sheet[open] .pd > div:last-child > :nth-child(2) { animation-delay: .05s; }
+    .sheet[open] .pd > div:last-child > :nth-child(3) { animation-delay: .1s; }
+    .sheet[open] .pd > div:last-child > :nth-child(4) { animation-delay: .15s; }
+    .sheet[open] .pd > div:last-child > :nth-child(n+5) { animation-delay: .2s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+    /* Cart lines slide in one after another. */
+    .drawer[open] .line { animation: rise .4s ease both; }
+    .drawer[open] .line:nth-child(2) { animation-delay: .05s; }
+    .drawer[open] .line:nth-child(n+3) { animation-delay: .1s; }
+
+    /* Respect people who turn off animations on their device. */
+    /* Nothing moves, but colors still fade, so buttons still light up. */
+    @media (prefers-reduced-motion: reduce) {
+      * { animation: none !important; transition-property: color, background-color, border-color, box-shadow, opacity !important; }
+      .btn, .listen a, .pill span, .x, .thumbs button { transform: none !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- The code rain: drawn by JavaScript, fades out down the page. -->
+  <canvas class="rain" id="signal-rain" aria-hidden="true"></canvas>
+  <!-- HTML: every block below is a "semantic" tag (header, main, section,
+       footer). They tell browsers and Google what each part is. -->
+
+  <header class="site-header">
+    <a class="wordmark" href="#">DSTANCE</a>
+    <!-- Lesson 4: the cart is now "tu lista", the pieces you want to hear about. -->
+    <button class="cart-link" id="cart-open" type="button" aria-haspopup="dialog">Mi lista (<span id="cart-count">0</span>)</button>
+  </header>
+
+  <!-- THE SIGNAL: code rains in the background (canvas) and the words
+       decode out of it. JavaScript at the bottom of the file runs it.
+       Lesson 4: the strip is a link (<a>) to the waiting list. -->
+  <a class="signal" id="signal" href="#lista">
+    <p class="signal-text">
+      <span class="sr-only">Música Cuántica: coming soon.</span>
+      <span aria-hidden="true"><span id="signal-words">MÚSICA CUÁNTICA</span> <span class="soon" id="signal-soon">COMING SOON</span><span class="cursor">_</span></span>
+    </p>
+    <p class="signal-cta">Avísame el día del drop <span class="arrow" aria-hidden="true">→</span></p>
+  </a>
+
+  <main>
+    <section class="hero" aria-labelledby="album-title">
+      <!-- The ² is a <sup> so we control its size and height, like the print.
+           aria-label makes screen readers say "MC²" instead of "MC 2". -->
+      <h1 class="lockup" id="album-title" aria-label="MC²">MC<sup>2</sup></h1>
+      <p class="album-name">Música Cuántica</p>
+      <!-- Sonic Ranch, Tornillo TX: the exact coordinates printed on every piece. -->
+      <p class="coords">31.4456°N 106.0078°W</p>
+      <!-- The "acta": the archive record printed on the tote and the cap label. -->
+      <ul class="acta" aria-label="Acta de archivo">
+        <li>Session 01</li>
+        <li>Sonic Ranch</li>
+        <!-- FIXED PHRASE: never modify "Recorded live. Some overdubs." (wording, punctuation, casing). -->
+        <li class="fixed">Recorded live. Some overdubs.</li>
+        <li class="locked">Archive locked</li>
+        <!-- The two entangled rings: the brand mark drawn with two SVG circles. -->
+        <li aria-hidden="true">
+          <svg class="rings" viewBox="0 0 46 24" fill="none" stroke="currentColor" stroke-width="1.4">
+            <circle cx="16" cy="12" r="9"/><circle cx="30" cy="12" r="9"/>
+          </svg>
+        </li>
+      </ul>
+
+      <div class="hero-actions">
+        <a class="btn" href="#session-01">Ver Session 01</a>
+        <!-- This button is our first bit of JavaScript (see the bottom of the file). -->
+        <button class="btn btn-ghost" id="lights" type="button" aria-pressed="false">Apagar la luz</button>
+      </div>
+    </section>
+
+    <section class="drop" id="session-01" aria-labelledby="drop-title">
+      <span class="eyebrow">Drop // MC2 · Session 01</span>
+      <h2 id="drop-title">Session 01</h2>
+      <p class="drop-intro">Tres piezas en negro mineral deslavado, mismo lote de lavado para toda la familia. Cada una se lava, se cuartea y se desgasta para sentirse como una prenda de 40 años desde el primer día. Tiraje cerrado: archive locked. Todavía no está a la venta: únete a la lista de espera y te avisamos el día del drop.</p>
+
+      <!-- Empty on purpose: JavaScript fills it from the `products` list. -->
+      <div class="products" id="products"></div>
+
+      <!-- Shown only if JavaScript is turned off, so the page never looks broken. -->
+      <noscript><p class="drop-intro">Activa JavaScript para ver los productos.</p></noscript>
+    </section>
+
+    <!-- LESSON 4: LISTA DE ESPERA
+         A real <form>. The browser checks the email format by itself
+         (type="email"); JavaScript checks the WhatsApp number and saves
+         the sign-up (see "THE WAITING LIST" at the bottom of the file). -->
+    <section class="lista" id="lista" aria-labelledby="lista-title">
+      <div class="lista-inner">
+        <div class="waitlist" id="waitlist">
+          <span class="eyebrow">Lista de espera // Session 01</span>
+          <h2 id="lista-title">Avísame el día del drop</h2>
+          <p class="drop-intro">Session 01 sale una sola vez y el tiraje está cerrado. Déjanos tu correo o tu WhatsApp y te escribimos el día del drop. Un mensaje, sin spam.</p>
+
+          <form id="waitlist-form" novalidate>
+            <fieldset class="opt">
+              <legend>Avísame por</legend>
+              <div class="pills">
+                <label class="pill"><input type="radio" name="channel" value="email" checked><span>Correo</span></label>
+                <label class="pill"><input type="radio" name="channel" value="whatsapp"><span>WhatsApp</span></label>
+              </div>
+            </fieldset>
+
+            <label class="field">
+              <span class="qty-label" id="contact-label">Tu correo</span>
+              <input id="contact" name="contact" type="email" autocomplete="email" inputmode="email"
+                     placeholder="tu@correo.com" required aria-describedby="contact-error">
+            </label>
+            <p class="field-error" id="contact-error" aria-live="polite"></p>
+
+            <span class="qty-label">Me interesa</span>
+            <ul class="wish" id="wish" aria-label="Piezas que te interesan"></ul>
+            <p class="wish-empty" id="wish-empty">Elige piezas en Session 01 y aparecen aquí. Es opcional.</p>
+
+            <label class="consent">
+              <input type="checkbox" id="consent" required>
+              <span>Acepto que me escriban sobre el drop y el <a href="aviso-de-privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</span>
+            </label>
+            <p class="field-error" id="consent-error" aria-live="polite"></p>
+
+            <!-- Spam trap: hidden from people, bots fill it in and Formspree drops them. -->
+            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"
+                   style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0">
+
+            <button class="btn" type="submit">Unirme a la lista de espera</button>
+            <p class="waitlist-note">Sin precios todavía: se anuncian el día del drop.</p>
+          </form>
+
+          <!-- Shown after joining. -->
+          <div class="joined" id="joined" hidden tabindex="-1">
+            <h3>Estás en la lista</h3>
+            <p id="joined-text"></p>
+            <svg class="rings" viewBox="0 0 46 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+              <circle cx="16" cy="12" r="9"/><circle cx="30" cy="12" r="9"/>
+            </svg>
+            <p><button class="remove" type="button" id="joined-edit">Cambiar mis datos</button></p>
+          </div>
+        </div>
+
+        <figure class="polaroid">
+          <img src="photos/polaroid-saludo.jpg" width="900" height="1108" loading="lazy"
+               alt="Polaroid verde de un músico saludando con la mano desde una puerta">
+        </figure>
+      </div>
+    </section>
+
+    <!-- VINYL Y CD: the record in physical formats. Not on sale yet, so
+         there is no price and no cart button: format, run and price are
+         still to be announced. -->
+    <section class="formats" id="formatos" aria-labelledby="formats-title">
+      <span class="eyebrow">Formatos // Música Cuántica</span>
+      <h2 id="formats-title">Vinyl y CD</h2>
+      <p class="drop-intro">El disco también va a existir en físico. Formato, tiraje y precio se anuncian con el lanzamiento: hasta entonces, archive locked.</p>
+      <div class="format-grid">
+        <article class="format">
+          <div class="format-art vinyl" aria-hidden="true">
+            <div class="disc"><span>MC²</span></div>
+            <div class="sleeve"><span class="sleeve-mark">MC<sup>2</sup></span><span class="sleeve-coords">31.4456°N 106.0078°W</span></div>
+          </div>
+          <h3>Vinyl MC²</h3>
+          <p>Música Cuántica en vinyl.</p>
+          <p class="soon-tag">Próximamente</p>
+        </article>
+        <article class="format">
+          <div class="format-art cd" aria-hidden="true">
+            <div class="disc"><span>MC²</span></div>
+            <div class="sleeve"><span class="sleeve-mark">MC<sup>2</sup></span><span class="sleeve-coords">31.4456°N 106.0078°W</span></div>
+          </div>
+          <h3>CD MC²</h3>
+          <p>Música Cuántica en CD.</p>
+          <p class="soon-tag">Próximamente</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- The outer section carries the background photo full width;
+         the inner .story keeps the text and Polaroids at a readable width. -->
+    <section class="disco" aria-labelledby="story-title">
+      <div class="story">
+        <div>
+          <span class="eyebrow">Acta // Sonic Ranch</span>
+          <h2 id="story-title">El disco</h2>
+          <p>Música Cuántica es el próximo disco de Dstance. Se grabó en Sonic Ranch, en Tornillo, Texas, casi todo en vivo y con pocos overdubs: lo que pasó en la sesión se quedó en el disco.</p>
+          <p>La ropa sigue la misma regla. Cada pieza se lava, se cuartea y se desgasta a mano, y ninguna sale igual a otra. Nada sale perfecto; todo sale con historia.</p>
+          <p class="disco-note">Polaroids de la sesión · Tornillo, TX</p>
+          <!-- Dstance's official profiles. Each opens in a new tab. -->
+          <ul class="listen" aria-label="Escucha a Dstance">
+            <li><a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify ↗</a></li>
+            <li><a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music ↗</a></li>
+            <li><a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram ↗</a></li>
+          </ul>
+        </div>
+        <figure class="polaroid polaroid-main">
+          <img src="photos/polaroid-sonic-ranch.jpg" width="900" height="1105" loading="lazy"
+               alt="Polaroid en verde y amarillo de la banda frente a la cabaña de Sonic Ranch, con «Sonic Ranch» y una carita escritos a mano">
+        </figure>
+        <ul class="polaroids" aria-label="Más Polaroids de la sesión">
+          <li><figure class="polaroid"><img src="photos/polaroid-huerto.jpg" width="900" height="1111" loading="lazy"
+               alt="Polaroid amarilla de una persona sentada frente a una tela blanca en un nogal sin hojas"></figure></li>
+          <li><figure class="polaroid"><img src="photos/polaroid-guitarra.jpg" width="900" height="1112" loading="lazy"
+               alt="Polaroid verde de un músico con guitarra acústica en el estudio, con luces amarillas detrás"></figure></li>
+          <li><figure class="polaroid"><img src="photos/polaroid-retrato.jpg" width="900" height="1106" loading="lazy"
+               alt="Polaroid casi negra de un retrato con el contorno iluminado en verde"></figure></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© 2026 Dstance · Hecho en Puebla</span>
+    <nav class="social" aria-label="Dstance en redes">
+      <a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify</a>
+      <a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music</a>
+      <a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram</a>
+    </nav>
+    <nav aria-label="Información">
+      <a href="#">Envíos</a>
+      <button class="link" type="button" id="sizes-open" aria-haspopup="dialog">Guía de tallas</button>
+      <a href="aviso-de-privacidad.html">Aviso de privacidad</a>
+      <a href="#">Devoluciones</a>
+    </nav>
+  </footer>
+
+  <!-- ============ LESSON 3: THE POP-UPS ============
+       Both start closed. JavaScript fills them and opens them with showModal(). -->
+
+  <!-- Product pop-up -->
+  <dialog class="sheet" id="product-dialog" aria-labelledby="pd-name">
+    <div class="bar">
+      <span>MC2 · Session 01 <span class="code" id="pd-sku"></span></span>
+      <button class="x" type="button" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="pd">
+      <div>
+        <div class="pd-main" id="pd-main"></div>
+        <div class="thumbs" id="pd-thumbs"></div>
+      </div>
+      <div>
+        <h2 class="pd-name" id="pd-name"></h2>
+        <p class="pd-price price" id="pd-price">Precio al abrir el drop</p>
+        <div class="pd-details" id="pd-details"></div>
+
+        <!-- A <form>: the button adds the piece (with its talla/versión) to
+             "tu lista" and takes you to the waiting list. -->
+        <form id="pd-form">
+          <div id="pd-options"></div>
+          <div class="buy">
+            <button class="btn" type="submit">Unirme a la lista de espera</button>
+          </div>
+        </form>
+
+        <table class="spec-table"><tbody id="pd-specs"></tbody></table>
+        <p class="care" id="pd-care"></p>
+        <!-- Filled only for products with sizes (the tee). -->
+        <div id="pd-sizes"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Size guide pop-up (opened from the footer) -->
+  <dialog class="sheet sizes-dialog" id="sizes-dialog" aria-labelledby="sizes-title">
+    <div class="bar">
+      <span id="sizes-title">Guía de tallas <span class="code">/ MC2-TEE-01</span></span>
+      <button class="x" type="button" data-close aria-label="Cerrar guía de tallas">×</button>
+    </div>
+    <div id="sizes-body"></div>
+  </dialog>
+
+  <!-- Aviso de privacidad pop-up (Lesson 4). Filled from aviso-de-privacidad.html. -->
+  <dialog class="sheet legal-sheet" id="legal-dialog" aria-labelledby="legal-title">
+    <div class="bar">
+      <span id="legal-title">Aviso de privacidad <span class="code">/ MC²</span></span>
+      <button class="x" type="button" data-close aria-label="Cerrar aviso de privacidad">×</button>
+    </div>
+    <div class="legal-body" id="legal-body"></div>
+  </dialog>
+
+  <!-- Cart drawer -->
+  <dialog class="drawer" id="cart-dialog" aria-labelledby="cart-title">
+    <div class="bar">
+      <span id="cart-title">Mi lista <span class="code">/ Session 01</span></span>
+      <button class="x" type="button" data-close aria-label="Cerrar mi lista">×</button>
+    </div>
+    <p class="cart-empty" id="cart-empty">Todavía no eliges piezas. Ábrelas en Session 01 y súmalas a tu lista.</p>
+    <ul class="cart-lines" id="cart-lines"></ul>
+    <div class="cart-foot" id="cart-foot">
+      <p class="cart-note">Sin precios todavía. Te avisamos de estas piezas el día del drop.</p>
+      <button class="btn" type="button" id="cart-join">Unirme a la lista de espera</button>
+    </div>
+  </dialog>
+
+  <script>
+    /* ---------------------------------------------------------------
+       THE PRODUCT LIST (from Lesson 2, now with more facts)
+       New keys in Lesson 3, all used by the product pop-up:
+       - details  = longer description, one string per paragraph
+       - specs    = [label, value] pairs shown as a spec table
+       - options  = choices the buyer makes (talla, versión). A product
+                    without options (unitalla) just skips that part.
+       - gallery  = every photo of the piece, shown in the pop-up
+       - care     = the care note that travels with the piece
+       Lesson 4: no `price` anymore. Prices are announced on drop day, so
+       they are not in the page at all (not even hidden in the code).
+       --------------------------------------------------------------- */
+    const products = [
+      {
+        sku: "MC2-TEE-01",
+        name: "Playera MC²",
+        description: "Jersey boxy 250 g, print cuarteado, destrucción a mano. Versión glow disponible.",
+        photo: { src: "photos/mc2-tee-01.jpg", width: 1000, height: 1000,
+                 alt: "Playera MC² boxy en negro mineral deslavado con el lockup MC² marfil cuarteado y coordenadas en verde químico" },
+        details: [
+          "Playera boxy cortada y cosida sobre patrón propio: hombro caído y manga corta de época. El fit es la mitad de la edad.",
+          "El lockup MC² se imprime en marfil antes del lavado, así se cuartea junto con la tela. Las coordenadas en verde químico entran después: la señal queda nítida sobre la prenda gastada.",
+          "Lavado mineral y destrucción a mano, pieza por pieza. No hay dos iguales: cada una es un estado del archivo.",
+        ],
+        specs: [
+          ["Tela", "Jersey 100% algodón 250 g"],
+          ["Fit", "Boxy · patrón propio"],
+          ["Lavado", "Mineral / acid wash negro"],
+          ["Print", "Marfil cuarteado + coordenadas verde químico"],
+          ["Cuello", "Rib 1×1 con cinta MC²"],
+          ["Acabado", "Destrucción a mano"],
+        ],
+        options: [
+          { name: "Talla", values: ["S", "M", "L", "XL"], selected: "M" },
+          { name: "Versión", values: ["Estándar", "Glow /GLW"] },
+        ],
+        // Size guide in cm, measured flat. Standard commercial boxy-tee
+        // references: confirm against the real pattern before launch.
+        sizeChart: {
+          columns: ["Talla", "Pecho", "Largo", "Hombro", "Manga"],
+          rows: [
+            ["S",  56, 66, 54, 21],
+            ["M",  59, 68, 56, 22],
+            ["L",  62, 70, 58, 23],
+            ["XL", 65, 72, 60, 24],
+          ],
+          note: "Medidas en cm con la prenda en plano. Pecho: de axila a axila. Largo: del punto más alto del hombro al bajo. Fit boxy: ancho y corto a propósito; si prefieres un fit regular, pide una talla menos. Tolerancia ±2 cm por el lavado y la destrucción a mano.",
+        },
+        care: "100% algodón con acid wash y destrucción a mano. Lavar al revés, en agua fría, con colores oscuros y detergente suave. Sin cloro ni suavizante. Secar tendida a la sombra: la secadora encoge el algodón y acelera el desgaste. No planchar sobre el print ni lavar en seco. El cuarteo y el desgaste seguirán abriéndose con el uso: es intencional.",
+      },
+      {
+        sku: "MC2-CAP-01",
+        name: "Gorra MC²",
+        description: "Print cuarteado, lavada armada, destrucción a mano, bordado verde y marfil.",
+        photo: { src: "photos/mc2-cap-01.jpg", width: 780, height: 780,
+                 alt: "Gorra MC² deslavada, vista frontal con el lockup MC² y coordenadas en verde" },
+        photoDetail: { src: "photos/mc2-cap-01-acta.jpg", width: 432, height: 432,
+                 alt: "Etiqueta interior de la gorra con el acta: Session 01, Sonic Ranch, Recorded live, No overdubs, Archive locked" },
+        gallery: [
+          { src: "photos/mc2-cap-01.jpg", width: 780, height: 780,
+            alt: "Gorra MC² deslavada, vista frontal con el lockup MC² y coordenadas en verde" },
+          { src: "photos/mc2-cap-01-acta.jpg", width: 432, height: 432,
+            alt: "Etiqueta interior de la gorra con el acta: Session 01, Sonic Ranch, Recorded live, No overdubs, Archive locked" },
+          { src: "photos/mc2-cap-01-vistas.jpg", width: 1402, height: 1122,
+            alt: "Seis vistas de la gorra: frente, costado, espalda con DSTANCE bordado, botón, interior con cinta verde y etiqueta" },
+        ],
+        details: [
+          "Gorra de seis paneles en mezclilla negra. El print se aplica antes de armarla; después se lava ya armada y se vuelve a formar, para que tela, costura y gráfico tengan la misma edad.",
+          "Por dentro: cinta MC2-CAP-01 · SESSION 01 en verde, etiqueta-acta en marfil y los dos anillos bajo la visera. Atrás: DSTANCE bordado y correa con hebilla metálica.",
+          "Destrucción a mano en botón, visera y cantos. Cada gorra sale distinta.",
+        ],
+        specs: [
+          ["Tela", "Mezclilla de algodón deslavada"],
+          ["Lavado", "Mineral · lavada armada"],
+          ["Frente", "MC2 cuarteado + coordenadas verde químico"],
+          ["Espalda", "DSTANCE bordado marfil"],
+          ["Interior", "Cinta MC2-CAP-01 · etiqueta-acta · anillos"],
+          ["Ajuste", "Unitalla · correa con hebilla"],
+          ["Acabado", "Destrucción a mano"],
+        ],
+        care: "Lavar a mano, en frío. Secar a la sombra sobre su forma.",
+      },
+      {
+        sku: "MC2-TOT-01",
+        name: "Tote MC²",
+        description: "Lona de algodón 10 oz, acid wash negro con destrucción a mano.",
+        photo: { src: "photos/mc2-tot-01.jpg", width: 1000, height: 1000,
+                 alt: "Tote MC² en lona negra con acid wash, lockup MC², coordenadas y acta de archivo impresa" },
+        details: [
+          "El tote maestro de la familia: lona de algodón 10 oz, acid wash negro y destrucción a mano en asas y bordes.",
+          "Al frente lleva el lockup MC², las coordenadas de Sonic Ranch en verde químico y el acta de archivo completa, cerrada con los dos anillos.",
+        ],
+        specs: [
+          ["Tela", "Lona de algodón 10 oz"],
+          ["Lavado", "Acid wash negro"],
+          ["Print", "Lockup MC2 · coordenadas · acta"],
+          ["Asas", "Dobles, de la misma lona"],
+          ["Talla", "Unitalla"],
+          ["Acabado", "Destrucción a mano"],
+        ],
+        care: "Lavar al revés, en frío. El desgaste sigue avanzando con el uso: es intencional.",
+      },
+      // LESSON 4: the bundle. The three pieces together, plus one extra
+      // the buyer picks. `bundle: true` gives it the wide card.
+      {
+        sku: "MC2-BDL-01",
+        name: "Bundle Session 01",
+        bundle: true,
+        kicker: "3 piezas + 1 extra",
+        description: "La playera, la gorra y el tote, del mismo lote de lavado. Y un extra que eliges tú:",
+        extras: ["Una Polaroid de la sesión, impresa", "El disco antes que nadie", "Una escucha privada"],
+        photo: { src: "photos/mc2-bundle-look.jpg", width: 1000, height: 1502,
+                 alt: "Look completo de Session 01: playera MC² boxy, gorra MC² y tote MC² en negro mineral deslavado" },
+        extraPhoto: { src: "photos/polaroid-big-green.jpg", width: 900, height: 1108,
+                 alt: "Polaroid verde de un músico recargado en un estudio de lámina, con «El Big Green» escrito a mano" },
+        gallery: [
+          { src: "photos/mc2-bundle-look.jpg", width: 1000, height: 1502,
+            alt: "Look completo de Session 01: playera MC² boxy, gorra MC² y tote MC² en negro mineral deslavado" },
+          { src: "photos/mc2-tee-01.jpg", width: 1000, height: 1000,
+            alt: "Playera MC² boxy en negro mineral deslavado con el lockup MC² marfil cuarteado y coordenadas en verde químico" },
+          { src: "photos/mc2-cap-01.jpg", width: 780, height: 780,
+            alt: "Gorra MC² deslavada, vista frontal con el lockup MC² y coordenadas en verde" },
+          { src: "photos/mc2-tot-01.jpg", width: 1000, height: 1000,
+            alt: "Tote MC² en lona negra con acid wash, lockup MC², coordenadas y acta de archivo impresa" },
+          { src: "photos/polaroid-big-green.jpg", width: 900, height: 1108,
+            alt: "Polaroid verde de un músico recargado en un estudio de lámina, con «El Big Green» escrito a mano" },
+        ],
+        details: [
+          "Las tres piezas de Session 01 juntas: la playera boxy, la gorra y el tote, lavadas en el mismo lote para que tengan la misma edad.",
+          "El bundle trae un extra a elegir: una Polaroid de la sesión impresa, el disco antes que nadie o una escucha privada. Los detalles de cada extra llegan por la lista de espera.",
+        ],
+        specs: [
+          ["Incluye", "Playera MC2-TEE-01 · Gorra MC2-CAP-01 · Tote MC2-TOT-01"],
+          ["Lavado", "Mismo lote · negro mineral"],
+          ["Extra", "Polaroid impresa, el disco antes que nadie o escucha privada"],
+          ["Tiraje", "Cerrado · archive locked"],
+        ],
+        options: [
+          { name: "Talla", values: ["S", "M", "L", "XL"], selected: "M" },
+          { name: "Versión", values: ["Estándar", "Glow /GLW"] },
+          { name: "Extra", values: ["Polaroid impresa", "El disco antes que nadie", "Escucha privada"] },
+        ],
+        care: "Cada pieza viaja con su propia nota de cuidado. Las tres se lavan al revés, en frío, y se secan a la sombra.",
+      },
+    ];
+
+    // The bundle's tee is the same tee, so it uses the same size guide.
+    products.find((p) => p.bundle).sizeChart = products[0].sizeChart;
+
+    function findProduct(sku) {
+      return products.find((product) => product.sku === sku);
+    }
+
+    /* SMALL HELPERS to build elements (from Lesson 2).
+       textContent always treats text as plain text, never as HTML. */
+    function makeImage(photo, className, lazy = true) {
+      const img = document.createElement("img");
+      img.src = photo.src;
+      img.width = photo.width;
+      img.height = photo.height;
+      img.alt = photo.alt;
+      if (lazy) img.loading = "lazy";
+      if (className) img.className = className;
+      return img;
+    }
+
+    function makeText(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      el.textContent = text;
+      return el;
+    }
+
+    /* ---------------------------------------------------------------
+       PRODUCT CARDS
+       New in Lesson 3: the product name is a <button>. A CSS trick
+       (button::after covering the card) makes the WHOLE card clickable,
+       while keyboard users still get one real button to Tab to.
+       --------------------------------------------------------------- */
+    function renderProduct(product) {
+      const card = document.createElement("article");
+      card.className = "product";
+      card.dataset.sku = product.sku;
+
+      const figure = document.createElement("figure");
+      figure.className = "product-photo";
+      figure.append(makeImage(product.photo));
+      if (product.photoDetail) figure.append(makeImage(product.photoDetail, "alt"));
+      figure.append(makeText("figcaption", "sku", product.sku));
+
+      const title = document.createElement("h3");
+      const open = makeText("button", "open", product.name);
+      open.type = "button";
+      open.setAttribute("aria-haspopup", "dialog");
+      open.addEventListener("click", () => openProduct(product));
+      title.append(open);
+
+      // Lesson 4: no price. The card invites you to the waiting list.
+      const parts = [title, makeText("p", "", product.description)];
+      if (product.extras) {
+        const list = document.createElement("ul");
+        list.className = "extras";
+        list.append(...product.extras.map((extra) => makeText("li", "", extra)));
+        parts.push(list);
+      }
+      parts.push(makeText("p", "price", "Únete a la lista de espera"), makeText("p", "more", "Ver pieza →"));
+
+      if (product.bundle) {
+        // The bundle: photo on one side, everything else on the other.
+        card.classList.add("bundle");
+        figure.append(makeImage(product.extraPhoto, "extra-polaroid"));
+        const text = document.createElement("div");
+        text.className = "bundle-text";
+        text.append(makeText("p", "kicker", product.kicker), ...parts);
+        card.append(figure, text);
+      } else {
+        card.append(figure, ...parts);
+      }
+      return card;
+    }
+
+    const grid = document.getElementById("products");
+    grid.append(...products.map(renderProduct));
+
+
+    /* ---------------------------------------------------------------
+       THE PRODUCT POP-UP
+       <dialog> is a pop-up built into HTML. dialog.showModal() opens it,
+       dims the page behind it, traps the keyboard inside it, and closes
+       with the Esc key. We just fill it with the product's facts.
+       --------------------------------------------------------------- */
+    const productDialog = document.getElementById("product-dialog");
+    const pd = {
+      sku:     document.getElementById("pd-sku"),
+      name:    document.getElementById("pd-name"),
+      main:    document.getElementById("pd-main"),
+      thumbs:  document.getElementById("pd-thumbs"),
+      details: document.getElementById("pd-details"),
+      form:    document.getElementById("pd-form"),
+      options: document.getElementById("pd-options"),
+      specs:   document.getElementById("pd-specs"),
+      care:    document.getElementById("pd-care"),
+      sizes:   document.getElementById("pd-sizes"),
+    };
+    let currentProduct = null;
+
+    // The size guide: a title, a table and a note, built from sizeChart.
+    function makeSizeGuide(chart) {
+      const box = document.createElement("section");
+      box.className = "size-guide";
+      box.append(makeText("h3", "", "Guía de tallas (cm)"));
+      const table = document.createElement("table");
+      table.className = "size-table";
+      const head = document.createElement("tr");
+      head.append(...chart.columns.map((name) => makeText("th", "", name)));
+      table.createTHead().append(head);
+      const body = table.createTBody();
+      for (const row of chart.rows) {
+        const tr = document.createElement("tr");
+        tr.append(...row.map((value) => makeText("td", "", String(value))));
+        body.append(tr);
+      }
+      box.append(table, makeText("p", "size-note", chart.note));
+      return box;
+    }
+
+    function showPhoto(photo, thumbButton) {
+      pd.main.replaceChildren(makeImage(photo, "", false));
+      for (const button of pd.thumbs.children) {
+        button.setAttribute("aria-pressed", String(button === thumbButton));
+      }
+    }
+
+    function openProduct(product) {
+      currentProduct = product;
+
+      pd.sku.textContent = product.sku;
+      pd.name.textContent = product.name;
+
+      // Gallery: big photo + one small button per photo.
+      const gallery = product.gallery || [product.photo];
+      pd.thumbs.replaceChildren();
+      pd.thumbs.hidden = gallery.length < 2;
+      gallery.forEach((photo, i) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.setAttribute("aria-label", "Foto " + (i + 1) + " de " + gallery.length);
+        button.append(makeImage(photo, "", false));
+        button.addEventListener("click", () => showPhoto(photo, button));
+        pd.thumbs.append(button);
+      });
+      showPhoto(gallery[0], pd.thumbs.firstChild);
+
+      // Long description: one <p> per paragraph.
+      pd.details.replaceChildren(...product.details.map((text) => makeText("p", "", text)));
+
+      // Options: each one is a group of radio buttons styled as "pills".
+      pd.options.replaceChildren(...(product.options || []).map((option) => {
+        const fieldset = document.createElement("fieldset");
+        fieldset.className = "opt";
+        fieldset.append(makeText("legend", "", option.name));
+        const pills = document.createElement("div");
+        pills.className = "pills";
+        option.values.forEach((value, i) => {
+          const label = document.createElement("label");
+          label.className = "pill";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = option.name;
+          input.value = value;
+          input.checked = option.selected ? value === option.selected : i === 0;
+          label.append(input, makeText("span", "", value));
+          pills.append(label);
+        });
+        fieldset.append(pills);
+        return fieldset;
+      }));
+
+
+      // Spec table.
+      pd.specs.replaceChildren(...product.specs.map(([label, value]) => {
+        const row = document.createElement("tr");
+        row.append(makeText("td", "", label), makeText("td", "", value));
+        return row;
+      }));
+
+      pd.care.textContent = product.care;
+      pd.sizes.replaceChildren(...(product.sizeChart ? [makeSizeGuide(product.sizeChart)] : []));
+
+      productDialog.showModal();
+      productDialog.scrollTop = 0;
+    }
+
+    // Read the options picked in the pop-up: { Talla: "M", Versión: "Estándar" }
+    function chosenOptions() {
+      const chosen = {};
+      for (const option of currentProduct.options || []) {
+        chosen[option.name] = new FormData(pd.form).get(option.name);
+      }
+      return chosen;
+    }
+
+    // "Unirme a la lista de espera": add the piece to "tu lista", close
+    // the pop-up and go to the form.
+    pd.form.addEventListener("submit", (event) => {
+      event.preventDefault();   // a <form> would reload the page; we don't want that
+      addToCart(currentProduct.sku, chosenOptions());
+      closeDialog(productDialog);
+      goToWaitlist();
+    });
+
+
+    /* ---------------------------------------------------------------
+       THE CART, NOW "TU LISTA"
+       Same list as in Lesson 3: one "line" per product + options.
+         { sku: "MC2-TEE-01", options: { Talla: "M", Versión: "Estándar" }, qty: 1 }
+       Lesson 4 drops prices and quantities: it only remembers which
+       pieces you want to hear about, and sends them with your sign-up.
+
+       localStorage keeps the cart in this browser, so it survives a page
+       reload. It can be blocked (private windows), so every use is wrapped
+       in try/catch: if it fails, the cart still works, it just forgets.
+       --------------------------------------------------------------- */
+    const CART_KEY = "mc2-cart";
+    let cart = loadCart();
+
+    function loadCart() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(CART_KEY));
+        // keep only lines whose product still exists in the list
+        return Array.isArray(saved) ? saved.filter((line) => findProduct(line.sku)) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCart() {
+      try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch { /* not saved, still works */ }
+    }
+
+    // Same product + same options = same line ("MC2-TEE-01|Talla:M|Versión:Glow /GLW").
+    function lineKey(sku, options) {
+      return [sku, ...Object.entries(options).map(([name, value]) => name + ":" + value)].join("|");
+    }
+
+    // Adding the same piece twice keeps one line: it's a list, not a cart.
+    function addToCart(sku, options) {
+      const key = lineKey(sku, options);
+      if (!cart.some((l) => lineKey(l.sku, l.options) === key)) cart.push({ sku, options, qty: 1 });
+      saveCart();
+      renderCart();
+      // Restart the "bump" animation on the header count.
+      cartCount.classList.remove("bump");
+      void cartCount.offsetWidth;   // forces the browser to notice the removal
+      cartCount.classList.add("bump");
+    }
+
+    function removeLine(line) {
+      cart = cart.filter((l) => l !== line);
+      saveCart();
+      renderCart();
+    }
+
+    const cartDialog = document.getElementById("cart-dialog");
+    const cartLines = document.getElementById("cart-lines");
+    const cartCount = document.getElementById("cart-count");
+    const cartEmpty = document.getElementById("cart-empty");
+
+    function renderCart() {
+      cartCount.textContent = cart.length;
+      cartEmpty.hidden = cart.length > 0;
+
+      cartLines.replaceChildren(...cart.map((line) => {
+        const product = findProduct(line.sku);
+        const li = document.createElement("li");
+        li.className = "line";
+
+        const info = document.createElement("div");
+        info.append(
+          makeText("p", "line-name", product.name),
+          makeText("p", "line-meta", [product.sku, ...Object.values(line.options)].join(" · ")),
+        );
+
+        const remove = makeText("button", "remove", "Quitar");
+        remove.type = "button";
+        remove.addEventListener("click", () => removeLine(line));
+        const controls = document.createElement("div");
+        controls.className = "line-controls";
+        controls.append(remove);
+        info.append(controls);
+
+        li.append(makeImage(product.photo, "line-photo"), info);
+        return li;
+      }));
+      renderWish();   // the same list, shown inside the waiting-list form
+    }
+
+    /* ---------------------------------------------------------------
+       THE WAITING LIST (Lesson 4)
+       1. "Avísame por" switches the field between email and WhatsApp.
+       2. On submit we check the contact and the privacy box.
+       3. If it's fine we send it and show "Estás en la lista".
+
+       WHERE THE SIGN-UPS GO: Formspree. This page has no server of its
+       own, so each sign-up is sent to a Formspree form, which emails it
+       to you and keeps the list (exportable to CSV/Excel).
+       FORMSPREE_ID is the code at the end of your form's endpoint:
+         https://formspree.io/f/abcdwxyz  ->  "abcdwxyz"
+       While it is empty, sign-ups are only saved in this browser.
+       --------------------------------------------------------------- */
+    const FORMSPREE_ID = "mdealynn";
+    const WAITLIST_ENDPOINT = FORMSPREE_ID ? "https://formspree.io/f/" + FORMSPREE_ID : "";
+    const JOINED_KEY = "mc2-waitlist";
+
+    const waitlistForm = document.getElementById("waitlist-form");
+    const contactInput = document.getElementById("contact");
+    const contactLabel = document.getElementById("contact-label");
+    const contactError = document.getElementById("contact-error");
+    const consentInput = document.getElementById("consent");
+    const consentError = document.getElementById("consent-error");
+    const wishList     = document.getElementById("wish");
+    const wishEmpty    = document.getElementById("wish-empty");
+    const joinedBox    = document.getElementById("joined");
+
+    // Each channel: what the label says and how the input behaves.
+    const channels = {
+      email:    { label: "Tu correo",   type: "email", inputmode: "email", autocomplete: "email", placeholder: "tu@correo.com" },
+      whatsapp: { label: "Tu WhatsApp", type: "tel",   inputmode: "tel",   autocomplete: "tel",   placeholder: "+52 222 123 4567" },
+    };
+    function currentChannel() {
+      return new FormData(waitlistForm).get("channel");
+    }
+    function setChannel(name) {
+      const c = channels[name];
+      contactLabel.textContent = c.label;
+      contactInput.type = c.type;
+      contactInput.inputMode = c.inputmode;
+      contactInput.autocomplete = c.autocomplete;
+      contactInput.placeholder = c.placeholder;
+      contactInput.value = "";
+      showError(contactInput, contactError, "");
+    }
+    waitlistForm.addEventListener("change", (event) => {
+      if (event.target.name === "channel") setChannel(event.target.value);
+    });
+
+    // The pieces from "tu lista", as small tags with an × to remove them.
+    function renderWish() {
+      wishEmpty.hidden = cart.length > 0;
+      wishList.replaceChildren(...cart.map((line) => {
+        const li = document.createElement("li");
+        li.append(makeText("span", "", [findProduct(line.sku).name, ...Object.values(line.options)].join(" · ")));
+        const x = makeText("button", "", "×");
+        x.type = "button";
+        x.setAttribute("aria-label", "Quitar " + findProduct(line.sku).name);
+        x.addEventListener("click", () => removeLine(line));
+        li.append(x);
+        return li;
+      }));
+    }
+
+    // Returns an error message, or "" when the contact looks right.
+    function checkContact(channel, value) {
+      if (!value) return channel === "email" ? "Escribe tu correo." : "Escribe tu número de WhatsApp.";
+      if (channel === "email") {
+        return contactInput.validity.valid ? "" : "Ese correo no se ve completo (ejemplo: tu@correo.com).";
+      }
+      const digits = value.replace(/\D/g, "");   // keep only the numbers
+      return digits.length >= 10 && digits.length <= 15 ? "" : "Escribe tu número con lada: 10 dígitos (o +52 y 10 dígitos).";
+    }
+    function showError(input, box, message) {
+      box.textContent = message;
+      if (input) input.setAttribute("aria-invalid", String(Boolean(message)));
+    }
+
+    function goToWaitlist() {
+      const section = document.getElementById("lista");
+      section.scrollIntoView({ behavior: noMotion.matches ? "auto" : "smooth", block: "start" });
+      // Focus without jumping, so the smooth scroll isn't interrupted.
+      if (!waitlistForm.hidden) setTimeout(() => contactInput.focus({ preventScroll: true }), noMotion.matches ? 0 : 500);
+    }
+
+    function showJoined(signup) {
+      const how = signup.channel === "email" ? "a " + signup.contact : "por WhatsApp al " + signup.contact;
+      document.getElementById("joined-text").textContent = "Te escribimos " + how + " el día del drop.";
+      waitlistForm.hidden = true;
+      joinedBox.hidden = false;
+    }
+
+    waitlistForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const channel = currentChannel();
+      const contact = contactInput.value.trim();
+      const contactProblem = checkContact(channel, contact);
+      showError(contactInput, contactError, contactProblem);
+      showError(consentInput, consentError, consentInput.checked ? "" : "Necesitamos tu permiso para escribirte.");
+      if (contactProblem) { contactInput.focus(); return; }
+      if (!consentInput.checked) { consentInput.focus(); return; }
+
+      const signup = {
+        channel, contact,
+        pieces: cart.map((line) => [line.sku, ...Object.values(line.options)].join(" · ")),
+        date: new Date().toISOString(),
+      };
+      const button = waitlistForm.querySelector("[type=submit]");
+      button.disabled = true;
+      try {
+        if (WAITLIST_ENDPOINT) {
+          // The names below become the columns in Formspree. "email" is
+          // special: Formspree uses it as the reply-to of the notification.
+          const fields = {
+            _subject: "Lista de espera MC² · " + (channel === "email" ? "Correo" : "WhatsApp"),
+            canal: channel === "email" ? "Correo" : "WhatsApp",
+            [channel === "email" ? "email" : "whatsapp"]: contact,
+            piezas: signup.pieces.join(" | ") || "Ninguna",
+            _gotcha: waitlistForm.elements._gotcha.value,   // spam trap, see the HTML
+          };
+          const response = await fetch(WAITLIST_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify(fields),
+          });
+          if (!response.ok) throw new Error("status " + response.status);
+        }
+        try { localStorage.setItem(JOINED_KEY, JSON.stringify(signup)); } catch { /* still joined */ }
+        showJoined(signup);
+        joinedBox.focus();
+      } catch {
+        showError(null, consentError, "No se pudo enviar. Revisa tu conexión e inténtalo otra vez.");
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    document.getElementById("joined-edit").addEventListener("click", () => {
+      joinedBox.hidden = true;
+      waitlistForm.hidden = false;
+      contactInput.focus();
+    });
+
+    // Already joined in this browser? Show it instead of an empty form.
+    try {
+      const saved = JSON.parse(localStorage.getItem(JOINED_KEY));
+      if (saved && saved.contact) showJoined(saved);
+    } catch { /* show the form */ }
+
+    function openCart() {
+      renderCart();
+      cartDialog.showModal();
+    }
+
+    document.getElementById("cart-open").addEventListener("click", openCart);
+    document.getElementById("cart-join").addEventListener("click", () => {
+      closeDialog(cartDialog);
+      goToWaitlist();
+    });
+    renderCart();   // show the saved count in the header right away
+
+
+    /* CLOSING THE POP-UPS, WITH AN ANIMATION
+       closeDialog() adds the .closing class (the CSS plays the exit) and
+       closes for real when that animation ends. With animations turned
+       off it closes right away; the timer is a safety net either way.
+       Esc, the × buttons and a click on the dimmed area all use it. */
+    const noMotion = matchMedia("(prefers-reduced-motion: reduce)");
+    // iPhone and iPad only show :active (the pressed look) when the page
+    // listens for touches, even with an empty listener like this one.
+    document.addEventListener("touchstart", () => {}, { passive: true });
+    function closeDialog(dialog) {
+      if (!dialog.open || dialog.classList.contains("closing")) return;
+      if (noMotion.matches) { dialog.close(); return; }
+      dialog.classList.add("closing");
+      const finish = (event) => {
+        if (event && event.target !== dialog) return;   // ignore animations of things inside
+        dialog.removeEventListener("animationend", finish);
+        clearTimeout(timer);
+        dialog.classList.remove("closing");
+        dialog.close();
+      };
+      const timer = setTimeout(finish, 400);
+      dialog.addEventListener("animationend", finish);
+    }
+    const sizesDialog = document.getElementById("sizes-dialog");
+    document.getElementById("sizes-open").addEventListener("click", () => {
+      document.getElementById("sizes-body").replaceChildren(makeSizeGuide(findProduct("MC2-TEE-01").sizeChart));
+      sizesDialog.showModal();
+    });
+
+    /* THE PRIVACY NOTICE POP-UP
+       Every link to aviso-de-privacidad.html opens the pop-up instead.
+       fetch() reads that page once and we copy its <main> in. If it
+       can't be read (opened from a file, offline), the link just opens
+       the page as before. */
+    const legalDialog = document.getElementById("legal-dialog");
+    const legalBody = document.getElementById("legal-body");
+    let legalLoaded = null;
+    function loadLegal(url) {
+      legalLoaded ||= fetch(url)
+        .then((response) => { if (!response.ok) throw new Error(response.status); return response.text(); })
+        .then((html) => {
+          const page = new DOMParser().parseFromString(html, "text/html");
+          legalBody.replaceChildren(...page.querySelector("main").childNodes);
+        });
+      return legalLoaded;
+    }
+    for (const link of document.querySelectorAll('a[href="aviso-de-privacidad.html"]')) {
+      link.addEventListener("click", async (event) => {
+        event.preventDefault();   // also stops the consent box from ticking itself
+        try {
+          await loadLegal(link.href);
+          legalDialog.showModal();
+          legalDialog.scrollTop = 0;
+        } catch {
+          legalLoaded = null;
+          window.open(link.href, link.target || "_self");
+        }
+      });
+    }
+
+    for (const dialog of [productDialog, cartDialog, sizesDialog, legalDialog]) {
+      dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) closeDialog(dialog);
+      });
+      // Esc fires "cancel": stop the instant close and animate instead.
+      dialog.addEventListener("cancel", (event) => {
+        event.preventDefault();
+        closeDialog(dialog);
+      });
+    }
+    for (const button of document.querySelectorAll("[data-close]")) {
+      button.addEventListener("click", () => closeDialog(button.closest("dialog")));
+    }
+
+
+    /* JAVASCRIPT 101
+       1. Find an element on the page.
+       2. Listen for an event (a click).
+       3. Change something in response. */
+    const lightsButton = document.getElementById("lights");
+
+    lightsButton.addEventListener("click", () => {
+      const html = document.documentElement;
+      const isOff = html.dataset.lights === "off";
+
+      html.dataset.lights = isOff ? "on" : "off";          // the CSS reacts to this
+      lightsButton.textContent = isOff ? "Apagar la luz" : "Prender la luz";
+      lightsButton.setAttribute("aria-pressed", String(!isOff));
+    });
+
+    /* THE SIGNAL
+       Two loops share one timer:
+       1. The rain: each column of the <canvas> drops one character per
+          tick. Painting a see-through black over everything first leaves
+          a fading trail behind each character.
+       2. The decode: the words start as random characters and lock in,
+          left to right, then scramble away and start over. */
+    (function signal() {
+      const canvas = document.getElementById("signal-rain");   // the rain covers the top of the page
+      const ctx    = canvas.getContext("2d");
+      const parts  = [document.getElementById("signal-words"), document.getElementById("signal-soon")];
+      const finals = parts.map((el) => el.textContent);
+      const glyphs = "01MC²QX7#%/<>{}[]=+*ÚÁ31.4456°N106.0078°W";
+      const still  = matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const size   = 14;
+      let drops = [], visible = true;
+
+      function resize() {
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width  = canvas.clientWidth * ratio;
+        canvas.height = canvas.clientHeight * ratio;
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        ctx.font = "700 " + size + "px 'Space Mono', monospace";
+        const columns = Math.ceil(canvas.clientWidth / size);
+        // Start each column at a random height, so the rain is already falling.
+        drops = Array.from({ length: columns }, () => Math.random() * canvas.clientHeight / size);
+      }
+
+      function rain() {
+        const lightsOff = document.documentElement.dataset.lights === "off";
+        // "destination-out" erases a little of every old character each tick,
+        // so trails fade to see-through and the page shows behind them.
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = "rgba(0,0,0,.18)";
+        ctx.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+        ctx.globalCompositeOperation = "source-over";
+        drops.forEach((y, i) => {
+          const char = glyphs[Math.floor(Math.random() * glyphs.length)];
+          // The leading character is bright; most columns are dim green.
+          ctx.fillStyle = Math.random() < .08 ? "#F2EEE6" : (lightsOff ? "rgba(198,255,138,.7)" : "rgba(184,224,32,.55)");
+          ctx.fillText(char, i * size, y * size);
+          drops[i] = y * size > canvas.clientHeight && Math.random() > .95 ? 0 : y + 1;
+        });
+      }
+
+      // How many letters are locked in: grows, holds, then shrinks back.
+      const total = finals.join("").length;
+      let tick = 0;
+      function decode() {
+        const cycle = total * 2 + 60;              // decode, hold ~3s, scramble out
+        const t = tick % cycle;
+        const locked = t < total ? t : t < total + 60 ? total : total - (t - total - 60) * 2;
+        let index = 0;
+        parts.forEach((el, p) => {
+          el.textContent = [...finals[p]].map((char) => {
+            const done = index++ < locked;
+            return done || char === " " ? char : glyphs[Math.floor(Math.random() * glyphs.length)];
+          }).join("");
+        });
+        tick++;
+      }
+
+      resize();
+      window.addEventListener("resize", resize);
+      if (still) { for (let i = 0; i < 30; i++) rain(); return; }   // one quiet frame, no motion
+
+      // Pause when the rain is off screen, to save battery.
+      new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(canvas);
+      setInterval(() => {
+        if (!visible || document.hidden) return;
+        rain();
+        decode();
+      }, 55);
+    })();
+  </script>
+</body>
+</html>
