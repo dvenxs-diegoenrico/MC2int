@@ -93,11 +93,31 @@
     :focus-visible { outline: 2px solid var(--chem-green); outline-offset: 3px; }
 
     /* ---------- HEADER ---------- */
+    /* Three columns: the menu on the left, DSTANCE in the middle, Mi lista
+       on the right. It stays at the top while you scroll. */
     .site-header {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 1rem clamp(1rem, 4vw, 3rem);
+      display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem;
+      padding: .7rem clamp(1rem, 4vw, 3rem);
+      background: rgba(10,10,10,.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      border-bottom: 1px solid var(--line);
     }
-    .wordmark { text-decoration: none; font-weight: 800; font-size: 1.1rem; letter-spacing: .04em; }
+    .wordmark { grid-column: 2; text-decoration: none; font-weight: 800; font-size: 1.1rem; letter-spacing: .04em; text-align: center; }
+    .site-header .cart-link { grid-column: 3; justify-self: end; }
+    .site-header .cart-link { white-space: nowrap; }
+    @media (max-width: 420px) { .site-header .cart-link { letter-spacing: .12em; font-size: .68rem; } }
+    /* The menu button: three lines, the middle one shorter, like a fader scale. */
+    .burger {
+      grid-column: 1; justify-self: start;
+      width: 44px; height: 44px; margin-left: -10px; padding: 0 10px;
+      display: grid; align-content: center; gap: 5px;
+      background: none; border: 0; color: var(--ivory); cursor: pointer;
+    }
+    .burger span { display: block; height: 2px; background: currentColor; transition: width .25s ease, background-color .25s ease; }
+    .burger span:nth-child(1) { width: 24px; }
+    .burger span:nth-child(2) { width: 16px; }
+    .burger span:nth-child(3) { width: 24px; }
+    @media (hover: hover) { .burger:hover { color: var(--chem-green); } .burger:hover span:nth-child(2) { width: 24px; } }
+    section[id] { scroll-margin-top: 4.5rem; }   /* the sticky header doesn't cover the titles */
     .cart-link {
       background: none; border: 0; color: inherit; cursor: pointer; padding: .4rem 0;
       text-decoration: none; font-family: var(--font-mono); font-size: .75rem;
@@ -452,7 +472,8 @@
               mask-image: linear-gradient(to bottom, #000 6%, rgba(0,0,0,.45) 22%, rgba(0,0,0,.12) 55%, transparent 85%);
     }
     /* Everything else sits above the rain. */
-    .site-header, main, .site-footer { position: relative; z-index: 1; }
+    main, .site-footer { position: relative; z-index: 1; }
+    .site-header { position: sticky; top: 0; z-index: 5; }
     /* A soft dark glow behind the words, so the rain never fights them. */
     .signal::after {
       content: ""; position: absolute; inset: 0; pointer-events: none;
@@ -806,6 +827,79 @@
     .drawer[open] .line:nth-child(2) { animation-delay: .05s; }
     .drawer[open] .line:nth-child(n+3) { animation-delay: .1s; }
 
+    /* ---------- THE MENU: a dialog that slides in from the left ---------- */
+    .menu {
+      margin: 0 auto 0 0; width: min(440px, 100vw); height: 100dvh; max-height: 100dvh;
+      border-width: 0 1px 0 0; overflow: auto;
+    }
+    .menu[open] { display: flex; flex-direction: column; animation: menu-in .3s ease; }
+    .menu.closing { animation: menu-out .25s ease forwards; }
+    @keyframes menu-in { from { transform: translateX(-100%); } }
+    @keyframes menu-out { to { transform: translateX(-100%); } }
+    .menu-list { list-style: none; margin: 0; padding: 1.4rem clamp(1rem, 3vw, 2rem); flex: 1; display: grid; align-content: start; }
+    .menu-list a {
+      display: flex; align-items: baseline; gap: 1rem; padding: .9rem 0;
+      border-bottom: 1px solid var(--line); text-decoration: none;
+      font: 900 clamp(2rem, 9vw, 2.8rem)/1 var(--font-display); text-transform: uppercase; letter-spacing: -.02em;
+      transition: color .2s ease, padding-left .25s ease;
+    }
+    .menu-n { font: 400 .66rem var(--font-mono); letter-spacing: .2em; color: var(--sepia); min-width: 2ch; }
+    @media (hover: hover) { .menu-list a:hover { color: var(--chem-green); padding-left: .4rem; } }
+    .menu-list a:active { color: var(--chem-green); }
+    /* La Cabina: always lit, like the neon on the hero. */
+    .menu-list .menu-cabina {
+      color: var(--glow);
+      text-shadow: 0 0 8px rgba(198,255,138,.95), 0 0 24px rgba(184,224,32,.7), 0 0 60px rgba(184,224,32,.35);
+      animation: door-catch 1.2s steps(1) both, door-hum 7s steps(1) 1.2s infinite, neon-text 2.8s ease-in-out 1.2s infinite alternate;
+    }
+    .menu-cabina .door-dot { align-self: center; margin-left: auto; }
+    @keyframes neon-text { to { text-shadow: 0 0 10px rgba(198,255,138,1), 0 0 34px rgba(184,224,32,.85), 0 0 80px rgba(184,224,32,.45); } }
+    .menu-foot {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem 1rem; margin: 0;
+      padding: 1rem clamp(1rem, 3vw, 2rem) calc(1rem + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid var(--line);
+      font: 400 .66rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--sepia);
+    }
+    .menu-foot .coords-mini { color: var(--chem-green); letter-spacing: .04em; }
+
+    /* ---------- SHOWS: a list of ticket stubs ---------- */
+    .shows { padding: 4rem clamp(1rem, 4vw, 3rem); max-width: 1200px; margin: 0 auto; }
+    .shows h2, .about h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.2rem;
+    }
+    .show-list { list-style: none; margin: 0 0 2rem; padding: 0; border-top: 1px solid var(--line); }
+    .show {
+      position: relative; display: grid; grid-template-columns: 8rem minmax(0, 1fr) auto; gap: .4rem 1.5rem; align-items: center;
+      padding: 1.2rem 0; border-bottom: 1px dashed var(--line);
+      font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .14em; font-size: .74rem;
+    }
+    .show-date { color: var(--chem-green); }
+    .show-place { display: grid; gap: .2rem; }
+    .show-place b { font: 800 1.1rem/1 var(--font-display); letter-spacing: .02em; }
+    .show-place span { color: var(--sepia); font-size: .66rem; }
+    .show-state { padding: .35rem .6rem; border: 1px solid var(--muted); color: var(--muted); font-size: .62rem; letter-spacing: .22em; }
+    @media (max-width: 560px) { .show { grid-template-columns: minmax(0, 1fr) auto; } .show-date { grid-column: 1 / -1; } }
+
+    /* ---------- ABOUT ---------- */
+    .about { padding: 4rem clamp(1rem, 4vw, 3rem) 5rem; max-width: 1200px; margin: 0 auto; }
+    .about-grid { display: grid; gap: 3rem; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); align-items: start; }
+    @media (max-width: 820px) { .about-grid { grid-template-columns: 1fr; } }
+    .about p { max-width: 58ch; }
+    .team { list-style: none; margin: 1.2rem 0 1.6rem; padding: 0; display: flex; flex-wrap: wrap; gap: .5rem; }
+    .team li {
+      padding: .4rem .7rem; border: 1px solid var(--line);
+      font: 400 .72rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase;
+    }
+    .drawing { margin: 0; }
+    .drawing img {
+      display: block; width: 100%; height: auto; background: var(--ivory);
+      transform: rotate(-.8deg); border: 1px solid var(--line);
+    }
+    .drawing figcaption { margin-top: .8rem; font: 400 .66rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--sepia); }
+    .text-link { color: var(--chem-green); font: 700 .74rem var(--font-mono); letter-spacing: .2em; text-transform: uppercase; text-decoration: none; }
+    @media (hover: hover) { .text-link:hover { text-decoration: underline; } }
+
     /* "LA CABINA": a neon sign that was always on; the room was just too
        bright to see it. When the lights go off it shows up glowing, a
        tube catching for a second, then it hums and flickers now and then.
@@ -854,7 +948,10 @@
        footer). They tell browsers and Google what each part is. -->
 
   <header class="site-header">
-    <a class="wordmark" href="#">DSTANCE</a>
+    <button class="burger" id="menu-open" type="button" aria-haspopup="dialog" aria-controls="menu" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+    <a class="wordmark" href="#top">DSTANCE</a>
     <!-- Lesson 4: the cart is now "tu lista", the pieces you want to hear about. -->
     <button class="cart-link" id="cart-open" type="button" aria-haspopup="dialog">Mi lista (<span id="cart-count">0</span>)</button>
   </header>
@@ -1059,6 +1156,42 @@
         </ul>
       </div>
     </section>
+    <!-- SHOWS: the live dates. PLACEHOLDER: there are no dates yet; when there
+         are, each one is an <li class="show"> like these. -->
+    <section class="shows" id="shows" aria-labelledby="shows-title">
+      <span class="eyebrow">En vivo // Música Cuántica</span>
+      <h2 id="shows-title">Shows</h2>
+      <p class="drop-intro">Las fechas de Música Cuántica en vivo se anuncian aquí primero.</p>
+      <ol class="show-list">
+        <li class="show"><span class="show-date">Fecha por anunciar</span><span class="show-place"><b>Ciudad por anunciar</b><span>Venue · por anunciar</span></span><span class="show-state">Pronto</span></li>
+        <li class="show"><span class="show-date">Fecha por anunciar</span><span class="show-place"><b>Ciudad por anunciar</b><span>Venue · por anunciar</span></span><span class="show-state">Pronto</span></li>
+        <li class="show"><span class="show-date">Fecha por anunciar</span><span class="show-place"><b>Ciudad por anunciar</b><span>Venue · por anunciar</span></span><span class="show-state">Pronto</span></li>
+      </ol>
+      <a class="btn btn-ghost" href="#lista">Avísame cuando haya fechas →</a>
+    </section>
+
+    <!-- ABOUT: Dstance, the record and the people who went to Sonic Ranch,
+         with the drawing Hector made of all of them. -->
+    <section class="about" id="about" aria-labelledby="about-title">
+      <div class="about-grid">
+        <div>
+          <span class="eyebrow">About // Dstance</span>
+          <h2 id="about-title">About</h2>
+          <p>Dstance es Dany Dstance. Música Cuántica es su próximo disco, grabado en Sonic Ranch, en Tornillo, Texas. Todo Cae, el primer sencillo, ya salió.</p>
+          <p>MC² es la ropa del disco, hecha en Puebla: cada pieza se lava, se cuartea y se desgasta a mano, como una toma en vivo.</p>
+          <span class="eyebrow">Quién estuvo en Sonic Ranch</span>
+          <ul class="team" aria-label="El equipo de Sonic Ranch">
+            <li>Hector</li><li>Gü</li><li>Greta</li><li>Jere</li><li>Nava</li><li>Jack Kool</li><li>Rabi</li><li>Dany Dstance</li><li>Felipe</li>
+          </ul>
+          <a class="text-link" href="#cabina/equipo">Conócelos en la cabina ↗</a>
+        </div>
+        <figure class="drawing">
+          <img src="photos/equipo-dibujo-hector.jpg" width="2253" height="1598" loading="lazy"
+               alt="Dibujo de Hector: Sonic Ranch 2026, Mamerronix 3000 septeto koreano, Música Cuántica, y las nueve personas que fueron, cada una con su nombre">
+          <figcaption>Dibujo de Hector · Sonic Ranch 2026</figcaption>
+        </figure>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -1131,6 +1264,21 @@
   </dialog>
 
   <!-- Cart drawer -->
+  <!-- THE MENU -->
+  <dialog class="menu" id="menu" aria-label="Menú">
+    <div class="bar"><span>MC² · <span class="code">menú</span></span><button class="x" type="button" data-close aria-label="Cerrar el menú">×</button></div>
+    <nav aria-label="Principal">
+      <ol class="menu-list">
+        <li><a href="#session-01"><span class="menu-n">01</span>Shop</a></li>
+        <li><a class="menu-cabina" href="#cabina"><span class="menu-n">02</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
+        <li><a href="#top"><span class="menu-n">03</span>Home</a></li>
+        <li><a href="#shows"><span class="menu-n">04</span>Shows</a></li>
+        <li><a href="#about"><span class="menu-n">05</span>About</a></li>
+      </ol>
+    </nav>
+    <p class="menu-foot"><span class="coords-mini">31.4456°N 106.0078°W</span><span>Música Cuántica · Session 01</span></p>
+  </dialog>
+
   <dialog class="drawer" id="cart-dialog" aria-labelledby="cart-title">
     <div class="bar">
       <span id="cart-title">Mi lista <span class="code">/ Session 01</span></span>
@@ -1812,7 +1960,17 @@
       });
     }
 
-    for (const dialog of [productDialog, cartDialog, sizesDialog, legalDialog]) {
+    /* THE MENU
+       A link closes it at once (no exit animation), so the page can
+       scroll to the section right away. "La Cabina" is #cabina: the
+       hash change turns the lights off and goes in. */
+    const menuDialog = document.getElementById("menu");
+    document.getElementById("menu-open").addEventListener("click", () => menuDialog.showModal());
+    for (const link of menuDialog.querySelectorAll("a")) {
+      link.addEventListener("click", () => menuDialog.close());
+    }
+
+    for (const dialog of [productDialog, cartDialog, sizesDialog, legalDialog, menuDialog]) {
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) closeDialog(dialog);
       });
