@@ -28,7 +28,24 @@ w, h su tamaño, en % de la panorámica. De izquierda a derecha: el apagador (di
 el archivero, la consola, la perilla, el vidrio (aquí empiezas), la ranura, la tele y la hoja de sesión.
 Si cambias la panorámica, mueve los objetos a donde estén las cosas en la foto nueva.
 
-Cada estación abre con un acercamiento del objeto (las fotos `photos/cabina-*.jpg`).
+En el cuarto hay una mira al centro, como en un videojuego: el objeto que miras se ilumina y al tocar la mira entras.
+
+## Las estaciones (primera persona)
+
+Cada estación es el objeto mismo, a pantalla completa: atrás su mundo (`MEDIA.scenes`), arriba el HUD
+(regresar y el nombre) y abajo una pista de lo que puedes hacer.
+
+| Estación | Es… | Escena |
+|---|---|---|
+| frecuencia | un radio: escala con aguja, estática en el aire, perilla | `photos/escena-frecuencia.jpg` |
+| consola | la mesa: display de la toma, VU que se mueven al ritmo (~84 bpm), faders | `photos/cabina-consola.jpg` |
+| canal | la tele: pantalla completa y botones de canal | `photos/cabina-monitor.jpg` |
+| archivo | el cajón abierto: fichas que se hojean | `photos/escena-archivo.jpg` |
+| llave | el panel: display LCD y la ranura donde entra la tarjeta | `photos/escena-llave.jpg` |
+| huéspedes | el vidrio: las sesiones son reflejos en superposición | `photos/escena-sala.jpg` |
+| acta | la hoja de sesión: firmas en ella y se voltea en tu acta | `photos/cabina-hoja.jpg` |
+
+Las escenas nuevas (`escena-*.jpg`) se generaron con la IA de Canva. Para cambiar una, reemplaza el archivo o la ruta en `MEDIA.scenes`.
 
 ## Placeholders por reemplazar
 

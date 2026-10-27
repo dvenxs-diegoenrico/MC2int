@@ -44,6 +44,17 @@ const MEDIA = {
   // you change it, move the objects in OBJECTS to where things are.
   panorama: "photos/cabina-panoramica.jpg",
   panoramaRatio: 1628 / 644,   // its width / height
+  // ESCENAS: what you see behind each station, full screen (Canva AI,
+  // in the style of the session Polaroids).
+  scenes: {
+    frecuencia: "photos/escena-frecuencia.jpg",   // the glowing scale of an old radio
+    consola:    "photos/cabina-consola.jpg",      // the desk, up close
+    canal:      "photos/cabina-monitor.jpg",      // the TV on its shelf
+    archivo:    "photos/escena-archivo.jpg",      // an open drawer full of cards
+    llave:      "photos/escena-llave.jpg",        // a metal panel with a display and a slot
+    huespedes:  "photos/escena-sala.jpg",         // the live room, through the glass
+    acta:       "photos/cabina-hoja.jpg",         // the session sheet on the desk
+  },
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "",
@@ -200,19 +211,23 @@ function onAir(id) {
   return `<p class="onair" id="${id}" role="img" aria-label="live session: grabando"><span class="onair-dot" aria-hidden="true"></span><span aria-hidden="true">live session</span></p>`;
 }
 
-function station(name, body) {
-  const s = STATIONS[name];
+// Every station is a full-screen scene, like a first-person game: the
+// world behind (MEDIA.scenes), a HUD on top, the object in the middle,
+// and a hint at the bottom of what you can do with it.
+function station(name, body, hint) {
+  const s = STATIONS[name], scene = MEDIA.scenes[name];
   return `
-    <section class="cab-station" data-screen="${name}" hidden aria-labelledby="st-${name}">
-      <div class="st-inner">
-        <div class="st-head">
-          <button class="cab-btn" type="button" data-back>‹ regresar</button>
+    <section class="cab-station st-${name}" data-screen="${name}" hidden aria-labelledby="st-${name}">
+      ${scene ? `<div class="st-scene" aria-hidden="true" style="background-image: url('${scene}')"></div>` : ""}
+      <div class="st-hud">
+        <button class="cab-btn hud-back" type="button" data-back>‹ regresar</button>
+        <div class="hud-title">
           <span class="st-code"><b>${s.n}</b> // ${s.objeto}</span>
+          <h2 id="st-${name}" tabindex="-1">${s.nombre}</h2>
         </div>
-        <h2 id="st-${name}" tabindex="-1">${s.nombre}</h2>
-        ${MEDIA.photos[s.photo] ? `<figure class="st-hero" aria-hidden="true"><img src="${MEDIA.photos[s.photo]}" alt=""></figure>` : ""}
-        ${body}
       </div>
+      <div class="st-stage">${body}</div>
+      ${hint ? `<p class="hud-hint" aria-hidden="true">${hint}</p>` : ""}
     </section>`;
 }
 
@@ -263,6 +278,11 @@ function build() {
         ${OBJECTS.map(spot).join("")}
       </div>
       <div class="cab-dust" aria-hidden="true">${dust}</div>
+      <!-- The crosshair, like in a game: what you look at lights up, and
+           a tap on the crosshair goes into it. -->
+      <button class="reticle" id="reticle" type="button" tabindex="-1" aria-hidden="true">
+        <span class="reticle-ring"></span><span class="reticle-name" id="reticle-name"></span>
+      </button>
       <button class="cab-btn gyro" id="gyro" type="button" aria-pressed="false" hidden>mover el teléfono: off</button>
       <div class="hub-nav">
         <button class="cab-btn turn" id="turn-left" type="button" aria-label="girar a la izquierda">‹</button>
@@ -273,31 +293,34 @@ function build() {
     </section>
 
     ${station("frecuencia", `
-      <p class="st-lead">la sesión sigue al aire en algún punto del cuadrante. gira la perilla hasta que la estática se limpie.</p>
+      <!-- FRECUENCIA is a radio: the static fills the air, the scale and
+           its needle run across the top, the knob sits at your hand. -->
       <div class="fq" id="fq">
-        <div class="fq-screen">
-          <canvas width="120" height="52" aria-hidden="true"></canvas>
-          <p class="fq-read"><span class="fq-mhz" id="fq-mhz"></span><span>mhz</span><span class="fq-state" id="fq-state"></span></p>
+        <div class="fq-screen" aria-hidden="true"><canvas width="120" height="52"></canvas></div>
+        <div class="fq-band" aria-hidden="true">
+          <div class="fq-scale"><span style="left:2.44%">88</span><span style="left:12.20%">90</span><span style="left:21.95%">92</span><span style="left:31.71%">94</span><span style="left:41.46%">96</span><span style="left:51.22%">98</span><span style="left:60.98%">100</span><span style="left:70.73%">102</span><span style="left:80.49%">104</span><span style="left:90.24%">106</span><span style="left:100.00%">108</span></div>
+          <span class="fq-needle" id="fq-needle"></span>
         </div>
-        <div class="fq-controls">
-          <div class="dial" id="fq-dial" role="slider" tabindex="0" aria-label="perilla de frecuencia"
-               aria-valuemin="87.5" aria-valuemax="108">
-            <svg viewBox="0 0 100 100" aria-hidden="true">${ticks}</svg>
-            <span class="dial-knob"></span>
-          </div>
-          <div class="fq-side">
-            <p class="meter" id="fq-meter" aria-hidden="true"></p>
-            <button class="cab-btn" type="button" id="fq-sound" aria-pressed="true">sonido: on</button>
-            <p class="st-note">pista: la señal está en las coordenadas.</p>
-            <p class="st-note">AUDIO: ${MEDIA.frecuencia ? "fragmento de la sesión" : "tono de prueba (placeholder)"}</p>
-          </div>
-        </div>
+        <p class="fq-read"><span class="fq-mhz" id="fq-mhz"></span><span>mhz</span><span class="fq-state" id="fq-state"></span></p>
         <div class="sp" id="fq-sp">
           <!-- Two short lines of Todo Cae. In the static, each one overlaps a
                line from the verses; tuned, they collapse into the chorus. -->
           <p class="st-tag">fragmento en superposición // todo cae</p>
           <p class="sp-line"><span class="sp-a">todo cae en su lugar</span><span class="sp-b" aria-hidden="true">pensando en que perdí</span></p>
           <p class="sp-line"><span class="sp-a">solo hay que esperar</span><span class="sp-b" aria-hidden="true">cuesta dejarlos ir</span></p>
+        </div>
+        <div class="fq-controls">
+          <p class="meter" id="fq-meter" aria-hidden="true"></p>
+          <div class="dial" id="fq-dial" role="slider" tabindex="0" aria-label="perilla de frecuencia"
+               aria-valuemin="87.5" aria-valuemax="108">
+            <svg viewBox="0 0 100 100" aria-hidden="true">${ticks}</svg>
+            <span class="dial-knob"></span>
+          </div>
+          <div class="fq-side">
+            <button class="cab-btn" type="button" id="fq-sound" aria-pressed="true">sonido: on</button>
+            <p class="st-note">pista: la señal está en las coordenadas.</p>
+            <p class="st-note">AUDIO: ${MEDIA.frecuencia ? "fragmento de la sesión" : "tono de prueba (placeholder)"}</p>
+          </div>
         </div>
         <div class="fq-air" id="fq-air" hidden tabindex="-1">
           <p class="st-tag">al aire // <b>single 01</b></p>
@@ -309,97 +332,120 @@ function build() {
           </ul>
         </div>
         <p class="sr-only" id="fq-live" aria-live="polite"></p>
-      </div>`)}
+      </div>`, "gira la perilla · donde la estática se limpia, la canción colapsa")}
 
     ${station("consola", `
-      <p class="st-lead">cuatro canales de la toma 01. el último decide qué tan en vivo quedó.</p>
-      <p class="take"><span class="take-word" id="take-word" aria-live="polite"></span><small>toma 01 // session 01 · sonic ranch</small></p>
-      <div class="desk">
-        ${fader("voz", 72, -2)}${fader("guitarras", 60, 1.5)}${fader("sala", 45, -1)}${fader("overdubs", state.overdubs, 2)}
-      </div>
-      <p class="st-note">la posición del fader overdubs viaja a tu acta.</p>`)}
+      <!-- CONSOLA is the desk: the take on a LED display, the meter bridge
+           moving with the music, and four long faders. -->
+      <div class="desk-wrap">
+        <p class="take"><span class="led-rec" aria-hidden="true">● rec</span><span class="take-word" id="take-word" aria-live="polite"></span><small>toma 01 // session 01 · sonic ranch</small></p>
+        <div class="bridge" aria-hidden="true">
+          ${["voz", "guitarras", "sala", "overdubs"].map((name) => `
+            <div class="vu" data-vu="${name}"><span class="vu-needle"></span><span class="vu-name">${name}</span></div>`).join("")}
+        </div>
+        <div class="desk">
+          ${fader("voz", 72, -2)}${fader("guitarras", 60, 1.5)}${fader("sala", 45, -1)}${fader("overdubs", state.overdubs, 2)}
+        </div>
+        <p class="st-note">el fader overdubs está entrelazado con tu acta: lo que muevas aquí, aparece allá.</p>
+      </div>`, "sube y baja los faders · el último decide qué tan en vivo quedó")}
 
     ${station("canal", `
-      <p class="st-lead">la tele de la cabina. las transmisiones se prenden por fases.</p>
+      <!-- CANAL MC² is the TV: the screen is everything, the channel
+           buttons are on its panel. -->
       <div class="tv">
         <div class="tv-screen" id="tv-screen">
           <canvas width="96" height="72" aria-hidden="true"></canvas>
           <video playsinline controls hidden></video>
-          <div class="tv-msg" id="tv-msg" aria-live="polite"><strong>sin señal</strong><span>canal mc² · en espera</span></div>
+          <div class="tv-msg" id="tv-msg" aria-live="polite"><strong>sin señal</strong><span>canal mc² · elige un canal</span></div>
           <span class="tv-ch" aria-hidden="true">ch 03</span>
         </div>
+        <ul class="tx-list" aria-label="canales">
+          ${MEDIA.canal.map((tx, i) => `
+            <li><button class="tx" type="button" data-tx="${i}">
+              <b>${esc(tx.id)}</b><span>${esc(tx.titulo)}</span><span>${tx.video || tx.youtube ? "al aire" : "sin señal"}</span>
+            </button></li>`).join("")}
+        </ul>
         <div class="tv-foot" aria-hidden="true"><span>${COORDS}</span><span>archive locked</span></div>
-      </div>
-      <ul class="tx-list">
-        ${MEDIA.canal.map((tx, i) => `
-          <li><button class="tx" type="button" data-tx="${i}">
-            <b>${esc(tx.id)}</b><span>${esc(tx.titulo)}</span><span>${tx.video || tx.youtube ? "al aire" : "sin señal"}</span>
-          </button></li>`).join("")}
-      </ul>
-      <p class="st-note">VIDEO: cada transmisión es un placeholder.</p>`)}
+      </div>`, "elige un canal · las transmisiones se prenden por fases")}
 
     ${station("archivo", `
-      <p class="st-lead">las fichas de session 01. tiraje cerrado: se consultan, no se mueven.</p>
-      <div class="fichas" id="fichas"></div>`)}
+      <!-- ARCHIVO is the open drawer: index cards you leaf through. -->
+      <div class="cajon">
+        <div class="fichas" id="fichas"></div>
+        <div class="drawer-nav">
+          <button class="cab-btn" type="button" id="ficha-prev" aria-label="ficha anterior">‹</button>
+          <span id="ficha-n" aria-live="polite"></span>
+          <button class="cab-btn" type="button" id="ficha-next" aria-label="ficha siguiente">›</button>
+        </div>
+      </div>`, "hojea las fichas · tiraje cerrado: se consultan, no se mueven")}
 
     ${station("llave", `
-      <p class="st-lead">cada pieza trae su llave. insértala y la cabina abre lo que estaba guardado.</p>
-      ${ph("ranura", "ranura de la llave", "slot-ph")}
-      <form class="key-form" id="key-form" novalidate>
-        <label class="qty-label" for="key-input">código de la llave</label>
-        <div class="key-row">
-          <input class="cab-input" id="key-input" autocomplete="off" autocapitalize="characters" spellcheck="false"
-                 placeholder="MC2-XXX-00" maxlength="16" aria-describedby="key-msg">
+      <!-- LLAVE is the panel: a display that reads your key and the slot
+           it slides into. -->
+      <div class="panel">
+        <form class="key-form" id="key-form" novalidate>
+          <label class="lcd" for="key-input">
+            <span class="lcd-label">inserta tu llave</span>
+            <input class="cab-input" id="key-input" autocomplete="off" autocapitalize="characters" spellcheck="false"
+                   placeholder="MC2-XXX-00" maxlength="16" aria-describedby="key-msg">
+          </label>
+          <p class="key-msg" id="key-msg" aria-live="polite"></p>
+          <div class="slot" aria-hidden="true"><span class="key-card">MC²</span></div>
           <button class="cab-btn solid" type="submit">insertar ↗</button>
+        </form>
+        <div class="vault" id="vault" hidden tabindex="-1">
+          <p class="st-tag">llave aceptada // <b id="vault-id"></b></p>
+          <h3 id="vault-title"></h3>
+          <p class="st-lead" id="vault-text"></p>
+          <span class="ph" id="vault-ph" aria-hidden="true"></span>
         </div>
-        <p class="key-msg" id="key-msg" aria-live="polite"></p>
-      </form>
-      <div class="vault" id="vault" hidden tabindex="-1">
-        <p class="st-tag">llave aceptada // <b id="vault-id"></b></p>
-        <h3 id="vault-title"></h3>
-        <p class="st-lead" id="vault-text"></p>
-        <span class="ph" id="vault-ph" aria-hidden="true"></span>
-      </div>
-      <p class="st-note" id="key-list"></p>`)}
+        <p class="st-note" id="key-list"></p>
+      </div>`, "escribe el código de tu pieza · la ranura sabe cuál es")}
 
     ${station("huespedes", `
-      <p class="st-lead">del otro lado del vidrio. las sesiones invitadas entran por fases.</p>
-      <div class="guests">
-        ${[["mits", "MITS"], ["ripe", "RiPE"], ["sonicranch", "Sonic Ranch"]].map(([key, name]) => `
-          <article class="guest">
-            ${ph(key, name)}
-            <h3>${name}</h3>
-            <p>sesión invitada · próximamente</p>
-            <p>archive locked</p>
-          </article>`).join("")}
-      </div>`)}
+      <!-- SALA DE HUÉSPEDES is the glass: the sessions to come are
+           reflections on it, still in superposition. -->
+      <div class="glass">
+        <div class="guests">
+          ${[["mits", "MITS"], ["ripe", "RiPE"], ["sonicranch", "Sonic Ranch"]].map(([key, name]) => `
+            <article class="guest" tabindex="0">
+              ${ph(key, name)}
+              <h3><span class="sp-a">${name}</span><span class="sp-b" aria-hidden="true">${name}</span></h3>
+              <p>sesión invitada · próximamente</p>
+              <p>archive locked</p>
+            </article>`).join("")}
+        </div>
+      </div>`, "del otro lado del vidrio · toca un reflejo para colapsarlo")}
 
     ${station("acta", `
-      <p class="st-lead">firma la hoja de sesión y la cabina te da tu acta: con la toma, las coordenadas y la fecha.</p>
-      <div class="acta-grid">
-        <form id="acta-form" novalidate>
-          <label class="field">
-            <span class="qty-label">Tu nombre</span>
-            <input id="acta-name" maxlength="28" autocomplete="name" placeholder="como quieres que aparezca" aria-describedby="acta-error">
+      <!-- ACTA is the session sheet: you sign on it, and it turns over into
+           your acta. -->
+      <div class="sheet-wrap" id="sheet-wrap">
+        <form id="acta-form" class="acta-sheet" novalidate>
+          <p class="sheet-head"><span>hoja de sesión</span><span>MC2 · session 01</span></p>
+          <label class="sheet-row">
+            <span>presente en la sesión</span>
+            <input id="acta-name" maxlength="28" autocomplete="name" placeholder="tu nombre" aria-describedby="acta-error">
           </label>
           <p class="field-error" id="acta-error" aria-live="polite"></p>
-          <fieldset class="opt">
-            <legend>La toma</legend>
-            <div class="pills">
-              <label class="pill"><input type="radio" name="toma" value="live"><span>recorded live</span></label>
-              <label class="pill"><input type="radio" name="toma" value="od"><span>some overdubs</span></label>
-            </div>
+          <fieldset class="sheet-row sheet-take">
+            <legend>la toma</legend>
+            <label><input type="radio" name="toma" value="live"><span>recorded live</span></label>
+            <label><input type="radio" name="toma" value="od"><span>some overdubs</span></label>
           </fieldset>
+          <p class="sheet-row"><span>fecha</span><b id="sheet-date"></b></p>
+          <p class="sheet-row"><span>coordenadas</span><b>${COORDS}</b></p>
           <div class="acta-actions">
-            <button class="cab-btn solid" type="submit">descargar acta ↗</button>
+            <button class="cab-btn solid" type="submit">firmar y descargar ↗</button>
             <button class="cab-btn" type="button" id="acta-share" hidden>compartir ↗</button>
           </div>
           <p class="st-note">el acta se hace en tu teléfono. no se envía a ningún lado.</p>
         </form>
         <figure class="acta-preview">
           <canvas id="acta-canvas" width="1080" height="1350" role="img" aria-label="vista previa de tu acta MC²"></canvas>
+          <button class="cab-btn" type="button" id="acta-back">‹ volver a la hoja</button>
         </figure>
-      </div>`)}
+      </div>`, "firma la hoja · al firmarla se voltea y es tu acta")}
 
     <div class="cab-flash" aria-hidden="true"></div>
     <canvas class="cab-quantum" hidden aria-hidden="true"></canvas>`;
@@ -446,6 +492,7 @@ function build() {
   setupFrecuencia();
   setupConsola();
   setupCanal();
+  setupArchivo();
   setupLlave();
   setupActa();
 }
@@ -685,11 +732,29 @@ function setupRoom() {
       item.node.classList.toggle("far", far);
       if (!far) place(item.node, offset, item.depth, item.y);
     }
+    aim();
     const rumbo = ((Math.round(angle - HOME) % 360) + 360) % 360;
     heading.textContent = "rumbo " + String(rumbo).padStart(3, "0") + "° · " + nearest(angle).nombre;
     $("#turn-left").disabled = target <= clamp(-Infinity) + .5;
     $("#turn-right").disabled = target >= clamp(Infinity) - .5;
   }
+  // The object under the crosshair: the one whose middle is closest to
+  // the center of the view, if the view is inside it.
+  let aimed = null;
+  const reticle = $("#reticle"), reticleName = $("#reticle-name");
+  function aim() {
+    const o = nearest(angle);
+    const hit = Math.abs(deg(o) - angle) <= Math.max(4, o.w / 100 * ARC / 2);
+    const node = hit ? root.querySelector(`[data-obj="${OBJECTS.indexOf(o)}"]`) : null;
+    if (node === aimed) return;
+    aimed?.classList.remove("aimed");
+    aimed = node;
+    aimed?.classList.add("aimed");
+    reticle.classList.toggle("on", Boolean(aimed));
+    reticleName.textContent = aimed ? o.nombre + (o.station ? " · entrar ↗" : " · prender la luz") : "";
+  }
+  reticle.addEventListener("click", () => aimed?.click());
+
   function announce() {
     const name = nearest(angle).nombre;
     if (name !== spoken) { live.textContent = "frente a ti: " + name; spoken = name; }
@@ -970,7 +1035,7 @@ const FQ = { min: 87.5, max: 108, target: 106.0, start: 93.1, turns: 2 };
 function setupFrecuencia() {
   const box = $("#fq"), dial = $("#fq-dial"), knob = $(".dial-knob"), sp = $("#fq-sp");
   const mhz = $("#fq-mhz"), status = $("#fq-state"), meter = $("#fq-meter"), live = $("#fq-live");
-  const soundButton = $("#fq-sound");
+  const soundButton = $("#fq-sound"), needle = $("#fq-needle");
   let raw = FQ.start, level = 1, audio = null, sound = true, holdTimer = 0, collapsed = false;
   const noise = makeStatic($(".fq-screen canvas"), () => level);
 
@@ -985,6 +1050,7 @@ function setupFrecuencia() {
 
     mhz.textContent = shown.toFixed(1);
     status.textContent = words;
+    needle.style.left = ((raw - FQ.min) / (FQ.max - FQ.min) * 100).toFixed(2) + "%";
     knob.style.setProperty("--angle", ((raw - FQ.min) / (FQ.max - FQ.min) * 360 * FQ.turns).toFixed(1) + "deg");
     dial.setAttribute("aria-valuenow", shown.toFixed(1));
     dial.setAttribute("aria-valuetext", shown.toFixed(1) + " megahertz, " + words);
@@ -1211,6 +1277,31 @@ function setupConsola() {
     input.addEventListener("input", () => update(input));
     input.addEventListener("change", saveState);
   }
+
+  // The meter bridge: each needle follows its fader, pushed by a pulse
+  // at the tempo of the take (~84 bpm), each channel a little off the
+  // others, the way a room breathes.
+  const vus = [...root.querySelectorAll("[data-vu]")].map((vu, i) => ({
+    needle: vu.querySelector(".vu-needle"),
+    input: root.querySelector(`[data-ch="${vu.dataset.vu}"]`),
+    phase: i * 1.7,
+  }));
+  let frame = 0;
+  function swing(t) {
+    const beat = t / 1000 * (84 / 60) * Math.PI * 2;
+    for (const vu of vus) {
+      const level = Number(vu.input.value) / 100;
+      const pulse = .55 + .3 * Math.max(0, Math.sin(beat + vu.phase)) ** 3 + .15 * Math.sin(beat * 2.3 + vu.phase);
+      vu.needle.style.setProperty("--a", (-48 + 96 * level * pulse).toFixed(1) + "deg");
+    }
+    frame = requestAnimationFrame(swing);
+  }
+  starts.consola = () => {
+    if (noMotion.matches) {
+      for (const vu of vus) vu.needle.style.setProperty("--a", (-48 + 70 * Number(vu.input.value) / 100).toFixed(1) + "deg");
+    } else frame = requestAnimationFrame(swing);
+  };
+  stops.consola = () => cancelAnimationFrame(frame);
 }
 
 
@@ -1324,7 +1415,32 @@ starts.archivo = () => {
     card.append(link);
     return card;
   }));
+  countFicha();
 };
+
+// The drawer scrolls sideways, card by card; ‹ › and the counter follow.
+const fichaAt = () => {
+  const list = $("#fichas");
+  return Math.round(list.scrollLeft / Math.max(1, list.firstElementChild?.offsetWidth || 1));
+};
+function countFicha() {
+  const list = $("#fichas"), n = list.children.length, i = Math.min(n - 1, fichaAt());
+  $("#ficha-n").textContent = n ? `ficha ${i + 1} / ${n}` : "";
+  $("#ficha-prev").disabled = i <= 0;
+  $("#ficha-next").disabled = i >= n - 1;
+  [...list.children].forEach((card, j) => card.classList.toggle("front", j === i));
+}
+function setupArchivo() {
+  const list = $("#fichas");
+  const step = (d) => {
+    const card = list.children[Math.max(0, Math.min(list.children.length - 1, fichaAt() + d))];
+    card?.scrollIntoView({ behavior: noMotion.matches ? "auto" : "smooth", block: "nearest", inline: "center" });
+  };
+  $("#ficha-prev").addEventListener("click", () => step(-1));
+  $("#ficha-next").addEventListener("click", () => step(1));
+  let wait = 0;
+  list.addEventListener("scroll", () => { cancelAnimationFrame(wait); wait = requestAnimationFrame(countFicha); }, { passive: true });
+}
 
 
 /* ---------------------------------------------------------------
@@ -1363,6 +1479,9 @@ function setupLlave() {
       return;
     }
     input.setAttribute("aria-invalid", "false");
+    form.classList.remove("accepted");
+    void form.offsetWidth;
+    form.classList.add("accepted");
     message.className = "key-msg ok";
     message.textContent = "llave aceptada · " + key.id;
     if (!state.llaves.includes(key.id)) state.llaves.push(key.id);
@@ -1376,7 +1495,7 @@ function setupLlave() {
   starts.llave = () => {
     listKeys();
     const opened = Object.values(LLAVES).filter((key) => state.llaves.includes(key.id)).pop();
-    if (opened) showVault(opened);
+    if (opened) { showVault(opened); form.classList.add("accepted"); }
   };
 }
 
@@ -1526,10 +1645,16 @@ function setupActa() {
     input.focus();
     return false;
   }
+  const wrap = $("#sheet-wrap");
   function signed() {
     state.acta = true;
     saveState();
+    wrap.classList.add("flipped");
   }
+  $("#acta-back").addEventListener("click", () => {
+    wrap.classList.remove("flipped");
+    input.focus();
+  });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -1565,6 +1690,7 @@ function setupActa() {
   starts.acta = () => {
     // The take comes from the overdubs fader in the console.
     form.elements.toma.value = state.overdubs >= 50 ? "od" : "live";
+    $("#sheet-date").textContent = today();
     if (!painted) { paintTiles(); painted = true; }
     fonts.then(draw);
   };
