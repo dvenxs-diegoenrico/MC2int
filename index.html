@@ -924,7 +924,31 @@
     .video-title { bottom: 2.1rem; font: 900 clamp(1.3rem, 2.6vw, 1.8rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase; }
     .video-year { bottom: 1rem; font: 400 .68rem var(--font-mono); letter-spacing: .18em; }
     @media (hover: hover) { .video:hover img { transform: scale(1.04); } .video:hover .video-play { transform: scale(1.1); background: var(--washed-black); } }
-    .videos iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: var(--washed-black); }
+
+    /* The video pop-up: as big as the screen allows at 16:9. It grows out
+       of the tapped picture (--fx, --fy, --fs, set by JavaScript) with a
+       soft overshoot, and shrinks back into it on close. */
+    .video-pop {
+      width: min(94vw, calc((88vh - 3rem) * 16 / 9)); padding: 0; border: 0;
+      background: transparent; overflow: visible; color: #fff;
+    }
+    .video-pop::backdrop { background: rgba(5,5,5,.88); backdrop-filter: blur(6px); }
+    .video-pop[open] { animation: vp-in .55s cubic-bezier(.2,.9,.25,1.08) both; }
+    .video-pop.closing { animation: vp-out .38s cubic-bezier(.5,0,.75,0) forwards; }
+    @keyframes vp-in  { from { transform: translate(var(--fx, 0), var(--fy, 0)) scale(var(--fs, .6)); opacity: .6; border-radius: 0; } }
+    @keyframes vp-out { to   { transform: translate(var(--fx, 0), var(--fy, 0)) scale(var(--fs, .6)); opacity: 0; } }
+    .vp-frame { position: relative; aspect-ratio: 16 / 9; background: var(--washed-black); box-shadow: 0 30px 90px rgba(0,0,0,.6); overflow: hidden; }
+    .vp-frame iframe, .vp-poster { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; object-fit: cover; }
+    .vp-frame iframe { opacity: 0; animation: vp-show .4s ease .5s forwards; }   /* fades in once the pop-up has grown */
+    @keyframes vp-show { to { opacity: 1; } }
+    .vp-cap {
+      display: flex; justify-content: space-between; gap: 1rem; margin: .8rem 0 0;
+      font: 900 clamp(1.3rem, 3vw, 2rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase;
+      opacity: 0; animation: vp-show .3s ease .35s forwards;
+    }
+    .vp-cap span:last-child { font: 400 .74rem var(--font-mono); letter-spacing: .18em; align-self: end; }
+    .vp-close { position: absolute; top: -2.9rem; right: 0; color: #fff; border-color: rgba(255,255,255,.5); background: rgba(10,10,10,.4); }
+    .video-pop.closing .vp-cap, .video-pop.closing .vp-close { opacity: 0; transition: opacity .15s ease; }
 
     /* En vivo: under the press kit's night sky. */
     .envivo { background: #0b1016 url("photos/ds-cielo.jpg") center top / cover; color: #fff; }
@@ -1576,6 +1600,13 @@
   </dialog>
 
   <!-- Cart drawer -->
+  <!-- VIDEO POP-UP: the music videos, big. Filled by JavaScript. -->
+  <dialog class="video-pop" id="video-pop" aria-labelledby="vp-title">
+    <div class="vp-frame" id="vp-frame"></div>
+    <p class="vp-cap"><span id="vp-title"></span><span id="vp-year"></span></p>
+    <button class="x vp-close" id="vp-close" type="button" aria-label="Cerrar el video">×</button>
+  </dialog>
+
   <!-- THE MENU -->
   <dialog class="menu" id="menu" aria-label="Menú">
     <div class="bar"><span>MC² · <span class="code">menú</span></span><button class="x" type="button" data-close aria-label="Cerrar el menú">×</button></div>
@@ -1834,18 +1865,51 @@
       return card;
     }
 
-    // VIDEOGRAFÍA: the YouTube player only loads when someone taps a video.
+    /* VIDEOGRAFÍA: a tap opens the video big, in a pop-up that grows out
+       of the picture you tapped and shrinks back into it when it closes.
+       The YouTube player (youtube-nocookie) only loads then, and is
+       removed on close so nothing keeps playing. */
+    const videoDialog = document.getElementById("video-pop");
+    const videoFrame = document.getElementById("vp-frame");
+    let videoFrom = null;   // the picture the pop-up grows from
+    function aimAt(button) {
+      // Where the picture is, relative to where the pop-up sits: the pop-up
+      // starts (and ends) as that picture, then grows into place.
+      const from = button.getBoundingClientRect(), to = videoDialog.getBoundingClientRect();
+      videoDialog.style.setProperty("--fx", (from.left + from.width / 2 - (to.left + to.width / 2)).toFixed(1) + "px");
+      videoDialog.style.setProperty("--fy", (from.top + from.height / 2 - (to.top + to.height / 2)).toFixed(1) + "px");
+      videoDialog.style.setProperty("--fs", (from.width / to.width).toFixed(3));
+    }
     for (const button of document.querySelectorAll("[data-yt]")) {
       button.addEventListener("click", () => {
+        videoFrom = button;
+        const title = button.querySelector(".video-title").textContent;
+        document.getElementById("vp-title").textContent = title;
+        document.getElementById("vp-year").textContent = button.querySelector(".video-year").textContent;
         const frame = document.createElement("iframe");
         frame.src = "https://www.youtube-nocookie.com/embed/" + button.dataset.yt + "?autoplay=1&rel=0&playsinline=1";
-        frame.title = button.querySelector(".video-title").textContent + " · Dstance";
+        frame.title = title + " · Dstance";
         frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
         frame.allowFullscreen = true;
-        button.replaceWith(frame);
-        frame.focus();
+        // The picture shows until the player is ready, so the grow is never empty.
+        const poster = button.querySelector("img").cloneNode();
+        poster.className = "vp-poster";
+        videoFrame.replaceChildren(poster, frame);
+        videoDialog.showModal();
+        aimAt(button);
       });
     }
+    videoDialog.addEventListener("click", (event) => { if (event.target === videoDialog) closeVideo(); });
+    videoDialog.addEventListener("cancel", (event) => { event.preventDefault(); closeVideo(); });
+    document.getElementById("vp-close").addEventListener("click", () => closeVideo());
+    function closeVideo() {
+      if (videoFrom) aimAt(videoFrom);   // shrink back into the same picture, even after a scroll
+      closeDialog(videoDialog);
+    }
+    videoDialog.addEventListener("close", () => {
+      videoFrame.replaceChildren();
+      videoFrom?.focus({ preventScroll: true });
+    });
 
     // The same pieces in both shops: MC² inside (lights off), all of Dstance outside.
     document.getElementById("products").append(...products.map(renderProduct));
