@@ -25,7 +25,6 @@ const MEDIA = {
   // The room's objects (ventana … apagador) were generated with Canva AI
   // in the style of the session Polaroids; swap them for real photos anytime.
   photos: {
-    fondo:      "photos/fondo-estudio.jpg",   // FOTO: la sala vista por el vidrio (pared 01 del cuarto 360°)
     ventana:    "photos/cabina-ventana.jpg",   // FOTO: el vidrio de la cabina hacia la sala   → sala de huéspedes
     monitor:    "photos/cabina-monitor.jpg",   // FOTO: la tele / monitor de la cabina         → canal mc²
     archivero:  "photos/cabina-archivero.jpg",   // FOTO: el archivero                           → archivo
@@ -39,10 +38,12 @@ const MEDIA = {
     ripe:       "",   // FOTO: sesión invitada RiPE
     sonicranch: "photos/sesion-sonic-ranch.jpg",   // FOTO: sesión invitada Sonic Ranch
   },
-  // FOTO PANORÁMICA: one panorama of the real control room (the phone's
-  // panorama mode, ~220° wide). It spreads across the 8 walls; while it is
-  // empty each wall keeps its own texture and pared 01 shows "fondo".
-  panorama: "",
+  // FOTO PANORÁMICA: the whole control room in one photo, wrapped on
+  // the 220° curve around the fan. Generated with Canva AI; a real
+  // panorama of the room (the phone's panorama mode) can replace it. If
+  // you change it, move the objects in OBJECTS to where things are.
+  panorama: "photos/cabina-panoramica.jpg",
+  panoramaRatio: 1628 / 644,   // its width / height
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "",
@@ -86,23 +87,26 @@ const LOTE = "lote 01 · session 01";
 
 const COORDS = "31.4456°N 106.0078°W";
 
-// The room: 8 walls on a 220° curve in front of you, one object on
-// each, from left to right. You start facing the glass, in the middle;
-// the light switch at the right end is the way out.
-const WALLS = [
-  { nombre: "la ranura",         station: "llave" },
-  { nombre: "la hoja de sesión", station: "acta" },
-  { nombre: "la consola",        station: "consola" },
-  { nombre: "el vidrio",         station: "huespedes", photo: "fondo", sign: true },
-  { nombre: "la perilla",        station: "frecuencia" },
-  { nombre: "la tele",           station: "canal" },
-  { nombre: "el archivero",      station: "archivo" },
-  { nombre: "el apagador",       lights: true },
+// The room is one panoramic photo on a 220° curve around the fan. Each
+// object is a place in that photo: x, y are its center and w, h its
+// size, all in % of the photo. Sizes follow the real things: a tiny
+// light switch, a huge console. You start facing the glass.
+const OBJECTS = [
+  { nombre: "el apagador",       lights: true,          x: 1.8,  y: 51, w: 2.6, h: 10 },
+  { nombre: "el archivero",      station: "archivo",    x: 22.5, y: 63, w: 9,   h: 54 },
+  { nombre: "la consola",        station: "consola",    x: 40,   y: 70, w: 24,  h: 18 },
+  { nombre: "la perilla",        station: "frecuencia", x: 53,   y: 58, w: 6,   h: 10 },
+  { nombre: "el vidrio",         station: "huespedes",  x: 53.5, y: 33, w: 30,  h: 34, home: true },
+  { nombre: "la ranura",         station: "llave",      x: 84,   y: 63, w: 10,  h: 8, photo: "ranura" },
+  { nombre: "la tele",           station: "canal",      x: 86,   y: 44, w: 12,  h: 22 },
+  { nombre: "la hoja de sesión", station: "acta",       x: 91,   y: 84, w: 11,  h: 14 },
 ];
-const ARC = 220;                         // how far around you the room goes
-const STEP = ARC / WALLS.length;         // degrees between two walls
-const HOME = WALLS.findIndex((wall) => wall.sign) * STEP;   // facing the glass
-const LAST = (WALLS.length - 1) * STEP;  // facing the last wall
+const SIGN = { x: 53.5, y: 11 };          // the live session light, over the glass
+const ARC = 220;                          // how far around you the room goes
+const SLICES = 22;                        // the panorama is drawn as this many flat strips
+const SLICE = ARC / SLICES;               // degrees per strip
+const deg = (o) => o.x / 100 * ARC;       // where an object is on the curve
+const HOME = deg(OBJECTS.find((o) => o.home));
 
 // The hotspots: station number, what it is in the room, which photo.
 const STATIONS = {
@@ -173,12 +177,21 @@ function seeded(seed) {
 let root = null;
 const $ = (selector) => root.querySelector(selector);
 
-function spot(name) {
-  const s = STATIONS[name];
+// An object in the room: an outline over the thing in the photo, its tag
+// under it. The ranura isn't in the photo, so its own photo is laid in.
+function spot(o, i) {
+  const area = (inside = "") => `<span class="spot-area" aria-hidden="true">${inside}</span>`;
+  if (o.lights) {
+    return `
+      <button class="spot spot-apagador" type="button" data-obj="${i}" data-lights-on aria-label="apagador: prender la luz y salir de la cabina">
+        ${area()}<span class="spot-tag" aria-hidden="true"><b>00</b> // prender la luz ↗</span>
+      </button>`;
+  }
+  const s = STATIONS[o.station];
+  const photo = o.photo && MEDIA.photos[o.photo] ? `<img src="${MEDIA.photos[o.photo]}" alt="">` : "";
   return `
-    <button class="spot spot-${name}" type="button" data-go="${name}" aria-label="${s.n} ${s.nombre}, ${s.objeto}: abrir estación">
-      ${ph(s.photo, s.objeto)}
-      <span class="spot-tag" aria-hidden="true"><b>${s.n}</b> // ${s.nombre} ↗</span>
+    <button class="spot spot-${o.station}" type="button" data-obj="${i}" data-go="${o.station}" aria-label="${s.n} ${s.nombre}, ${s.objeto}: abrir estación">
+      ${area(photo)}<span class="spot-tag" aria-hidden="true"><b>${s.n}</b> // ${s.nombre} ↗</span>
     </button>`;
 }
 
@@ -197,6 +210,7 @@ function station(name, body) {
           <span class="st-code"><b>${s.n}</b> // ${s.objeto}</span>
         </div>
         <h2 id="st-${name}" tabindex="-1">${s.nombre}</h2>
+        ${MEDIA.photos[s.photo] ? `<figure class="st-hero" aria-hidden="true"><img src="${MEDIA.photos[s.photo]}" alt=""></figure>` : ""}
         ${body}
       </div>
     </section>`;
@@ -240,22 +254,13 @@ function build() {
       ${onAir("boot-sign")}
     </section>
 
-    <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina: gira de lado a lado y elige un objeto">
-      <div class="room" id="room">
-        <div class="ring" id="ring">
-          ${WALLS.map((wall, i) => `
-            <div class="wall" data-wall="${i}" style="${MEDIA.panorama ? `background: var(--mottle) url('${MEDIA.panorama}') calc(var(--wall-w) * ${-i}) center / calc(var(--wall-w) * ${WALLS.length}) 100% no-repeat` : ""}"
-                 ${wall.photo && !MEDIA.panorama ? `data-photo="${wall.photo}"` : ""}>
-              <p class="wall-tag" aria-hidden="true">pared ${String(i + 1).padStart(2, "0")} // ${wall.nombre}</p>
-              ${wall.sign ? onAir("hub-sign") : ""}
-              ${wall.station ? spot(wall.station) : ""}
-              ${wall.lights ? `
-                <button class="spot spot-apagador" type="button" data-lights-on aria-label="apagador: prender la luz y salir de la cabina">
-                  ${ph("apagador", "apagador")}
-                  <span class="spot-tag" aria-hidden="true"><b>00</b> // prender la luz ↗</span>
-                </button>` : ""}
-            </div>`).join("")}
-        </div>
+    <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina: mira alrededor y elige un objeto">
+      <div class="room" id="room"${MEDIA.panorama ? ` style="--pano: url('${new URL(MEDIA.panorama, document.baseURI).href}')"` : ""}>
+        <!-- The URL is absolute: inside a CSS variable it would otherwise
+             resolve against cabina.css instead of the page. -->
+        ${Array.from({ length: SLICES }, (_, i) => `<div class="slice" data-slice="${i}" style="--i:${i}"></div>`).join("")}
+        <div class="room-item" data-sign>${onAir("hub-sign")}</div>
+        ${OBJECTS.map(spot).join("")}
       </div>
       <div class="cab-dust" aria-hidden="true">${dust}</div>
       <button class="cab-btn gyro" id="gyro" type="button" aria-pressed="false" hidden>mover el teléfono: off</button>
@@ -426,8 +431,10 @@ function build() {
   };
   root.addEventListener("pointerup", unlight);
   root.addEventListener("pointercancel", unlight);
-  root.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && STATIONS[current]) { event.preventDefault(); back(); }
+  // Esc goes back from a station. Listened on the whole window: after a
+  // drag the keyboard focus can be outside the cabin (on the page body).
+  window.addEventListener("keydown", (event) => {
+    if (open && event.key === "Escape" && STATIONS[current]) { event.preventDefault(); back(); }
   });
   window.addEventListener("hashchange", () => {
     if (!open) return;
@@ -608,58 +615,84 @@ function refreshHub() {
 
 
 /* ---------------------------------------------------------------
-   THE HUB: a 220° room
-   The 8 walls stand on a curve around you, from your left to your
-   right; past the ends there is only dark, and the room stops there. Each wall carries its own
-   CSS perspective, with the eye at the center of the circle, so the
-   browser never has to sort walls in 3D (that left some unpainted).
-   Turning the room is one number, the angle:
-   - drag (finger or mouse): the room follows you, a flick carries on
-     a little, and it settles on the nearest wall;
-   - ‹ › buttons, arrow keys, or Tab to an object: it turns to it;
-   - "mover el teléfono": the phone's compass turns it (asks first on
-     iPhone).
-   Walls far to the side are not drawn, but stay in the Tab order.
+   THE HUB: one room, 220° around you
+   The panorama is cut into flat strips standing on a curve, with the
+   eye at its center: each strip and each object carries its own CSS
+   perspective, so the browser never has to sort them in 3D. The
+   objects sit a little in front of the photo, over the things they
+   are. Where you look is one number, the angle (0 = the left end):
+   - drag (finger or mouse) looks around, a flick carries on a little;
+   - ‹ › turn a bit, as do the arrow keys; Tab turns to each object;
+   - "mover el teléfono": the phone's compass (asks first on iPhone).
+   The view stops at the ends of the photo. Things far to the side are
+   not drawn, but stay in the Tab order.
    --------------------------------------------------------------- */
 const room = { start() {}, stop() {} };
 
 function setupRoom() {
   const hub = $(".cab-hub"), stage = $("#room");
-  const walls = [...root.querySelectorAll(".wall")];
+  const slices = [...root.querySelectorAll(".slice")];
+  const items = [...root.querySelectorAll("[data-obj]")].map((node) => ({ node, o: OBJECTS[node.dataset.obj] }));
+  items.push({ node: $("[data-sign]"), o: { ...SIGN, w: 8, h: 4, sign: true } });
   const heading = $("#rumbo"), live = $("#hub-live"), gyroButton = $("#gyro");
-  let angle = HOME, target = HOME, frame = 0, width = 390, radius = 470, spoken = -1;
-  const wrap = (d) => ((d % 360) + 540) % 360 - 180;                   // -180..180
-  const clamp = (a) => Math.min(LAST, Math.max(0, a));
-  const facing = (a) => Math.round(clamp(a) / STEP);
+  const RAD = Math.PI / 180;
+  let angle = HOME, target = HOME, frame = 0, radius = 500, half = 20, panoH = 760, spoken = "";
+  const wrap = (d) => ((d % 360) + 540) % 360 - 180;
+  const clamp = (a) => half * 2 >= ARC ? ARC / 2 : Math.min(ARC - half, Math.max(half, a));
+  const nearest = (a) => OBJECTS.reduce((best, o) => Math.abs(deg(o) - a) < Math.abs(deg(best) - a) ? o : best);
 
-  // On phones a wall is as wide as the screen; on big screens it takes
-  // two thirds of it, so the walls beside it don't stretch too far off
-  // screen (browsers stop painting a wall pushed that far). The radius
-  // makes neighboring walls meet edge to edge.
+  // The radius makes the photo at least as tall as the room on screen,
+  // and keeps wide screens from seeing more than ~100° at once.
   function size() {
     const box = hub.getBoundingClientRect();
-    width = Math.min(box.width, Math.max(420, box.height * .75, box.width * .66));
-    radius = width / (2 * Math.tan((STEP / 2) * Math.PI / 180));   // each wall spans STEP degrees
-    hub.style.setProperty("--wall-w", width.toFixed(1) + "px");
+    const sliceW = (r) => 2 * r * Math.tan(SLICE / 2 * RAD);
+    const ratio = MEDIA.panoramaRatio || 2;
+    const tallness = SLICES * sliceW(1) / ratio;                 // photo height per unit of radius
+    radius = Math.max(box.height / tallness, box.width * .42);
+    half = Math.atan(box.width / 2 / radius) / RAD;
+    panoH = SLICES * sliceW(radius) / ratio;
+    stage.style.setProperty("--slice-w", (sliceW(radius) + 1).toFixed(1) + "px");   // +1px hides the seams
+    stage.style.setProperty("--pano-w", (SLICES * sliceW(radius)).toFixed(1) + "px");
+    stage.style.setProperty("--pano-h", panoH.toFixed(1) + "px");
+    // Each object is a flat card whose edges touch the curve, so it covers
+    // its thing in the photo; it sits that much closer to you.
+    for (const item of items) {
+      const span = item.o.w / 100 * ARC * RAD;
+      item.depth = radius * Math.cos(span / 2);
+      const k = item.depth / radius;
+      const w = 2 * radius * Math.sin(span / 2), h = item.o.h / 100 * panoH * k;
+      item.y = (item.o.y / 100 - .5) * panoH * k;
+      Object.assign(item.node.style, { width: w + "px", height: h + "px", marginLeft: -w / 2 + "px", marginTop: -h / 2 + "px" });
+    }
+    angle = clamp(angle);
+    target = clamp(target);
   }
 
   function render() {
     const r = radius.toFixed(1);
-    for (const wall of walls) {
-      const offset = wall.dataset.wall * STEP - angle;   // where this wall is, seen from the center
-      const far = Math.abs(offset) > 75;
-      wall.classList.toggle("far", far);
-      if (!far) wall.style.transform = `perspective(${r}px) translateZ(${r}px) rotateY(${(-offset).toFixed(2)}deg) translateZ(-${r}px)`;
+    const place = (node, offset, depth, y = 0) => {
+      node.style.transform = `perspective(${r}px) translateZ(${r}px) rotateY(${(-offset).toFixed(2)}deg) translateZ(${(-depth).toFixed(1)}px) translateY(${y.toFixed(1)}px)`;
+    };
+    for (const slice of slices) {
+      const offset = (Number(slice.dataset.slice) + .5) * SLICE - angle;
+      const far = Math.abs(offset) > half + SLICE;
+      slice.classList.toggle("far", far);
+      if (!far) place(slice, offset, radius);
     }
-    // The heading counts from the glass: 000° in front, 3xx° to the left.
-    const deg = ((Math.round(angle - HOME) % 360) + 360) % 360;
-    heading.textContent = "rumbo " + String(deg).padStart(3, "0") + "° · " + WALLS[facing(angle)].nombre;
-    $("#turn-left").disabled = target <= 0;
-    $("#turn-right").disabled = target >= LAST;
+    for (const item of items) {
+      const o = item.o, offset = o.x / 100 * ARC - angle;
+      const far = Math.abs(offset) > half + o.w / 100 * ARC / 2 + 4;
+      item.node.classList.toggle("far", far);
+      if (!far) place(item.node, offset, item.depth, item.y);
+    }
+    const rumbo = ((Math.round(angle - HOME) % 360) + 360) % 360;
+    heading.textContent = "rumbo " + String(rumbo).padStart(3, "0") + "° · " + nearest(angle).nombre;
+    $("#turn-left").disabled = target <= clamp(-Infinity) + .5;
+    $("#turn-right").disabled = target >= clamp(Infinity) - .5;
   }
   function announce() {
-    const n = facing(angle);
-    if (n !== spoken) { live.textContent = "pared " + (n + 1) + ": " + WALLS[n].nombre; spoken = n; }
+    const name = nearest(angle).nombre;
+    if (name !== spoken) { live.textContent = "frente a ti: " + name; spoken = name; }
   }
   function tick() {
     frame = 0;
@@ -674,19 +707,19 @@ function setupRoom() {
     if (noMotion.matches) { angle = target; render(); announce(); }
     else if (!frame) frame = requestAnimationFrame(tick);
   }
-  const snap = (a) => Math.round(a / STEP) * STEP;
-  const turn = (walls) => turnTo(snap(target) + walls * STEP);
+  const turn = (by) => turnTo(target + by);
 
   // Dragging. A drag is not a tap: the click that follows it is swallowed.
   let dragging = false, moved = false, startX = 0, startAngle = 0, lastX = 0, lastT = 0, speed = 0;
+  const perPx = () => 1 / (radius * RAD);   // degrees per pixel, in front of you
   hub.addEventListener("pointerdown", (event) => {
     if (event.button > 0 || event.target.closest(".hub-nav, .gyro")) return;
+    gyroOff();
     dragging = true;
     moved = false;
     startX = lastX = event.clientX;
     lastT = event.timeStamp;
     speed = 0;
-    gyroOff();
     startAngle = angle;
     cancelAnimationFrame(frame);
     frame = 0;
@@ -699,18 +732,18 @@ function setupRoom() {
     speed = (event.clientX - lastX) / Math.max(1, event.timeStamp - lastT);   // px per ms
     lastX = event.clientX;
     lastT = event.timeStamp;
-    // Past an end the room only gives a little, like pushing a wall.
-    const wanted = startAngle - dx * STEP / width;
+    // Past an end the view only gives a little, like pushing a wall.
+    const wanted = startAngle - dx * perPx();
     angle = target = clamp(wanted) + (wanted - clamp(wanted)) * .25;
     render();
   });
   const release = () => {
     if (!dragging) return;
     dragging = false;
-    // A flick carries the room on, but never more than one wall further.
-    const carry = Math.max(-STEP * .75, Math.min(STEP * .75, -speed * 220 * STEP / width));
-    if (moved) turnTo(snap(angle + carry));
-    else if (angle !== target) turnTo(target);
+    if (!moved) return;
+    // A flick carries the look on a little, then it settles where it is.
+    const carry = Math.max(-15, Math.min(15, -speed * 220 * perPx()));
+    turnTo(angle + carry);
   };
   window.addEventListener("pointerup", release);
   window.addEventListener("pointercancel", release);
@@ -721,21 +754,21 @@ function setupRoom() {
     event.preventDefault();
   }, true);
 
-  $("#turn-left").addEventListener("click", () => turn(-1));
-  $("#turn-right").addEventListener("click", () => turn(1));
+  $("#turn-left").addEventListener("click", () => turn(-30));
+  $("#turn-right").addEventListener("click", () => turn(30));
   hub.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowLeft") { event.preventDefault(); turn(-1); }
-    if (event.key === "ArrowRight") { event.preventDefault(); turn(1); }
+    if (event.key === "ArrowLeft") { event.preventDefault(); turn(-30); }
+    if (event.key === "ArrowRight") { event.preventDefault(); turn(30); }
   });
-  // Tab to an object on another wall: the room turns to face it.
+  // Tab to an object: you turn to face it.
   hub.addEventListener("focusin", (event) => {
-    const wall = event.target.closest(".wall");
-    if (wall) turnTo(wall.dataset.wall * STEP);
+    const node = event.target.closest("[data-obj]");
+    if (node) turnTo(deg(OBJECTS[node.dataset.obj]));
     stage.scrollLeft = stage.scrollTop = 0;   // focus must never scroll the room
   });
   stage.addEventListener("scroll", () => { stage.scrollLeft = stage.scrollTop = 0; });
 
-  // The phone's compass. Turning left (alpha grows) shows the wall on the left.
+  // The phone's compass. Turning left (alpha grows) looks left.
   let gyro = null;
   const onTilt = (event) => {
     if (event.alpha == null || !gyro) return;
@@ -761,7 +794,6 @@ function setupRoom() {
     gyro = null;
     window.removeEventListener("deviceorientation", onTilt);
     gyroLabel(false);
-    turnTo(snap(angle));
   }
   if (matchMedia("(pointer: coarse)").matches && "DeviceOrientationEvent" in window) {
     gyroButton.hidden = false;
@@ -797,7 +829,7 @@ function quantumJump(el, swap, reverse = false) {
   canvas.hidden = false;
 
   // One particle per cell of the object, at most ~900.
-  const box = el.querySelector(".ph").getBoundingClientRect(), frame0 = root.getBoundingClientRect();
+  const box = el.querySelector(".spot-area").getBoundingClientRect(), frame0 = root.getBoundingClientRect();
   const step = Math.max(5, Math.sqrt((box.width * box.height) / 900));
   const lineY = H / 2;
   const green = token("--chem-green"), ivory = token("--ivory");

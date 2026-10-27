@@ -18,17 +18,17 @@ Solo se descarga al apagar la luz: la tienda carga igual que antes.
 
 ## El cuarto (220°)
 
-El hub es un cuarto curvo de 220° frente al fan: 8 paredes de izquierda a derecha, con un objeto en cada una (`WALLS` en `cabina.js`):
-01 la ranura · 02 la hoja de sesión · 03 la consola · **04 el vidrio** (sala de huéspedes y el letrero live session; aquí empiezas) ·
-05 la perilla · 06 la tele · 07 el archivero · 08 el apagador (prender la luz).
+El hub es **un solo cuarto**: una panorámica de la cabina (`photos/cabina-panoramica.jpg`, generada con la IA de Canva)
+envuelta en una curva de 220° alrededor del fan. Se mira libremente de lado a lado: arrastrando, con ‹ ›,
+con las flechas del teclado, con Tab (el cuarto voltea a cada objeto) o con "mover el teléfono". La vista
+se detiene en los bordes de la foto.
 
-Se mueve de lado a lado: arrastrando, con los botones ‹ ›, con las flechas del teclado, con Tab (el cuarto voltea al objeto)
-o con "mover el teléfono" (la brújula del celular; en iPhone pide permiso). En los extremos el cuarto se detiene.
-Para cambiar cuánto abarca, cambia `ARC` en `cabina.js`.
+Los objetos (`OBJECTS` en `cabina.js`) son lugares de la foto, con su tamaño real: x, y son su centro y
+w, h su tamaño, en % de la panorámica. De izquierda a derecha: el apagador (diminuto, prender la luz),
+el archivero, la consola, la perilla, el vidrio (aquí empiezas), la ranura, la tele y la hoja de sesión.
+Si cambias la panorámica, mueve los objetos a donde estén las cosas en la foto nueva.
 
-**Foto panorámica:** toma una panorámica de la cabina real (modo panorámico del teléfono, unos 220°)
-y pon su ruta en `MEDIA.panorama`. Se reparte sola en las 8 paredes. Mientras esté vacía, cada pared
-lleva su textura y la pared 04 muestra la foto `fondo`.
+Cada estación abre con un acercamiento del objeto (las fotos `photos/cabina-*.jpg`).
 
 ## Placeholders por reemplazar
 
@@ -38,7 +38,7 @@ Los 8 objetos del cuarto (ventana, monitor, archivero, consola, perilla, hoja, r
 imagen: se generaron con la IA de Canva en el estilo de las polaroids de la sesión y viven en
 `photos/cabina-*.jpg`. Los originales están en el diseño de Canva "MC² · fotos para La Cabina".
 Cuando tengas fotos reales de la cabina, reemplaza el archivo o cambia la ruta en `MEDIA`.
-Siguen pendientes: `mits` y `ripe` (artistas reales: solo con fotos reales) y `panorama`.
+Siguen pendientes: `mits` y `ripe` (artistas reales: solo con fotos reales). Una panorámica real de la cabina puede reemplazar a la generada.
 
 | Clave        | Dónde aparece                 | Qué foto va                                         |
 |--------------|-------------------------------|-----------------------------------------------------|

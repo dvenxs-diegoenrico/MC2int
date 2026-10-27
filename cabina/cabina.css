@@ -85,30 +85,29 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .cab-boot p { margin: 0; color: var(--muted); letter-spacing: .14em; }
 .boot-pct { display: inline-block; min-width: 4ch; text-align: right; color: var(--ivory); }
 
-/* ---------- 2. EL HUB: a 360° room ----------
-   .ring is a screen-sized frame in the middle; the 8 walls sit in it
-   and JavaScript gives each one its place around you. */
-.cab-hub { position: relative; flex: 1; overflow: hidden; touch-action: none; outline: none; cursor: grab; }
+/* ---------- 2. EL HUB: one room, 220° around you ----------
+   .room is the screen; the panorama's strips (.slice) and the objects
+   (.room-item, .spot) are centered in it, and JavaScript gives each one
+   its place on the curve around you. */
+.cab-hub { position: relative; flex: 1; overflow: hidden; touch-action: none; outline: none; cursor: grab; background: var(--washed-black); }
 .cab-hub[hidden] { display: none; }
 .cab-hub:active { cursor: grabbing; }
 .room { position: absolute; inset: 0; overflow: hidden; }
-.ring {
-  position: absolute; top: 0; left: 50%; height: 100%;
-  width: var(--wall-w, 390px); margin-left: calc(var(--wall-w, 390px) / -2);
-}
-.wall {
-  position: absolute; inset: 0; will-change: transform;
-  background: var(--mottle) var(--wash) center / 300px;
-  border-left: 1px solid var(--line);
-  transition: opacity .3s ease;
-}
-/* Pared 01, the glass: the live room seen through it. */
-.wall.has-photo { background-color: var(--mottle); background-size: cover; background-position: center; }
-.wall.has-photo::before { content: ""; position: absolute; inset: 0; background: var(--washed-black); opacity: .3; pointer-events: none; }
-.wall.far { opacity: 0; pointer-events: none; }
-.cab-hub:not([hidden]) .room { animation: cab-layer-in .9s steps(5) both; }   
+.cab-hub:not([hidden]) .room { animation: cab-layer-in .9s steps(5) both; }
 @keyframes cab-layer-in { from { opacity: 0; } }
-.wall-tag { position: absolute; left: 1rem; top: 1rem; z-index: 1; margin: 0; color: var(--sepia); font-size: .58rem; letter-spacing: .16em; }
+.slice {
+  position: absolute; left: 50%; top: 50%;
+  width: var(--slice-w, 40px); height: var(--pano-h, 100%);
+  margin: calc(var(--pano-h, 100%) / -2) 0 0 calc(var(--slice-w, 40px) / -2);
+  background: var(--mottle) var(--wash) center / 300px;
+  background-image: var(--pano, var(--wash));
+  background-size: var(--pano-w, 300px) var(--pano-h, 100%);
+  background-position: calc(var(--slice-w, 40px) * var(--i) * -1 + var(--i) * 1px) 0;
+  will-change: transform;
+}
+.slice.far, .room .far { opacity: 0; pointer-events: none; }
+.room-item, .room .spot { position: absolute; left: 50%; top: 50%; will-change: transform; }
+.room-item { display: grid; place-items: center; pointer-events: none; }
 
 /* Placeholders: a mottled card, dashed edge, labelled "FOTO: …".
    Put a path in MEDIA.photos (cabina.js) and the real photo replaces it. */
@@ -123,31 +122,33 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 
 
 /* Each object is a button: the photo, and a tag under it. */
-.spot {
-  position: absolute; left: var(--x); top: var(--y); width: var(--w); height: var(--h);
-  display: flex; flex-direction: column; gap: .35rem;
-  padding: 0; background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer;
+/* Each object is the thing in the photo: a faint dashed outline over
+   it, a blinking green square, and its tag underneath. */
+.spot { padding: 0; background: none; border: 0; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.spot-area { position: absolute; inset: 0; border: 1px dashed rgba(184,224,32,.22); border-radius: 3px; }
+.spot-area img {
+  width: 100%; height: 100%; object-fit: cover; display: block; opacity: .9;
+  -webkit-mask-image: radial-gradient(closest-side, #000 55%, transparent); mask-image: radial-gradient(closest-side, #000 55%, transparent);
 }
-.spot .ph { flex: 1; min-height: 0; position: relative; }
-.spot-tag { font-size: .62rem; letter-spacing: .12em; white-space: nowrap; color: var(--ivory); transition: color .2s ease; }
+.spot-tag { position: absolute; left: 0; top: calc(100% + 6px); font-size: .62rem; letter-spacing: .12em; white-space: nowrap; color: var(--ivory); transition: color .2s ease; }
 .spot-tag b { color: var(--chem-green); font-weight: 400; }
 .spot.done .spot-tag::after { content: " · ok"; color: var(--chem-green); }
 /* A small green square blinks on each object: something is on the air here. */
-.spot .ph::after {
-  content: ""; position: absolute; top: 5px; right: 5px; width: 5px; height: 5px;
+.spot-area::after {
+  content: ""; position: absolute; top: -3px; right: -3px; width: 6px; height: 6px;
   background: var(--chem-green); animation: blink 1.4s steps(1) infinite;
 }
 .spot:focus-visible { outline: none; }
-.spot:focus-visible .ph { outline: 2px solid var(--chem-green); outline-offset: 3px; }
+.spot:focus-visible .spot-area { outline: 2px solid var(--chem-green); outline-offset: 3px; }
 
 /* LIGHTS OFF, THINGS GLOW: like the /GLW print, every object and card
    gives off green light under the cursor (or the finger: .lit is added
    by JavaScript while it touches). */
-.spot .ph { transition: border-color .2s ease, filter .35s ease, opacity .2s ease; }
+.spot-area { transition: border-color .2s ease, filter .35s ease, opacity .2s ease; }
 .spot-tag { transition: color .2s ease, text-shadow .35s ease, opacity .2s ease; }
 .ficha, .guest, .tx, .tv { transition: border-color .2s ease, filter .35s ease; }
-.spot.lit .ph, .spot:focus-visible .ph {
-  border-style: solid; border-color: var(--chem-green);
+.spot.lit .spot-area, .spot:focus-visible .spot-area {
+  border-style: solid; border-color: var(--chem-green); background-color: rgba(184,224,32,.08);
   filter: brightness(1.2) drop-shadow(0 0 6px rgba(184,224,32,.65)) drop-shadow(0 0 22px rgba(184,224,32,.35));
 }
 .spot.lit .spot-tag, .spot:focus-visible .spot-tag { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
@@ -158,8 +159,8 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 }
 .tx.lit span:nth-child(2) { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
 @media (hover: hover) {
-  .spot:hover .ph {
-    border-style: solid; border-color: var(--chem-green);
+  .spot:hover .spot-area {
+    border-style: solid; border-color: var(--chem-green); background-color: rgba(184,224,32,.08);
     filter: brightness(1.2) drop-shadow(0 0 6px rgba(184,224,32,.65)) drop-shadow(0 0 22px rgba(184,224,32,.35));
   }
   .spot:hover .spot-tag { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
@@ -170,28 +171,13 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
   .tx:hover span:nth-child(2) { text-shadow: 0 0 10px rgba(184,224,32,.7); }
 }
 /* While it jumps, the object dissolves into its particles. */
-.spot.jumping .ph, .spot.jumping .spot-tag { opacity: 0; }
+.spot.jumping .spot-area, .spot.jumping .spot-tag { opacity: 0; }
 
 /* The canvas the quantum jump is drawn on, over everything but the grain. */
 .cab-quantum { position: absolute; inset: 0; z-index: 16; width: 100%; height: 100%; pointer-events: none; }
 .cab-quantum[hidden] { display: none; }
 
 /* The dial sits at the right edge, so its tag grows to the left. */
-.spot-frecuencia { height: auto; align-items: flex-end; }
-.spot-frecuencia .ph { flex: none; width: 100%; aspect-ratio: 1; border-radius: 50%; }
-.spot-frecuencia .ph::after { top: 14%; right: 14%; }
-
-/* One object per wall, centered on it. */
-.wall .spot-huespedes  { --x: 12%; --y: 26%; --w: 76%; --h: 34%; }
-.wall .spot-consola    { --x: 8%;  --y: 30%; --w: 84%; --h: 30%; }
-.wall .spot-frecuencia { --x: 24%; --y: 26%; --w: 52%; align-items: center; }
-.wall .spot-canal      { --x: 14%; --y: 24%; --w: 72%; --h: 36%; }
-.wall .spot-archivo    { --x: 22%; --y: 16%; --w: 56%; --h: 54%; }
-.wall .spot-acta       { --x: 24%; --y: 20%; --w: 52%; --h: 48%; }
-.wall .spot-llave      { --x: 16%; --y: 38%; --w: 68%; --h: 13%; }
-.wall .spot-apagador   { --x: 35%; --y: 32%; --w: 30%; --h: 24%; align-items: center; }
-.wall .spot-frecuencia .spot-tag, .wall .spot-apagador .spot-tag { text-align: center; }
-
 .cab-dust { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .cab-dust i { position: absolute; width: 2px; height: 2px; background: var(--ivory); opacity: .22; }
 
@@ -231,7 +217,7 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 @keyframes onair-hum { 0%, 96%, 100% { opacity: 1; } 97% { opacity: .6; } 98% { opacity: .95; } }
 .cab-boot .onair { margin-top: 1.2rem; visibility: hidden; }
 .cab-boot .onair.on { visibility: visible; }
-.cab-hub .onair { position: absolute; left: 50%; top: 11%; transform: translateX(-50%); }
+
 
 /* ---------- AL AIRE: the single, under the fragment in Frecuencia ---------- */
 .fq-air { margin-top: 1.8rem; padding: 1rem 0 0 1.1rem; border-left: 2px solid var(--chem-green); outline: none; }
@@ -265,6 +251,13 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .st-note { color: var(--muted); font-size: .64rem; letter-spacing: .08em; margin: .9rem 0 0; }
 .st-tag { color: var(--sepia); font-size: .6rem; letter-spacing: .16em; margin: 0 0 .8rem; }
 .st-tag b { color: var(--chem-green); font-weight: 400; }
+
+/* The close-up: the object you touched, fading into the dark. */
+.st-hero { margin: -.2rem 0 1.4rem; height: clamp(150px, 30vh, 260px); overflow: hidden; border: 1px solid var(--line); }
+.st-hero img {
+  width: 100%; height: 100%; object-fit: cover; display: block; opacity: .85;
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent); mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
 
 /* Old screens: a scanline layer over a pixel canvas of static. */
 .fq-screen, .tv-screen { position: relative; overflow: hidden; background: var(--washed-black); }
