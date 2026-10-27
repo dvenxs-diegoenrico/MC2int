@@ -25,9 +25,24 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="MC²">
-  <title>MC² — Dstance Official Merch</title>
-  <meta name="description" content="Merch oficial de Música Cuántica (MC²) de Dstance. Session 01.">
+  <meta name="apple-mobile-web-app-title" content="DSTANCE">
+  <title>DSTANCE · Sitio oficial</title>
+  <meta name="description" content="Sitio oficial de Dstance, pop alternativo desde Puebla: música, videos, shows, shop y Música Cuántica, el disco nuevo grabado en Sonic Ranch.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230A0A0A'/%3E%3Ctext x='32' y='49' text-anchor='middle' font-family='Arial Narrow,Arial,sans-serif' font-weight='900' font-size='46' fill='%23F2EEE6'%3ED%3C/text%3E%3C/svg%3E">
+  <!-- How the site looks when the link is shared (WhatsApp, Instagram, X…).
+       SITE ADDRESS: change mc-2-int.vercel.app here when the site moves to its own domain. -->
+  <link rel="canonical" href="https://mc-2-int.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="DSTANCE">
+  <meta property="og:title" content="DSTANCE · Sitio oficial">
+  <meta property="og:description" content="Pop alternativo desde Puebla. Escucha Todo Cae, el primer sencillo de Música Cuántica.">
+  <meta property="og:url" content="https://mc-2-int.vercel.app/">
+  <meta property="og:image" content="https://mc-2-int.vercel.app/photos/ds-campo-dia.jpg">
+  <meta property="og:image:alt" content="Dstance de pie en un campo seco frente a un muro blanco, al atardecer">
+  <meta property="og:locale" content="es_MX">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- For search engines: who Dstance is, his profiles and his records. -->
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "MusicGroup", "name": "Dstance", "alternateName": "Dany Dstance", "genre": "Pop alternativo", "url": "https://mc-2-int.vercel.app/", "image": "https://mc-2-int.vercel.app/photos/ds-campo-dia.jpg", "email": "hola@dstance.mx", "foundingLocation": {"@type": "Place", "name": "Puebla, México"}, "sameAs": ["https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2", "https://www.youtube.com/@danydstance", "https://music.apple.com/mx/artist/dstance/1435797154", "https://www.instagram.com/danydstance/", "https://www.tiktok.com/@danydstance", "https://www.facebook.com/DanyDstance"], "album": [{"@type": "MusicAlbum", "name": "Estaciones", "datePublished": "2020-12-04", "url": "https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr"}, {"@type": "MusicAlbum", "name": "Hasta Que la Vida Diga Adiós", "datePublished": "2022-04-21", "url": "https://open.spotify.com/album/14Ca0sNQjuJT8hWTolmxUG"}, {"@type": "MusicAlbum", "name": "Falsas Expectativas", "datePublished": "2025-05-30", "url": "https://open.spotify.com/album/3lN91lruKySYJbYIHwqYIf"}, {"@type": "MusicAlbum", "name": "Todo Cae", "datePublished": "2026-09-18", "url": "https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh"}]}</script>
 
   <!-- FONTS: the two typefaces of the MC² doctrina (MC2-DOC-00).
          Archivo     = display + body. Heavy (800/900) for the MC² lockup and titles.
@@ -1032,7 +1047,7 @@
       font: 900 clamp(2rem, 9vw, 2.8rem)/1 var(--font-display); text-transform: uppercase; letter-spacing: -.02em;
       transition: color .2s ease, padding-left .25s ease;
     }
-    .menu-n { font: 400 .66rem var(--font-mono); letter-spacing: .2em; color: var(--sepia); min-width: 2ch; }
+    .menu-n { font: 400 .66rem var(--font-mono); letter-spacing: .2em; color: var(--sepia); min-width: 3.2ch; }
     @media (hover: hover) { .menu-list a:hover { color: var(--chem-green); padding-left: .4rem; } }
     .menu-list a:active { color: var(--chem-green); }
     /* La Cabina: always lit, like the neon on the hero. */
@@ -1049,7 +1064,10 @@
       border-top: 1px solid var(--line);
       font: 400 .66rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--sepia);
     }
-    .menu-foot .coords-mini { color: var(--chem-green); letter-spacing: .04em; }
+    .menu-social { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+    .menu-foot a { color: var(--ivory); text-decoration: none; }
+    @media (hover: hover) { .menu-foot a:hover { color: var(--chem-green); } }
+    .menu-mail { color: var(--sepia) !important; }
 
     /* ---------- SHOWS: a list of ticket stubs ---------- */
     .shows h2, .about h2 {
@@ -1181,6 +1199,8 @@
         <li><a href="https://www.youtube.com/@danydstance" target="_blank" rel="noopener">YouTube ↗</a></li>
         <li><a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music ↗</a></li>
         <li><a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram ↗</a></li>
+        <li><a href="https://www.tiktok.com/@danydstance" target="_blank" rel="noopener">TikTok ↗</a></li>
+        <li><a href="https://www.facebook.com/DanyDstance" target="_blank" rel="noopener">Facebook ↗</a></li>
       </ul>
     </section>
 
@@ -1531,17 +1551,20 @@
   </main>
 
   <footer class="site-footer">
-    <span>© 2026 Dstance · Hecho en Puebla</span>
+    <span>© 2026 Dstance · Puebla, México · Sitio oficial</span>
     <nav class="social" aria-label="Dstance en redes">
       <a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify</a>
+      <a href="https://www.youtube.com/@danydstance" target="_blank" rel="noopener">YouTube</a>
       <a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music</a>
       <a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram</a>
+      <a href="https://www.tiktok.com/@danydstance" target="_blank" rel="noopener">TikTok</a>
+      <a href="https://www.facebook.com/DanyDstance" target="_blank" rel="noopener">Facebook</a>
     </nav>
     <nav aria-label="Información">
-      <a href="#">Envíos</a>
+      <a href="#contacto">Contacto</a>
+      <a href="mailto:hola@dstance.mx">hola@dstance.mx</a>
       <button class="link" type="button" id="sizes-open" aria-haspopup="dialog">Guía de tallas</button>
       <a href="aviso-de-privacidad.html">Aviso de privacidad</a>
-      <a href="#">Devoluciones</a>
     </nav>
   </footer>
 
@@ -1609,17 +1632,31 @@
 
   <!-- THE MENU -->
   <dialog class="menu" id="menu" aria-label="Menú">
-    <div class="bar"><span>MC² · <span class="code">menú</span></span><button class="x" type="button" data-close aria-label="Cerrar el menú">×</button></div>
+    <div class="bar"><span>DSTANCE · <span class="code">menú</span></span><button class="x" type="button" data-close aria-label="Cerrar el menú">×</button></div>
     <nav aria-label="Principal">
       <ol class="menu-list">
-        <li><a href="#shop"><span class="menu-n">01</span>Shop</a></li>
-        <li><a class="menu-cabina" href="#cabina"><span class="menu-n">02</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
-        <li><a href="#top"><span class="menu-n">03</span>Home</a></li>
+        <li><a href="#top"><span class="menu-n">01</span>Home</a></li>
+        <li><a href="#trayectoria"><span class="menu-n">02</span>Música</a></li>
+        <li><a href="#videos"><span class="menu-n">03</span>Videos</a></li>
         <li><a href="#shows"><span class="menu-n">04</span>Shows</a></li>
-        <li><a href="#about"><span class="menu-n">05</span>About</a></li>
+        <li><a href="#shop"><span class="menu-n">05</span>Shop</a></li>
+        <li><a href="#about"><span class="menu-n">06</span>About</a></li>
+        <li><a href="#contacto"><span class="menu-n">07</span>Contacto</a></li>
+        <!-- The way inside: always lit, it turns the light off and goes in. -->
+        <li><a class="menu-cabina" href="#cabina"><span class="menu-n">MC²</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
       </ol>
     </nav>
-    <p class="menu-foot"><span class="coords-mini">31.4456°N 106.0078°W</span><span>Música Cuántica · Session 01</span></p>
+    <div class="menu-foot">
+      <ul class="menu-social" aria-label="Dstance en redes">
+        <li><a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify</a></li>
+        <li><a href="https://www.youtube.com/@danydstance" target="_blank" rel="noopener">YouTube</a></li>
+        <li><a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music</a></li>
+        <li><a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram</a></li>
+        <li><a href="https://www.tiktok.com/@danydstance" target="_blank" rel="noopener">TikTok</a></li>
+        <li><a href="https://www.facebook.com/DanyDstance" target="_blank" rel="noopener">Facebook</a></li>
+      </ul>
+      <a class="menu-mail" href="mailto:hola@dstance.mx">hola@dstance.mx</a>
+    </div>
   </dialog>
 
   <dialog class="drawer" id="cart-dialog" aria-labelledby="cart-title">
