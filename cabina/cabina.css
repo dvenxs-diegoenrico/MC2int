@@ -409,11 +409,30 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 }
 .vu-name { position: absolute; left: 6px; bottom: 3px; color: var(--washed-black); font-size: .5rem; letter-spacing: .1em; }
 .desk {
-  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .4rem;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .3rem;
   padding: 1.1rem .4rem 1.2rem; border: 1px solid var(--line);
   background: rgba(42,41,37,.82) var(--wash) center / 300px;
 }
 .desk-wrap > .st-note { margin: 0; }
+/* The transport: play the take, where it is in the song, which mix. */
+.transport { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+.transport .cab-btn { min-width: 11rem; }
+.mix-time { font: 700 1.1rem var(--font-mono); color: var(--glow, #c6ff8a); text-shadow: 0 0 10px rgba(184,224,32,.5); font-variant-numeric: tabular-nums; }
+.mix-song { color: var(--sepia); font-size: .6rem; letter-spacing: .14em; }
+.desk-wrap.playing .led-rec { color: var(--chem-green); text-shadow: 0 0 8px var(--chem-green); }
+.desk-wrap.playing .vu { border-color: rgba(184,224,32,.45); }
+/* Solo and mute: two small keys on each stem's strip. */
+.ch-btns { display: flex; gap: 4px; min-height: 26px; }
+.ch-btn {
+  width: 26px; height: 26px; padding: 0; border: 1px solid var(--muted); border-radius: 2px;
+  background: var(--washed-black); color: var(--ivory); cursor: pointer;
+  font: 700 .62rem var(--font-mono); text-transform: uppercase;
+}
+.ch-btn[data-solo][aria-pressed="true"] { background: var(--chem-green); border-color: var(--chem-green); color: var(--washed-black); box-shadow: 0 0 10px rgba(184,224,32,.6); }
+.ch-btn[data-mute][aria-pressed="true"] { background: #e0623a; border-color: #e0623a; color: var(--washed-black); }
+.ch-btn:focus-visible { outline: 2px solid var(--chem-green); outline-offset: 2px; }
+/* A channel you can't hear (muted, or another one is in solo) dims. */
+.ch.ch-off .fader-slot, .ch.ch-off .ch-tape { opacity: .35; }
 .ch { display: grid; justify-items: center; gap: .8rem; }
 /* Masking tape with the channel name, cracked like the print. */
 .ch-tape {
@@ -708,3 +727,11 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
   .acta-sheet, .acta-preview { transition: none; }
 }
 
+
+/* Five strips at phone width: smaller tape and keys. */
+@media (max-width: 420px) {
+  .ch { gap: .55rem; }
+  .ch-tape { font-size: .5rem; padding: .25rem .3rem; letter-spacing: 0; }
+  .ch-btn { width: 22px; height: 24px; }
+  .ch-btns { gap: 3px; }
+}

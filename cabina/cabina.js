@@ -56,7 +56,19 @@ const MEDIA = {
   dibujo: "photos/equipo-dibujo-hector.jpg",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
-  frecuencia: "",
+  frecuencia: "cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the four stems)
+  // STEMS: the four tracks of Todo Cae (Nach MIX v2) for the console, the
+  // same 60 seconds of each (from 1:48), so they play in sync.
+  consola: {
+    cancion: "todo cae · mezcla de nach (v2)",
+    desde: 108,   // where the fragment starts in the song, in seconds
+    stems: {
+      voz:       "cabina/audio/todo-cae-voz.m4a",
+      guitarras: "cabina/audio/todo-cae-guitarras.m4a",
+      bajo:      "cabina/audio/todo-cae-bajo.m4a",
+      bateria:   "cabina/audio/todo-cae-bateria.m4a",
+    },
+  },
   // VIDEO: the transmissions of Canal MC². Each one is a video file
   // (video) or a YouTube video (youtube = its id, the part after youtu.be/).
   // inicio / fin (seconds) play only a fragment of it. Nothing = "sin señal".
@@ -260,10 +272,17 @@ function build() {
   const dust = Array.from({ length: 22 }, () =>
     `<i style="left:${(random() * 100).toFixed(1)}%;top:${(random() * 100).toFixed(1)}%"></i>`).join("");
 
-  const fader = (name, value, r) => `
+  // A channel strip: tape with its name, solo and mute (only the four
+  // stems have them), the fader and its level in db.
+  const fader = (name, label, value, r) => `
     <div class="ch${name === "overdubs" ? " ch-od" : ""}">
-      <span class="ch-tape" style="--r:${r}deg">${name}</span>
-      <div class="fader-slot"><input type="range" min="0" max="100" value="${value}" data-ch="${name}" aria-label="fader ${name}"></div>
+      <span class="ch-tape" style="--r:${r}deg">${label}</span>
+      ${name === "overdubs" ? `<span class="ch-btns" aria-hidden="true"></span>` : `
+      <span class="ch-btns">
+        <button class="ch-btn" type="button" data-solo="${name}" aria-pressed="false" aria-label="solo ${label}">s</button>
+        <button class="ch-btn" type="button" data-mute="${name}" aria-pressed="false" aria-label="mute ${label}">m</button>
+      </span>`}
+      <div class="fader-slot"><input type="range" min="0" max="100" value="${value}" data-ch="${name}" aria-label="fader ${label}"></div>
       <span class="ch-db" aria-hidden="true"></span>
     </div>`;
 
@@ -345,19 +364,25 @@ function build() {
       </div>`, "gira la perilla · donde la estática se limpia, la canción colapsa")}
 
     ${station("consola", `
-      <!-- CONSOLA is the desk: the take on a LED display, the meter bridge
-           moving with the music, and four long faders. -->
+      <!-- CONSOLA is the desk, and it plays: the four stems of Todo Cae,
+           one per fader, with solo and mute; the meter bridge reads their
+           real level. The fifth fader, overdubs, decides the take. -->
       <div class="desk-wrap">
         <p class="take"><span class="led-rec" aria-hidden="true">● rec</span><span class="take-word" id="take-word" aria-live="polite"></span><small>toma 01 // session 01 · sonic ranch</small></p>
+        <div class="transport">
+          <button class="cab-btn solid" type="button" id="mix-play" aria-pressed="false">▶ play la toma</button>
+          <span class="mix-time" id="mix-time" aria-hidden="true"></span>
+          <span class="mix-song">${esc(MEDIA.consola.cancion)}</span>
+        </div>
         <div class="bridge" aria-hidden="true">
-          ${["voz", "guitarras", "sala", "overdubs"].map((name) => `
-            <div class="vu" data-vu="${name}"><span class="vu-needle"></span><span class="vu-name">${name}</span></div>`).join("")}
+          ${[["voz", "voz"], ["guitarras", "guitarras"], ["bajo", "bajo"], ["bateria", "batería"]].map(([name, label]) => `
+            <div class="vu" data-vu="${name}"><span class="vu-needle"></span><span class="vu-name">${label}</span></div>`).join("")}
         </div>
         <div class="desk">
-          ${fader("voz", 72, -2)}${fader("guitarras", 60, 1.5)}${fader("sala", 45, -1)}${fader("overdubs", state.overdubs, 2)}
+          ${fader("voz", "voz", 75, -2)}${fader("guitarras", "guitarras", 70, 1.5)}${fader("bajo", "bajo", 72, -1)}${fader("bateria", "batería", 72, 1)}${fader("overdubs", "overdubs", state.overdubs, 2)}
         </div>
         <p class="st-note">el fader overdubs está entrelazado con tu acta: lo que muevas aquí, aparece allá.</p>
-      </div>`, "sube y baja los faders · el último decide qué tan en vivo quedó")}
+      </div>`, "dale play · mueve los faders, haz solo o mute · el último decide qué tan en vivo quedó")}
 
     ${station("canal", `
       <!-- CANAL MC² is the TV: the screen is everything, the channel
@@ -1295,30 +1320,131 @@ function setupConsola() {
     input.addEventListener("change", saveState);
   }
 
-  // The meter bridge: each needle follows its fader, pushed by a pulse
-  // at the tempo of the take (~84 bpm), each channel a little off the
-  // others, the way a room breathes.
-  const vus = [...root.querySelectorAll("[data-vu]")].map((vu, i) => ({
-    needle: vu.querySelector(".vu-needle"),
-    input: root.querySelector(`[data-ch="${vu.dataset.vu}"]`),
-    phase: i * 1.7,
-  }));
-  let frame = 0;
-  function swing(t) {
-    const beat = t / 1000 * (84 / 60) * Math.PI * 2;
-    for (const vu of vus) {
-      const level = Number(vu.input.value) / 100;
-      const pulse = .55 + .3 * Math.max(0, Math.sin(beat + vu.phase)) ** 3 + .15 * Math.sin(beat * 2.3 + vu.phase);
-      vu.needle.style.setProperty("--a", (-48 + 96 * level * pulse).toFixed(1) + "deg");
+  // THE MIX. The four stems are decoded once (on the first play) and
+  // started together on the same clock, looping. Each one runs through
+  // its own gain (fader × mute × solo) and an analyser for its meter, into
+  // a master with a soft compressor so pushing every fader never clips.
+  const NAMES = Object.keys(MEDIA.consola.stems);
+  const playButton = $("#mix-play"), clock = $("#mix-time");
+  const solo = new Set(), muted = new Set();
+  let ctx = null, buffers = null, loading = null, chans = {}, sources = [], playing = false, startedAt = 0, offset = 0;
+
+  const gainOf = (name) => {
+    if (muted.has(name) || (solo.size && !solo.has(name))) return 0;
+    return Number(root.querySelector(`[data-ch="${name}"]`).value) / 75;   // 75 = 0 db
+  };
+  function applyGains() {
+    if (!ctx) return;
+    for (const name of NAMES) chans[name].gain.gain.setTargetAtTime(gainOf(name), ctx.currentTime, .03);
+  }
+  // Old Safari only has the callback form of decodeAudioData.
+  const decode = (data) => new Promise((resolve, reject) => ctx.decodeAudioData(data, resolve, reject));
+  function load() {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();   // made inside the tap, so phones allow sound
+    ctx.resume();
+    const master = ctx.createGain(), squeeze = ctx.createDynamicsCompressor();
+    master.gain.value = .8;
+    squeeze.threshold.value = -8; squeeze.ratio.value = 4;
+    master.connect(squeeze).connect(ctx.destination);
+    for (const name of NAMES) {
+      const gain = ctx.createGain(), meter = ctx.createAnalyser();
+      meter.fftSize = 1024;
+      gain.connect(meter).connect(master);
+      chans[name] = { gain, meter, data: new Float32Array(meter.fftSize), level: 0 };
     }
+    applyGains();
+    return Promise.all(NAMES.map((name) =>
+      fetch(MEDIA.consola.stems[name]).then((r) => r.arrayBuffer()).then(decode)))
+      .then((decoded) => { buffers = decoded; });
+  }
+  const length = () => buffers[0].duration;
+  const position = () => playing ? (ctx.currentTime - startedAt) % length() : offset;
+  function play() {
+    const when = ctx.currentTime + .05;
+    sources = buffers.map((buffer, i) => {
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      source.connect(chans[NAMES[i]].gain);
+      source.start(when, offset % buffer.duration);
+      return source;
+    });
+    startedAt = when - offset;
+    playing = true;
+    showTransport();
+  }
+  function pause() {
+    if (!playing) return;
+    offset = position();
+    for (const source of sources) source.stop();
+    sources = [];
+    playing = false;
+    showTransport();
+  }
+  function showTransport(text) {
+    playButton.textContent = text || (playing ? "■ pausa" : "▶ play la toma");
+    playButton.setAttribute("aria-pressed", String(playing));
+    $(".desk-wrap").classList.toggle("playing", playing);
+  }
+  const mmss = (t) => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
+  function tickClock() {
+    clock.textContent = buffers ? mmss(MEDIA.consola.desde + position()) : mmss(MEDIA.consola.desde);
+  }
+
+  playButton.addEventListener("click", async () => {
+    if (loading && !buffers) return;   // still arriving
+    if (!ctx) {
+      showTransport("cargando la toma…");
+      loading = load();
+      try { await loading; } catch {
+        showTransport("no se pudo cargar · intenta otra vez");
+        ctx = null; loading = null;
+        return;
+      }
+    }
+    await ctx.resume();
+    if (playing) pause(); else play();
+  });
+  for (const button of root.querySelectorAll("[data-solo], [data-mute]")) {
+    button.addEventListener("click", () => {
+      const name = button.dataset.solo || button.dataset.mute, set = button.dataset.solo ? solo : muted;
+      if (set.has(name)) set.delete(name); else set.add(name);
+      button.setAttribute("aria-pressed", String(set.has(name)));
+      for (const strip of root.querySelectorAll(".desk .ch")) {
+        const ch = strip.querySelector("[data-ch]").dataset.ch;
+        strip.classList.toggle("ch-off", NAMES.includes(ch) && gainOf(ch) === 0);
+      }
+      applyGains();
+    });
+  }
+  for (const name of NAMES) root.querySelector(`[data-ch="${name}"]`).addEventListener("input", applyGains);
+
+  // The meter bridge: each needle reads its stem's real level (RMS, in
+  // db, -40 to 0 across the scale), with a little of a VU's slowness.
+  const vus = [...root.querySelectorAll("[data-vu]")].map((vu) => ({ name: vu.dataset.vu, needle: vu.querySelector(".vu-needle"), angle: -48 }));
+  let frame = 0;
+  function swing() {
+    for (const vu of vus) {
+      let target = -48;
+      const chan = chans[vu.name];
+      if (playing && chan) {
+        chan.meter.getFloatTimeDomainData(chan.data);
+        let sum = 0;
+        for (const x of chan.data) sum += x * x;
+        const db = 20 * Math.log10(Math.sqrt(sum / chan.data.length) + 1e-6);
+        target = -48 + 96 * Math.min(1, Math.max(0, (db + 40) / 40));
+      }
+      vu.angle += (target - vu.angle) * (noMotion.matches ? 1 : .25);
+      vu.needle.style.setProperty("--a", vu.angle.toFixed(1) + "deg");
+    }
+    tickClock();
     frame = requestAnimationFrame(swing);
   }
-  starts.consola = () => {
-    if (noMotion.matches) {
-      for (const vu of vus) vu.needle.style.setProperty("--a", (-48 + 70 * Number(vu.input.value) / 100).toFixed(1) + "deg");
-    } else frame = requestAnimationFrame(swing);
+  starts.consola = () => { tickClock(); frame = requestAnimationFrame(swing); };
+  stops.consola = () => {
+    cancelAnimationFrame(frame);
+    pause();   // leaving the desk stops the take; it resumes where it was
   };
-  stops.consola = () => cancelAnimationFrame(frame);
 }
 
 
