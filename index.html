@@ -909,9 +909,8 @@
     @media (hover: hover) { .ds-hero .btn-ghost:not(:disabled):hover { background: #fff; color: var(--washed-black); border-color: #fff; } }
 
     /* About: the biography beside the links. */
-    .about { max-width: 1300px; margin: 0 auto; display: grid; gap: 2rem 4rem; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: end; }
+    .about { max-width: 1300px; margin: 0 auto; display: grid; gap: 2rem 4rem; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); align-items: start; }
     @media (max-width: 820px) { .about { grid-template-columns: 1fr; } }
-    .about .about-text { max-width: 60ch; font-size: clamp(1.05rem, 2vw, 1.25rem); }
     .about .about-links { width: 100%; }
 
     /* Videografía: pictures that turn into the player. */
@@ -986,13 +985,6 @@
       font: 900 clamp(1.4rem, 4vw, 2.6rem) var(--font-display);
     }
     .rel-dark sup { font-size: .45em; }
-
-    /* Fotos: 120 film, black and white, like contact prints. */
-    .press-grid { list-style: none; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    @media (max-width: 760px) { .press-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .press-grid img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: #d9d3c7; }
-    .press-grid li:last-child { grid-column: 1 / -1; }
-    .press-grid li:last-child img { aspect-ratio: 3 / 2; max-height: 70vh; }
 
     /* Shop: the pieces are MC², so they sit on a black sheet even in daylight. */
     .shop .products { padding: clamp(1rem, 3vw, 2rem); background: var(--washed-black); color: var(--ivory); }
@@ -1073,7 +1065,6 @@
     .no-shows .btn { margin-top: .8rem; }
 
     /* ---------- ABOUT: Dstance and his links ---------- */
-    .about-text { font-size: clamp(1.1rem, 2.6vw, 1.4rem); max-width: 40ch; margin: 0 0 2rem; }
     .about-links { list-style: none; margin: 0; padding: 0; display: grid; max-width: 34rem; border-top: 1px solid var(--line); }
     .about-links a {
       display: block; padding: 1rem 0; border-bottom: 1px solid var(--line); text-decoration: none;
@@ -1172,12 +1163,11 @@
       </div>
     </section>
 
-    <!-- ABOUT: the biography of the press kit, and his links. -->
+    <!-- LINKS: where to listen to and follow Dstance. -->
     <section class="ds about" id="about" aria-labelledby="about-title">
-      <div class="bio">
-        <span class="eyebrow">Biografía</span>
-        <h2 id="about-title">Dstance</h2>
-        <p class="about-text">Dany, músico originario de Puebla, se ha desarrollado ampliamente en distintos géneros y grupos. Su proyecto principal es Dstance, con el cual sacó sus discos <i>Hasta que la vida diga adiós</i> (2022), donde colabora con cantantes como Josean Log y Los Rumberos, y <i>Falsas Expectativas</i> (2025). Su sencillo «Niña bonita» fue la tercera canción más viral del mundo (2020), ganó disco triple platino y obtuvo el premio Rompe de Amazon Music.</p>
+      <div>
+        <span class="eyebrow">Links</span>
+        <h2 id="about-title">Escucha y sigue</h2>
       </div>
       <ul class="about-links" aria-label="Dstance en línea">
         <li><a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify ↗</a></li>
@@ -1273,19 +1263,6 @@
         <p>No hay shows ni tour anunciados todavía. Cuando los haya, se anuncian aquí primero.</p>
         <a class="btn btn-ghost" href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Entérate en Instagram ↗</a>
       </div>
-    </section>
-
-    <!-- FOTOS: exterior photos, 120 film (Drive: Dstance - Sonic Ranch / Film / 120). -->
-    <section class="ds fotos" id="fotos" aria-labelledby="fotos-title">
-      <span class="eyebrow">Fotos // rollo 120</span>
-      <h2 id="fotos-title">Fotos</h2>
-      <ul class="press-grid">
-        <li><img src="photos/ds-retrato.jpg" width="1376" height="1400" loading="lazy" alt="Blanco y negro: retrato con los ojos cerrados frente a una manta blanca en el nogal"></li>
-        <li><img src="photos/ds-manta.jpg" width="1178" height="1200" loading="lazy" alt="Blanco y negro: de pie frente a una manta blanca en medio de un nogal sin hojas"></li>
-        <li><img src="photos/ds-sentado.jpg" width="1180" height="1200" loading="lazy" alt="Blanco y negro: sentado frente a la manta, abrazándose la rodilla, con los ojos cerrados"></li>
-        <li><img src="photos/ds-silueta.jpg" width="1200" height="1093" loading="lazy" alt="Blanco y negro: la silueta de perfil contra las ramas del nogal"></li>
-        <li><img src="photos/ds-campo-noche.jpg" width="1400" height="933" loading="lazy" alt="De noche: con los brazos abiertos en un campo de pasto iluminado por una sola luz"></li>
-      </ul>
     </section>
 
     <!-- SHOP: everything Dstance sells. Today that is the MC² collection;
@@ -1588,7 +1565,7 @@
         <li><a href="#videos"><span class="menu-n">03</span>Videos</a></li>
         <li><a href="#shows"><span class="menu-n">04</span>Shows</a></li>
         <li><a href="#shop"><span class="menu-n">05</span>Shop</a></li>
-        <li><a href="#about"><span class="menu-n">06</span>About</a></li>
+        <li><a href="#about"><span class="menu-n">06</span>Links</a></li>
         <li><a href="#contacto"><span class="menu-n">07</span>Contacto</a></li>
         <!-- The way inside: always lit, it turns the light off and goes in. -->
         <li><a class="menu-cabina" href="#cabina"><span class="menu-n">MC²</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
