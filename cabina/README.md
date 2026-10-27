@@ -42,7 +42,7 @@ Cada estación es el objeto mismo, a pantalla completa: atrás su mundo (`MEDIA.
 | canal | la tele: pantalla completa y botones de canal | `photos/cabina-monitor.jpg` |
 | archivo | el cajón abierto: fichas que se hojean | `photos/escena-archivo.jpg` |
 | llave | el panel: display LCD y la ranura donde entra la tarjeta | `photos/escena-llave.jpg` |
-| el equipo | el vidrio: el dibujo de Hector pegado en él, con todos los que fueron a Sonic Ranch | `photos/escena-sala.jpg` |
+| el equipo | el vidrio: el dibujo de Hector pegado en él, con todos los que fueron a Sonic Ranch | `photos/sesion-sala-en-vivo.jpg` (foto real) |
 | acta | la hoja de sesión: firmas en ella y se voltea en tu acta | `photos/cabina-hoja.jpg` |
 
 Las escenas nuevas (`escena-*.jpg`) se generaron con la IA de Canva. Para cambiar una, reemplaza el archivo o la ruta en `MEDIA.scenes`.

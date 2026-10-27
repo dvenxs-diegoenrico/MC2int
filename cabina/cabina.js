@@ -33,7 +33,7 @@ const MEDIA = {
     hoja:       "photos/cabina-hoja.jpg",   // FOTO: la hoja de sesión (track sheet)        → acta
     ranura:     "photos/cabina-ranura.jpg",   // FOTO: la ranura de la llave                  → llave
     apagador:   "photos/cabina-apagador.jpg",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
-    boveda:     "photos/sesion-fender.jpg",   // FOTO: lo que abre la llave MC2-TEE-01
+    boveda:     "photos/sesion-la-sala-de-noche.jpg",   // FOTO: lo que abre la llave MC2-TEE-01 (Drive, Digital/_DSC5312)
   },
   // FOTO PANORÁMICA: the whole control room in one photo, wrapped on
   // the 220° curve around the fan. Generated with Canva AI; a real
@@ -45,12 +45,12 @@ const MEDIA = {
   // in the style of the session Polaroids).
   scenes: {
     frecuencia: "photos/escena-frecuencia.jpg",   // the glowing scale of an old radio
-    consola:    "photos/cabina-consola.jpg",      // the desk, up close
+    consola:    "photos/sesion-consola.jpg",      // the real control room (Drive, Digital/_DSC5808)
     canal:      "photos/cabina-monitor.jpg",      // the TV on its shelf
     archivo:    "photos/escena-archivo.jpg",      // an open drawer full of cards
     llave:      "photos/escena-llave.jpg",        // a metal panel with a display and a slot
-    equipo:     "photos/escena-sala.jpg",         // the live room, through the glass
-    acta:       "photos/cabina-hoja.jpg",         // the session sheet on the desk
+    equipo:     "photos/sesion-sala-en-vivo.jpg", // the live room, playing (Drive, Digital/_DSC5554)
+    acta:       "photos/sesion-hoja-todavia.jpg", // the real chord sheet of "Todavía" (Drive, Digital/_DSC5746)
   },
   // EL EQUIPO: the drawing Hector made of everyone who went to Sonic Ranch.
   dibujo: "photos/equipo-dibujo-hector.jpg",
@@ -62,9 +62,10 @@ const MEDIA = {
   // inicio / fin (seconds) play only a fragment of it. Nothing = "sin señal".
   canal: [
     { id: "tx-01", titulo: "todo cae · lyric video", youtube: "7zEhOL9S19s" },
-    { id: "tx-02", titulo: "la cabina, de noche",            video: "" },
-    { id: "tx-03", titulo: "tornillo, tx · camino al estudio", video: "" },
-    { id: "tx-04", titulo: "mesa de mezcla · overdubs",      video: "" },
+    // tx-02 … tx-04: fragments of the Sonic Ranch vlog (Drive, "Sonic ranch vlog").
+    { id: "tx-02", titulo: "la cabina, de noche",     video: "cabina/video/tx-02-cabina-noche.mp4" },   // DJI_…_0098, 0:00–0:14
+    { id: "tx-03", titulo: "llegando a sonic ranch",  video: "cabina/video/tx-03-llegada.mp4" },        // DJI_…_0047, 0:04–0:20
+    { id: "tx-04", titulo: "voz · en la cabina",      video: "cabina/video/tx-04-voz.mp4" },            // DJI_…_0082, 0:40–0:56
   ],
 };
 
@@ -101,8 +102,8 @@ const EQUIPO = [
 const LLAVES = {
   MC2TEE01: {
     id: "MC2-TEE-01",
-    titulo: "la toma que no salió",
-    texto: "contenido oculto de prueba. aquí va lo que solo abre la llave de la playera: una toma, una foto, una nota de voz.",
+    titulo: "la sala, de noche",
+    texto: "sonic ranch, tornillo, tx. lo que pasó en la sala se quedó en el disco. esto solo lo abre la llave de la playera.",
     photo: "boveda",
   },
 };
