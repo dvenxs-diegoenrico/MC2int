@@ -42,7 +42,7 @@ Cada estación es el objeto mismo, a pantalla completa: atrás su mundo (`MEDIA.
 | canal | la tele: pantalla completa y botones de canal | `photos/cabina-monitor.jpg` |
 | archivo | el cajón abierto: fichas que se hojean | `photos/escena-archivo.jpg` |
 | llave | el panel: display LCD y la ranura donde entra la tarjeta | `photos/escena-llave.jpg` |
-| huéspedes | el vidrio: las sesiones son reflejos en superposición | `photos/escena-sala.jpg` |
+| el equipo | el vidrio: el dibujo de Hector pegado en él, con todos los que fueron a Sonic Ranch | `photos/escena-sala.jpg` |
 | acta | la hoja de sesión: firmas en ella y se voltea en tu acta | `photos/cabina-hoja.jpg` |
 
 Las escenas nuevas (`escena-*.jpg`) se generaron con la IA de Canva. Para cambiar una, reemplaza el archivo o la ruta en `MEDIA.scenes`.
@@ -55,12 +55,12 @@ Los 8 objetos del cuarto (ventana, monitor, archivero, consola, perilla, hoja, r
 imagen: se generaron con la IA de Canva en el estilo de las polaroids de la sesión y viven en
 `photos/cabina-*.jpg`. Los originales están en el diseño de Canva "MC² · fotos para La Cabina".
 Cuando tengas fotos reales de la cabina, reemplaza el archivo o cambia la ruta en `MEDIA`.
-Siguen pendientes: `mits` y `ripe` (artistas reales: solo con fotos reales). Una panorámica real de la cabina puede reemplazar a la generada.
+Una panorámica real de la cabina puede reemplazar a la generada.
 
 | Clave        | Dónde aparece                 | Qué foto va                                         |
 |--------------|-------------------------------|-----------------------------------------------------|
 | `fondo`      | Pared 04, el vidrio           | Lo que se ve por el vidrio (hoy: la sala de grabación). |
-| `ventana`    | Hotspot 06, sala de huéspedes | El vidrio de la cabina hacia la sala                |
+| `ventana`    | Hotspot 06, el equipo         | El vidrio de la cabina hacia la sala                |
 | `apagador`   | Pared 08                      | El apagador de la cabina                            |
 | `monitor`    | Hotspot 03, canal mc²         | La tele o el monitor de la cabina                   |
 | `archivero`  | Hotspot 04, archivo           | El archivero                                        |
@@ -69,9 +69,16 @@ Siguen pendientes: `mits` y `ripe` (artistas reales: solo con fotos reales). Una
 | `hoja`       | Hotspot 07, acta              | La hoja de sesión (track sheet)                     |
 | `ranura`     | Hotspot 05 y estación llave   | La ranura de la llave                               |
 | `boveda`     | Llave, contenido oculto       | Lo que abre la llave MC2-TEE-01                     |
-| `mits`       | Sala de huéspedes             | Sesión invitada MITS                                |
-| `ripe`       | Sala de huéspedes             | Sesión invitada RiPE                                |
-| `sonicranch` | Sala de huéspedes             | Sesión invitada Sonic Ranch                         |
+
+### El equipo (`EQUIPO` en `cabina.js`)
+
+La estación 06 es el dibujo que hizo Hector (`photos/equipo-dibujo-hector.jpg`) de todos los que fueron a
+Sonic Ranch: Hector, Gü, Greta, Jere, Nava, Jack Kool, Rabi, Dany Dstance y Felipe. Cada persona es un botón
+sobre el dibujo; al tocarla "colapsa" y aparece su ficha.
+
+- ROL: solo están confirmados Hector (músico y productor) y Dany (el artista). Los demás dicen "ROL: por confirmar":
+  escribe su rol en `rol` (músico, productor, fotógrafo…). El nombre del dibujo va en `dibujo`.
+- Si cambias el dibujo, mueve `x, y, w, h` de cada persona (centro y tamaño, en % del dibujo).
 
 ### Audio
 

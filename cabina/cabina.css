@@ -147,14 +147,14 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
    by JavaScript while it touches). */
 .spot-area { transition: border-color .2s ease, filter .35s ease, opacity .2s ease; }
 .spot-tag { transition: color .2s ease, text-shadow .35s ease, opacity .2s ease; }
-.ficha, .guest, .tx, .tv { transition: border-color .2s ease, filter .35s ease; }
+.ficha, .tx, .tv { transition: border-color .2s ease, filter .35s ease; }
 .spot.lit .spot-area, .spot:focus-visible .spot-area {
   border-style: solid; border-color: var(--chem-green); background-color: rgba(184,224,32,.08);
   filter: brightness(1.2) drop-shadow(0 0 6px rgba(184,224,32,.65)) drop-shadow(0 0 22px rgba(184,224,32,.35));
 }
 .spot.lit .spot-tag, .spot:focus-visible .spot-tag { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
-.ficha.lit, .guest.lit, .tv.lit,
-.ficha:focus-within, .guest:focus-within {
+.ficha.lit, .tv.lit,
+.ficha:focus-within {
   border-color: var(--chem-green);
   filter: drop-shadow(0 0 8px rgba(184,224,32,.45)) drop-shadow(0 0 26px rgba(184,224,32,.2));
 }
@@ -165,7 +165,7 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
     filter: brightness(1.2) drop-shadow(0 0 6px rgba(184,224,32,.65)) drop-shadow(0 0 22px rgba(184,224,32,.35));
   }
   .spot:hover .spot-tag { color: var(--chem-green); text-shadow: 0 0 10px rgba(184,224,32,.7); }
-  .ficha:hover, .guest:hover, .tv:hover {
+  .ficha:hover, .tv:hover {
     border-color: var(--chem-green);
     filter: drop-shadow(0 0 8px rgba(184,224,32,.45)) drop-shadow(0 0 26px rgba(184,224,32,.2));
   }
@@ -557,30 +557,69 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .vault .ph { aspect-ratio: 16 / 9; }
 .panel > .st-note { margin: 0; text-align: center; }
 
-/* ---------- 06 SALA DE HUÉSPEDES: you are looking through the glass ----------
-   The sessions to come are reflections on the glass, still in
-   superposition; looking at one collapses it. */
-.glass { max-width: 980px; margin: 0 auto; min-height: 100%; display: grid; align-content: center; }
-.guests { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-.guest {
-  --c: 0; display: grid; gap: .6rem; align-content: start; padding: .9rem;
-  border: 1px solid rgba(242,238,230,.1); background: rgba(10,10,10,.35);
-  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
-  opacity: calc(.72 + var(--c) * .28); outline: none;
-  animation: ghost 6s ease-in-out infinite alternate;
-  transition: opacity .3s ease, border-color .3s ease;
+/* ---------- 06 EL EQUIPO: you are looking through the glass ----------
+   Hector's drawing is taped to the glass, the live room behind it.
+   Everyone in it is in superposition (a ring that flickers) until you
+   look at them; then they collapse and the others fade. */
+.equipo { max-width: 1100px; margin: 0 auto; display: grid; gap: .9rem; }
+.dibujo {
+  overflow-x: auto; scrollbar-width: none; touch-action: pan-x pan-y; overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
-.guest:nth-child(2) { animation-delay: -2s; }
-.guest:nth-child(3) { animation-delay: -4s; }
-@keyframes ghost { to { transform: translateY(-8px); } }
-.guest .ph { aspect-ratio: 4 / 3; filter: blur(calc((1 - var(--c)) * 3px)) grayscale(calc(1 - var(--c))); transition: filter .3s ease; }
-.guest h3 { display: grid; }
-.guest h3 > span { grid-area: 1 / 1; transition: opacity .3s ease, transform .3s ease, filter .3s ease; }
-.guest h3 .sp-a { opacity: calc(.4 + var(--c) * .6); filter: blur(calc((1 - var(--c)) * 2px)); }
-.guest h3 .sp-b { color: var(--sepia); opacity: calc((1 - var(--c)) * .55); transform: translate(calc((1 - var(--c)) * 6px), calc((1 - var(--c)) * -3px)); animation: none; }
-.guest p { margin: 0; color: var(--sepia); font-size: .62rem; letter-spacing: .14em; }
-.guest.lit, .guest:focus-visible { --c: 1; border-color: var(--chem-green); }
-@media (hover: hover) { .guest:hover { --c: 1; border-color: var(--chem-green); filter: drop-shadow(0 0 10px rgba(184,224,32,.4)); } }
+.dibujo::-webkit-scrollbar { display: none; }
+.dibujo-sheet {
+  position: relative; width: max(100%, 640px); margin: 10px auto 0;
+  background: var(--ivory); padding: 0; transform: rotate(-.4deg);
+  border: 1px solid var(--line);
+}
+/* Masking tape on the corners, cracked like the print. */
+.dibujo-sheet::before, .dibujo-sheet::after {
+  content: ""; position: absolute; z-index: 2; top: -10px; width: 90px; height: 24px;
+  background: rgba(242,238,230,.75); -webkit-mask-image: var(--cracks); mask-image: var(--cracks);
+}
+.dibujo-sheet::before { left: 6%; transform: rotate(-4deg); }
+.dibujo-sheet::after { right: 6%; transform: rotate(3deg); }
+.dibujo-sheet img { display: block; width: 100%; height: auto; mix-blend-mode: multiply; filter: contrast(1.05); }
+.persona { position: absolute; padding: 0; border: 0; background: none; cursor: pointer; border-radius: 40%; }
+.persona span {
+  position: absolute; inset: 0; border-radius: 40%;
+  border: 1px dashed rgba(10,10,10,.35);
+  animation: superpos 2.4s steps(2) infinite;
+}
+.persona:nth-child(odd) span { animation-delay: -1.2s; animation-duration: 3.1s; }
+@keyframes superpos { 50% { transform: translate(2px, -2px) scale(1.03); opacity: .35; } }
+/* Collapsed: the one you look at locks, the others fade into the paper. */
+.persona::after {
+  content: ""; position: absolute; inset: -2px; background: var(--ivory); opacity: 0;
+  transition: opacity .4s ease; pointer-events: none; border-radius: 40%;
+}
+.dibujo.collapsed .persona[aria-pressed="false"]::after { opacity: .55; }
+.persona[aria-pressed="true"] span, .persona.lit span, .persona:focus-visible span {
+  animation: none; border: 2px solid var(--chem-green);
+  box-shadow: 0 0 0 2px rgba(10,10,10,.85), 0 0 18px rgba(184,224,32,.8);
+}
+.persona:focus-visible { outline: none; }
+@media (hover: hover) { .persona:hover span { animation: none; border: 2px solid var(--chem-green); box-shadow: 0 0 14px rgba(184,224,32,.7); } }
+.persona-card {
+  padding: .9rem 1.1rem; border: 1px solid var(--line); border-left: 3px solid var(--chem-green);
+  background: rgba(10,10,10,.88); min-height: 6.5rem;
+  position: sticky; bottom: 0; z-index: 3;
+}
+@media (min-width: 900px) {
+  .equipo { grid-template-columns: minmax(0, 1fr) 300px; align-items: end; }
+  .equipo > .st-tag { grid-column: 1 / -1; }
+  .dibujo-sheet { width: min(100%, calc((100vh - 14rem) * 1.41)); }
+  .persona-card { position: static; }
+}
+.persona-card h3 { margin: 0 0 .4rem; }
+.persona-card .sp-line { font: 800 clamp(1.8rem, 8vw, 2.8rem)/1 var(--font-display); }
+.persona-card .sp-b { animation: none; }
+.persona-card.on .sp-line { --c: 0; animation: collapse-in .7s steps(6) forwards; }
+@keyframes collapse-in { to { --c: 1; } }
+@property --c { syntax: "<number>"; inherits: true; initial-value: 0; }
+.persona-card.on .sp-line { --c: 1; }
+.persona-rol { margin: 0; color: var(--ivory); font-size: .7rem; letter-spacing: .1em; }
+.persona-card .st-note { margin-top: .5rem; }
 
 /* ---------- 07 ACTA: you sign the session sheet ----------
    The form is the sheet itself; signing turns it over into the acta.
@@ -664,7 +703,7 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
    already stops every animation; the room turns without easing). */
 @media (prefers-reduced-motion: reduce) {
   .cab::after, .st-scene, .cab-station:not([hidden]) .st-scene, .cab-station:not([hidden]) .st-stage,
-  .sp-b, .guest, .cab-dust i, .reticle.on .reticle-ring, .key-form.accepted .key-card { animation: none; }
+  .sp-b, .persona span, .cab-dust i, .reticle.on .reticle-ring, .key-form.accepted .key-card { animation: none; }
   .key-form.accepted .key-card { transform: translateY(70px); }
   .acta-sheet, .acta-preview { transition: none; }
 }

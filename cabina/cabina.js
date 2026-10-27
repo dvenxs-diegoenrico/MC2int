@@ -25,7 +25,7 @@ const MEDIA = {
   // The room's objects (ventana … apagador) were generated with Canva AI
   // in the style of the session Polaroids; swap them for real photos anytime.
   photos: {
-    ventana:    "photos/cabina-ventana.jpg",   // FOTO: el vidrio de la cabina hacia la sala   → sala de huéspedes
+    ventana:    "photos/cabina-ventana.jpg",   // FOTO: el vidrio de la cabina hacia la sala   → el equipo
     monitor:    "photos/cabina-monitor.jpg",   // FOTO: la tele / monitor de la cabina         → canal mc²
     archivero:  "photos/cabina-archivero.jpg",   // FOTO: el archivero                           → archivo
     consola:    "photos/cabina-consola.jpg",   // FOTO: la consola, los faders                 → consola
@@ -34,9 +34,6 @@ const MEDIA = {
     ranura:     "photos/cabina-ranura.jpg",   // FOTO: la ranura de la llave                  → llave
     apagador:   "photos/cabina-apagador.jpg",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
     boveda:     "photos/sesion-fender.jpg",   // FOTO: lo que abre la llave MC2-TEE-01
-    mits:       "",   // FOTO: sesión invitada MITS
-    ripe:       "",   // FOTO: sesión invitada RiPE
-    sonicranch: "photos/sesion-sonic-ranch.jpg",   // FOTO: sesión invitada Sonic Ranch
   },
   // FOTO PANORÁMICA: the whole control room in one photo, wrapped on
   // the 220° curve around the fan. Generated with Canva AI; a real
@@ -52,9 +49,11 @@ const MEDIA = {
     canal:      "photos/cabina-monitor.jpg",      // the TV on its shelf
     archivo:    "photos/escena-archivo.jpg",      // an open drawer full of cards
     llave:      "photos/escena-llave.jpg",        // a metal panel with a display and a slot
-    huespedes:  "photos/escena-sala.jpg",         // the live room, through the glass
+    equipo:     "photos/escena-sala.jpg",         // the live room, through the glass
     acta:       "photos/cabina-hoja.jpg",         // the session sheet on the desk
   },
+  // EL EQUIPO: the drawing Hector made of everyone who went to Sonic Ranch.
+  dibujo: "photos/equipo-dibujo-hector.jpg",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "",
@@ -84,6 +83,21 @@ const SINGLE = {
 
 // The test keys. Each one opens its own hidden content in the slot.
 // Compared without dashes or spaces, so "mc2 tee 01" works too.
+/* EL EQUIPO: the people in Hector's drawing, left to right. "dibujo" is
+   how the drawing names them; x, y, w, h place them on it (center and
+   size, in % of the drawing). ROL: an empty "rol" says "por confirmar". */
+const EQUIPO = [
+  { nombre: "Hector",       dibujo: "yo",        rol: "músico y productor · hizo este dibujo", x: 7.3,  y: 82, w: 6.5, h: 27 },
+  { nombre: "Gü",           dibujo: "gü",        rol: "",                                      x: 14.8, y: 78, w: 7,   h: 25 },
+  { nombre: "Greta",        dibujo: "greta",     rol: "",                                      x: 21.7, y: 80, w: 7,   h: 29 },
+  { nombre: "Jere",         dibujo: "jere",      rol: "",                                      x: 30,   y: 82, w: 8,   h: 34 },
+  { nombre: "Nava",         dibujo: "nava",      rol: "",                                      x: 37,   y: 79, w: 7.5, h: 28 },
+  { nombre: "Jack Kool",    dibujo: "jack kool", rol: "",                                      x: 43.4, y: 83, w: 6.5, h: 28 },
+  { nombre: "Rabi",         dibujo: "rabi",      rol: "",                                      x: 52.4, y: 81, w: 12,  h: 34 },
+  { nombre: "Dany Dstance", dibujo: "dani",      rol: "el artista · música cuántica",          x: 63.1, y: 79, w: 8,   h: 33 },
+  { nombre: "Felipe",       dibujo: "felipe",    rol: "",                                      x: 73.5, y: 80, w: 9,   h: 34 },
+];
+
 const LLAVES = {
   MC2TEE01: {
     id: "MC2-TEE-01",
@@ -107,7 +121,7 @@ const OBJECTS = [
   { nombre: "el archivero",      station: "archivo",    x: 22.5, y: 63, w: 9,   h: 54 },
   { nombre: "la consola",        station: "consola",    x: 40,   y: 70, w: 24,  h: 18 },
   { nombre: "la perilla",        station: "frecuencia", x: 53,   y: 58, w: 6,   h: 10 },
-  { nombre: "el vidrio",         station: "huespedes",  x: 53.5, y: 33, w: 30,  h: 34, home: true },
+  { nombre: "el vidrio",         station: "equipo",  x: 53.5, y: 33, w: 30,  h: 34, home: true },
   { nombre: "la ranura",         station: "llave",      x: 84,   y: 63, w: 10,  h: 8, photo: "ranura" },
   { nombre: "la tele",           station: "canal",      x: 86,   y: 44, w: 12,  h: 22 },
   { nombre: "la hoja de sesión", station: "acta",       x: 91,   y: 84, w: 11,  h: 14 },
@@ -126,7 +140,7 @@ const STATIONS = {
   canal:      { n: "03", nombre: "canal mc²",         objeto: "monitor",        photo: "monitor" },
   archivo:    { n: "04", nombre: "archivo",           objeto: "archivero",      photo: "archivero" },
   llave:      { n: "05", nombre: "llave",             objeto: "ranura",         photo: "ranura" },
-  huespedes:  { n: "06", nombre: "sala de huéspedes", objeto: "ventana",        photo: "ventana" },
+  equipo:     { n: "06", nombre: "el equipo",         objeto: "vidrio",         photo: "ventana" },
   acta:       { n: "07", nombre: "acta",              objeto: "hoja de sesión", photo: "hoja" },
 };
 
@@ -164,11 +178,6 @@ function el(tag, className, text) {
   if (className) node.className = className;
   if (text !== undefined) node.textContent = text;
   return node;
-}
-
-// A placeholder card. aria-hidden: the button around it carries the name.
-function ph(key, label, extra = "") {
-  return `<span class="ph ${extra}" data-photo="${key}" aria-hidden="true">FOTO: ${esc(label)}</span>`;
 }
 
 // A tiny seeded random generator, so the acta's texture doesn't flicker while typing.
@@ -402,20 +411,26 @@ function build() {
         <p class="st-note" id="key-list"></p>
       </div>`, "escribe el código de tu pieza · la ranura sabe cuál es")}
 
-    ${station("huespedes", `
-      <!-- SALA DE HUÉSPEDES is the glass: the sessions to come are
-           reflections on it, still in superposition. -->
-      <div class="glass">
-        <div class="guests">
-          ${[["mits", "MITS"], ["ripe", "RiPE"], ["sonicranch", "Sonic Ranch"]].map(([key, name]) => `
-            <article class="guest" tabindex="0">
-              ${ph(key, name)}
-              <h3><span class="sp-a">${name}</span><span class="sp-b" aria-hidden="true">${name}</span></h3>
-              <p>sesión invitada · próximamente</p>
-              <p>archive locked</p>
-            </article>`).join("")}
+    ${station("equipo", `
+      <!-- EL EQUIPO is what you see through the glass: everyone who went to
+           Sonic Ranch with Dany, as Hector drew them. Each one is in
+           superposition until you look at them. -->
+      <div class="equipo">
+        <p class="st-tag">quién estuvo en sonic ranch // dibujo de <b>hector</b></p>
+        <div class="dibujo" id="dibujo">
+          <div class="dibujo-sheet">
+            <img src="${MEDIA.dibujo}" alt="Dibujo de Hector: Sonic Ranch 2026, Mamerronix 3000 septeto koreano, Música Cuántica, y las nueve personas que fueron: ${EQUIPO.map((p) => p.nombre).join(", ")}.">
+            ${EQUIPO.map((p, i) => `
+              <button class="persona" type="button" data-persona="${i}" aria-label="${esc(p.nombre)}" aria-pressed="false"
+                      style="left:${p.x - p.w / 2}%;top:${p.y - p.h / 2}%;width:${p.w}%;height:${p.h}%"><span></span></button>`).join("")}
+          </div>
         </div>
-      </div>`, "del otro lado del vidrio · toca un reflejo para colapsarlo")}
+        <div class="persona-card" id="persona-card" aria-live="polite">
+          <p class="st-tag">nueve personas // en superposición</p>
+          <h3>¿quién estuvo?</h3>
+          <p class="st-note">toca a alguien del dibujo: hasta que lo miras, puede ser cualquiera.</p>
+        </div>
+      </div>`, "toca a alguien del dibujo · al mirarlo, colapsa")}
 
     ${station("acta", `
       <!-- ACTA is the session sheet: you sign on it, and it turns over into
@@ -467,7 +482,7 @@ function build() {
     if (event.target.closest("[data-lights-on]")) leaveTo(null);
   });
   // Touch screens have no hover: the object lights up while the finger is on it.
-  const glowing = ".spot, .ficha, .guest, .tx, .tv";
+  const glowing = ".spot, .ficha, .persona, .tx, .tv";
   root.addEventListener("pointerdown", (event) => {
     const target = event.pointerType !== "mouse" && event.target.closest(glowing);
     if (target) target.classList.add("lit");
@@ -494,6 +509,7 @@ function build() {
   setupCanal();
   setupArchivo();
   setupLlave();
+  setupEquipo();
   setupActa();
 }
 
@@ -1497,6 +1513,32 @@ function setupLlave() {
     const opened = Object.values(LLAVES).filter((key) => state.llaves.includes(key.id)).pop();
     if (opened) { showVault(opened); form.classList.add("accepted"); }
   };
+}
+
+
+/* ---------------------------------------------------------------
+   06 EL EQUIPO
+   Looking at someone collapses them: their ring locks, the others
+   fade, and the card says who they are.
+   --------------------------------------------------------------- */
+function setupEquipo() {
+  const card = $("#persona-card"), people = [...root.querySelectorAll("[data-persona]")];
+  for (const button of people) {
+    button.addEventListener("click", () => {
+      const p = EQUIPO[button.dataset.persona];
+      for (const other of people) other.setAttribute("aria-pressed", String(other === button));
+      $("#dibujo").classList.add("collapsed");
+      const tag = el("p", "st-tag");
+      tag.append(`en el dibujo: "${p.dibujo}" // `, el("b", "", "colapsado"));
+      const name = el("h3", "sp-line");
+      name.append(el("span", "sp-a", p.nombre), el("span", "sp-b", p.nombre));
+      card.replaceChildren(tag, name, el("p", "persona-rol", p.rol || "ROL: por confirmar"),
+        el("p", "st-note", "sonic ranch 2026 · tornillo, tx"));
+      card.classList.remove("on");
+      void card.offsetWidth;   // restart the collapse
+      card.classList.add("on");
+    });
+  }
 }
 
 
