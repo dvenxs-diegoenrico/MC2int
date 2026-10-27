@@ -1,6 +1,6 @@
 # La Cabina
 
-La segunda capa del sitio. Se entra con **Apagar la luz** y se sale con **prender la luz**.
+La segunda capa del sitio. **Apagar la luz** oscurece la tienda (el print brilla, como antes) y hace aparecer el botón **La cabina**: solo con la luz apagada se puede entrar. Dentro, **prender la luz** (o el apagador de la pared 08) te regresa a la tienda con la luz prendida.
 También se puede entrar directo con un link: `…/#cabina` (el hub) o `…/#cabina/consola` (una estación).
 
 Solo se descarga al apagar la luz: la tienda carga igual que antes.
@@ -16,18 +16,19 @@ Solo se descarga al apagar la luz: la tienda carga igual que antes.
 2. En `cabina.js`, dentro de `MEDIA`, escribe la ruta. Por ejemplo: `consola: "cabina/img/consola.jpg"`.
 3. Listo: la foto reemplaza su tarjeta "FOTO: …". Si la ruta queda vacía, vuelve el placeholder.
 
-## El cuarto 360°
+## El cuarto (220°)
 
-El hub es un cuarto de 8 paredes alrededor del fan, con un objeto por pared (`WALLS` en `cabina.js`):
-01 el vidrio (sala de huéspedes y el letrero live session) · 02 la consola · 03 la perilla · 04 la tele ·
-05 el archivero · 06 la hoja de sesión · 07 la ranura · 08 el apagador (prender la luz).
+El hub es un cuarto curvo de 220° frente al fan: 8 paredes de izquierda a derecha, con un objeto en cada una (`WALLS` en `cabina.js`):
+01 la ranura · 02 la hoja de sesión · 03 la consola · **04 el vidrio** (sala de huéspedes y el letrero live session; aquí empiezas) ·
+05 la perilla · 06 la tele · 07 el archivero · 08 el apagador (prender la luz).
 
-Se gira arrastrando, con los botones ‹ ›, con las flechas del teclado, con Tab (el cuarto voltea al objeto)
-o con "mover el teléfono" (la brújula del celular; en iPhone pide permiso).
+Se mueve de lado a lado: arrastrando, con los botones ‹ ›, con las flechas del teclado, con Tab (el cuarto voltea al objeto)
+o con "mover el teléfono" (la brújula del celular; en iPhone pide permiso). En los extremos el cuarto se detiene.
+Para cambiar cuánto abarca, cambia `ARC` en `cabina.js`.
 
-**Foto 360°:** toma una panorámica completa de la cabina real (modo panorámico del teléfono, 360°)
+**Foto panorámica:** toma una panorámica de la cabina real (modo panorámico del teléfono, unos 220°)
 y pon su ruta en `MEDIA.panorama`. Se reparte sola en las 8 paredes. Mientras esté vacía, cada pared
-lleva su textura y la pared 01 muestra la foto `fondo`.
+lleva su textura y la pared 04 muestra la foto `fondo`.
 
 ## Placeholders por reemplazar
 
@@ -35,7 +36,7 @@ lleva su textura y la pared 01 muestra la foto `fondo`.
 
 | Clave        | Dónde aparece                 | Qué foto va                                         |
 |--------------|-------------------------------|-----------------------------------------------------|
-| `fondo`      | Pared 01 del cuarto 360°      | Lo que se ve por el vidrio (hoy: la sala de grabación). |
+| `fondo`      | Pared 04, el vidrio           | Lo que se ve por el vidrio (hoy: la sala de grabación). |
 | `ventana`    | Hotspot 06, sala de huéspedes | El vidrio de la cabina hacia la sala                |
 | `apagador`   | Pared 08                      | El apagador de la cabina                            |
 | `monitor`    | Hotspot 03, canal mc²         | La tele o el monitor de la cabina                   |

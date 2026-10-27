@@ -37,8 +37,8 @@ const MEDIA = {
     ripe:       "",   // FOTO: sesión invitada RiPE
     sonicranch: "photos/sesion-sonic-ranch.jpg",   // FOTO: sesión invitada Sonic Ranch
   },
-  // FOTO 360: one panorama of the real control room (the phone's
-  // panorama mode, 360° wide). It wraps around the 8 walls; while it is
+  // FOTO PANORÁMICA: one panorama of the real control room (the phone's
+  // panorama mode, ~220° wide). It spreads across the 8 walls; while it is
   // empty each wall keeps its own texture and pared 01 shows "fondo".
   panorama: "",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
@@ -84,19 +84,23 @@ const LOTE = "lote 01 · session 01";
 
 const COORDS = "31.4456°N 106.0078°W";
 
-// The 360° room: 8 walls around you, one object on each, in this order
-// (turning right). The last wall is the light switch: the way out.
+// The room: 8 walls on a 220° curve in front of you, one object on
+// each, from left to right. You start facing the glass, in the middle;
+// the light switch at the right end is the way out.
 const WALLS = [
-  { nombre: "el vidrio",         station: "huespedes", photo: "fondo", sign: true },
+  { nombre: "la ranura",         station: "llave" },
+  { nombre: "la hoja de sesión", station: "acta" },
   { nombre: "la consola",        station: "consola" },
+  { nombre: "el vidrio",         station: "huespedes", photo: "fondo", sign: true },
   { nombre: "la perilla",        station: "frecuencia" },
   { nombre: "la tele",           station: "canal" },
   { nombre: "el archivero",      station: "archivo" },
-  { nombre: "la hoja de sesión", station: "acta" },
-  { nombre: "la ranura",         station: "llave" },
   { nombre: "el apagador",       lights: true },
 ];
-const STEP = 360 / WALLS.length;   // degrees between two walls
+const ARC = 220;                         // how far around you the room goes
+const STEP = ARC / WALLS.length;         // degrees between two walls
+const HOME = WALLS.findIndex((wall) => wall.sign) * STEP;   // facing the glass
+const LAST = (WALLS.length - 1) * STEP;  // facing the last wall
 
 // The hotspots: station number, what it is in the room, which photo.
 const STATIONS = {
@@ -234,7 +238,7 @@ function build() {
       ${onAir("boot-sign")}
     </section>
 
-    <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina, 360°: gira y elige un objeto">
+    <section class="cab-hub" data-screen="hub" hidden tabindex="-1" aria-label="La cabina: gira de lado a lado y elige un objeto">
       <div class="room" id="room">
         <div class="ring" id="ring">
           ${WALLS.map((wall, i) => `
@@ -602,8 +606,9 @@ function refreshHub() {
 
 
 /* ---------------------------------------------------------------
-   THE HUB: a 360° room
-   The 8 walls stand in a circle around you. Each wall carries its own
+   THE HUB: a 220° room
+   The 8 walls stand on a curve around you, from your left to your
+   right; past the ends there is only dark, and the room stops there. Each wall carries its own
    CSS perspective, with the eye at the center of the circle, so the
    browser never has to sort walls in 3D (that left some unpainted).
    Turning the room is one number, the angle:
@@ -612,7 +617,7 @@ function refreshHub() {
    - ‹ › buttons, arrow keys, or Tab to an object: it turns to it;
    - "mover el teléfono": the phone's compass turns it (asks first on
      iPhone).
-   Walls far behind you are not drawn, but stay in the Tab order.
+   Walls far to the side are not drawn, but stay in the Tab order.
    --------------------------------------------------------------- */
 const room = { start() {}, stop() {} };
 
@@ -620,31 +625,35 @@ function setupRoom() {
   const hub = $(".cab-hub"), stage = $("#room");
   const walls = [...root.querySelectorAll(".wall")];
   const heading = $("#rumbo"), live = $("#hub-live"), gyroButton = $("#gyro");
-  let angle = 0, target = 0, frame = 0, width = 390, radius = 470, spoken = -1;
+  let angle = HOME, target = HOME, frame = 0, width = 390, radius = 470, spoken = -1;
   const wrap = (d) => ((d % 360) + 540) % 360 - 180;                   // -180..180
-  const facing = (a) => ((Math.round(a / STEP) % WALLS.length) + WALLS.length) % WALLS.length;
+  const clamp = (a) => Math.min(LAST, Math.max(0, a));
+  const facing = (a) => Math.round(clamp(a) / STEP);
 
   // On phones a wall is as wide as the screen; on big screens it takes
   // two thirds of it, so the walls beside it don't stretch too far off
   // screen (browsers stop painting a wall pushed that far). The radius
-  // makes the 8 walls meet edge to edge.
+  // makes neighboring walls meet edge to edge.
   function size() {
     const box = hub.getBoundingClientRect();
     width = Math.min(box.width, Math.max(420, box.height * .75, box.width * .66));
-    radius = width / (2 * Math.tan(Math.PI / WALLS.length));
+    radius = width / (2 * Math.tan((STEP / 2) * Math.PI / 180));   // each wall spans STEP degrees
     hub.style.setProperty("--wall-w", width.toFixed(1) + "px");
   }
 
   function render() {
     const r = radius.toFixed(1);
     for (const wall of walls) {
-      const offset = wrap(wall.dataset.wall * STEP - angle);   // where this wall is, seen from the center
-      const far = Math.abs(offset) > STEP * 1.6;
+      const offset = wall.dataset.wall * STEP - angle;   // where this wall is, seen from the center
+      const far = Math.abs(offset) > 75;
       wall.classList.toggle("far", far);
       if (!far) wall.style.transform = `perspective(${r}px) translateZ(${r}px) rotateY(${(-offset).toFixed(2)}deg) translateZ(-${r}px)`;
     }
-    const deg = ((Math.round(angle) % 360) + 360) % 360;
+    // The heading counts from the glass: 000° in front, 3xx° to the left.
+    const deg = ((Math.round(angle - HOME) % 360) + 360) % 360;
     heading.textContent = "rumbo " + String(deg).padStart(3, "0") + "° · " + WALLS[facing(angle)].nombre;
+    $("#turn-left").disabled = target <= 0;
+    $("#turn-right").disabled = target >= LAST;
   }
   function announce() {
     const n = facing(angle);
@@ -659,7 +668,7 @@ function setupRoom() {
     else announce();
   }
   function turnTo(next) {
-    target = next;
+    target = clamp(next);
     if (noMotion.matches) { angle = target; render(); announce(); }
     else if (!frame) frame = requestAnimationFrame(tick);
   }
@@ -688,7 +697,9 @@ function setupRoom() {
     speed = (event.clientX - lastX) / Math.max(1, event.timeStamp - lastT);   // px per ms
     lastX = event.clientX;
     lastT = event.timeStamp;
-    angle = target = startAngle - dx * STEP / width;
+    // Past an end the room only gives a little, like pushing a wall.
+    const wanted = startAngle - dx * STEP / width;
+    angle = target = clamp(wanted) + (wanted - clamp(wanted)) * .25;
     render();
   });
   const release = () => {
@@ -717,7 +728,7 @@ function setupRoom() {
   // Tab to an object on another wall: the room turns to face it.
   hub.addEventListener("focusin", (event) => {
     const wall = event.target.closest(".wall");
-    if (wall) turnTo(target + wrap(wall.dataset.wall * STEP - target));
+    if (wall) turnTo(wall.dataset.wall * STEP);
     stage.scrollLeft = stage.scrollTop = 0;   // focus must never scroll the room
   });
   stage.addEventListener("scroll", () => { stage.scrollLeft = stage.scrollTop = 0; });
@@ -727,7 +738,7 @@ function setupRoom() {
   const onTilt = (event) => {
     if (event.alpha == null || !gyro) return;
     if (gyro.base == null) { gyro.base = event.alpha; gyro.from = angle; }
-    angle = target = gyro.from - wrap(event.alpha - gyro.base);
+    angle = target = clamp(gyro.from - wrap(event.alpha - gyro.base));
     render();
   };
   function gyroLabel(on) {

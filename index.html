@@ -146,6 +146,12 @@
     .rings { display: block; width: 46px; height: 24px; margin-top: .9rem; color: var(--ivory); }
 
     .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+    /* "La cabina": appears with the lights off, lit like the studio's on-air sign. */
+    .cabina-door { display: inline-flex; align-items: center; gap: .6rem; border-color: var(--chem-green); color: var(--chem-green);
+                   text-shadow: 0 0 10px rgba(184,224,32,.6); animation: door-on .9s steps(1) both; }
+    .cabina-door[hidden] { display: none; }
+    .door-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--chem-green); animation: blink 1.4s steps(1) infinite; }
+    @keyframes door-on { 0% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: .2; } 45% { opacity: .9; } 55% { opacity: .3; } 70%, 100% { opacity: 1; } }
     .btn {
       display: inline-block; padding: .9rem 1.6rem;
       background: var(--ivory); color: var(--washed-black);
@@ -865,6 +871,8 @@
         <a class="btn" href="#session-01">Ver Session 01</a>
         <!-- This button is our first bit of JavaScript (see the bottom of the file). -->
         <button class="btn btn-ghost" id="lights" type="button" aria-pressed="false">Apagar la luz</button>
+        <!-- Only there with the lights off: the way into La Cabina. -->
+        <button class="btn btn-ghost cabina-door" id="cabina-door" type="button" hidden><span class="door-dot" aria-hidden="true"></span>La cabina ↗</button>
       </div>
     </section>
 
@@ -1790,17 +1798,19 @@
        2. Listen for an event (a click).
        3. Change something in response.
 
-       LA CABINA: turning the lights off now takes you into La Cabina,
-       the control room where the record was made. Its code lives in
-       cabina/ and is only downloaded the first time the lights go off,
-       so the store loads exactly as fast as before. */
+       LA CABINA: with the lights off the print glows, as before, and a
+       second button appears: "La cabina", the control room where the
+       record was made. Its code lives in cabina/ and is only downloaded
+       when someone goes in, so the store loads exactly as fast as before. */
     const lightsButton = document.getElementById("lights");
+    const doorButton = document.getElementById("cabina-door");
     let cabina = null;   // La Cabina's code, once it starts loading
 
     function setLights(off) {
       document.documentElement.dataset.lights = off ? "off" : "on";   // the CSS reacts to this
       lightsButton.textContent = off ? "Prender la luz" : "Apagar la luz";
       lightsButton.setAttribute("aria-pressed", String(off));
+      doorButton.hidden = !off;   // La Cabina is only there in the dark
     }
 
     // import() fetches a JavaScript file only when it is called.
@@ -1813,27 +1823,27 @@
       return Promise.all([import("./cabina/cabina.js"), cssLoaded]).then(([module]) => module);
     }
 
-    async function lightsOff() {
-      setLights(true);   // the print glows while La Cabina loads
+    async function enterCabina() {
+      setLights(true);   // La Cabina only exists with the lights off
       try {
         cabina ||= loadCabina();
         (await cabina).enter();
       } catch {
-        cabina = null;   // it could not load: the store just stays in the dark, like before
+        cabina = null;   // it could not load: the store just stays in the dark
       }
     }
 
     lightsButton.addEventListener("click", () => {
-      if (document.documentElement.dataset.lights === "off") setLights(false);
-      else lightsOff();
+      setLights(document.documentElement.dataset.lights !== "off");
     });
+    doorButton.addEventListener("click", enterCabina);
 
-    // A link straight in (…/#cabina) or the back button into it turns the lights off too.
+    // A link straight in (…/#cabina) or the back button into it turns the lights off and goes in.
     const wantsCabina = () => location.hash.startsWith("#cabina");
     window.addEventListener("hashchange", () => {
-      if (wantsCabina() && !document.documentElement.classList.contains("cabina-on")) lightsOff();
+      if (wantsCabina() && !document.documentElement.classList.contains("cabina-on")) enterCabina();
     });
-    if (wantsCabina()) lightsOff();
+    if (wantsCabina()) enterCabina();
 
     // What La Cabina may use from the store: the products, "Mi lista",
     // the product pop-up, and a way to turn the light back on.
