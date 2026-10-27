@@ -34,6 +34,12 @@ lleva su textura y la pared 04 muestra la foto `fondo`.
 
 ### Fotos (`MEDIA.photos`)
 
+Los 8 objetos del cuarto (ventana, monitor, archivero, consola, perilla, hoja, ranura y apagador) ya tienen
+imagen: se generaron con la IA de Canva en el estilo de las polaroids de la sesión y viven en
+`photos/cabina-*.jpg`. Los originales están en el diseño de Canva "MC² · fotos para La Cabina".
+Cuando tengas fotos reales de la cabina, reemplaza el archivo o cambia la ruta en `MEDIA`.
+Siguen pendientes: `mits` y `ripe` (artistas reales: solo con fotos reales) y `panorama`.
+
 | Clave        | Dónde aparece                 | Qué foto va                                         |
 |--------------|-------------------------------|-----------------------------------------------------|
 | `fondo`      | Pared 04, el vidrio           | Lo que se ve por el vidrio (hoy: la sala de grabación). |

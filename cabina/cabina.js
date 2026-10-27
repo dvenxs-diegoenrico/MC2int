@@ -22,16 +22,18 @@
    for example "cabina/img/consola.jpg".
    --------------------------------------------------------------- */
 const MEDIA = {
+  // The room's objects (ventana … apagador) were generated with Canva AI
+  // in the style of the session Polaroids; swap them for real photos anytime.
   photos: {
     fondo:      "photos/fondo-estudio.jpg",   // FOTO: la sala vista por el vidrio (pared 01 del cuarto 360°)
-    ventana:    "",   // FOTO: el vidrio de la cabina hacia la sala   → sala de huéspedes
-    monitor:    "",   // FOTO: la tele / monitor de la cabina         → canal mc²
-    archivero:  "",   // FOTO: el archivero                           → archivo
-    consola:    "",   // FOTO: la consola, los faders                 → consola
-    perilla:    "",   // FOTO: la perilla, vista desde arriba (cuadrada) → frecuencia
-    hoja:       "",   // FOTO: la hoja de sesión (track sheet)        → acta
-    ranura:     "",   // FOTO: la ranura de la llave                  → llave
-    apagador:   "",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
+    ventana:    "photos/cabina-ventana.jpg",   // FOTO: el vidrio de la cabina hacia la sala   → sala de huéspedes
+    monitor:    "photos/cabina-monitor.jpg",   // FOTO: la tele / monitor de la cabina         → canal mc²
+    archivero:  "photos/cabina-archivero.jpg",   // FOTO: el archivero                           → archivo
+    consola:    "photos/cabina-consola.jpg",   // FOTO: la consola, los faders                 → consola
+    perilla:    "photos/cabina-perilla.jpg",   // FOTO: la perilla, vista desde arriba (cuadrada) → frecuencia
+    hoja:       "photos/cabina-hoja.jpg",   // FOTO: la hoja de sesión (track sheet)        → acta
+    ranura:     "photos/cabina-ranura.jpg",   // FOTO: la ranura de la llave                  → llave
+    apagador:   "photos/cabina-apagador.jpg",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
     boveda:     "photos/sesion-fender.jpg",   // FOTO: lo que abre la llave MC2-TEE-01
     mits:       "",   // FOTO: sesión invitada MITS
     ripe:       "",   // FOTO: sesión invitada RiPE
