@@ -146,12 +146,6 @@
     .rings { display: block; width: 46px; height: 24px; margin-top: .9rem; color: var(--ivory); }
 
     .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-    /* "La cabina": appears with the lights off, lit like the studio's on-air sign. */
-    .cabina-door { display: inline-flex; align-items: center; gap: .6rem; border-color: var(--chem-green); color: var(--chem-green);
-                   text-shadow: 0 0 10px rgba(184,224,32,.6); animation: door-on .9s steps(1) both; }
-    .cabina-door[hidden] { display: none; }
-    .door-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--chem-green); animation: blink 1.4s steps(1) infinite; }
-    @keyframes door-on { 0% { opacity: 0; } 15% { opacity: 1; } 25% { opacity: .2; } 45% { opacity: .9; } 55% { opacity: .3; } 70%, 100% { opacity: 1; } }
     .btn {
       display: inline-block; padding: .9rem 1.6rem;
       background: var(--ivory); color: var(--washed-black);
@@ -811,6 +805,38 @@
     .drawer[open] .line { animation: rise .4s ease both; }
     .drawer[open] .line:nth-child(2) { animation-delay: .05s; }
     .drawer[open] .line:nth-child(n+3) { animation-delay: .1s; }
+
+    /* "LA CABINA": a neon sign that was always on; the room was just too
+       bright to see it. When the lights go off it shows up glowing, a
+       tube catching for a second, then it hums and flickers now and then.
+       Written after .btn and .btn-ghost so their colors don't win. */
+    .btn.cabina-door {
+      display: inline-flex; align-items: center; gap: .6rem;
+      color: var(--glow); background: rgba(184,224,32,.1); border: 1px solid var(--chem-green);
+      text-shadow: 0 0 6px rgba(198,255,138,.95), 0 0 18px rgba(184,224,32,.75);
+      box-shadow: 0 0 6px rgba(184,224,32,.7), 0 0 22px rgba(184,224,32,.45), 0 0 60px rgba(184,224,32,.2), inset 0 0 14px rgba(184,224,32,.3);
+      animation: door-catch 1.2s steps(1) both, door-hum 7s steps(1) 1.2s infinite, door-breathe 2.8s ease-in-out 1.2s infinite alternate;
+    }
+    .btn.cabina-door[hidden] { display: none; }
+    .door-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: var(--glow);
+      box-shadow: 0 0 6px var(--glow), 0 0 14px var(--chem-green);
+      animation: blink 1.4s steps(1) infinite;
+    }
+    /* The tube catching: on, off, half, on, a stutter, on for good. */
+    @keyframes door-catch {
+      0% { opacity: .9; } 8% { opacity: .1; } 14% { opacity: 1; } 22% { opacity: .25; }
+      30% { opacity: .95; } 36% { opacity: .4; } 44% { opacity: 1; } 50% { opacity: .6; } 56%, 100% { opacity: 1; }
+    }
+    /* Once in a while the current dips, like an old neon. */
+    @keyframes door-hum { 0%, 91%, 95%, 100% { opacity: 1; } 92% { opacity: .45; } 93% { opacity: .9; } 94% { opacity: .55; } }
+    @keyframes door-breathe {
+      to { box-shadow: 0 0 9px rgba(184,224,32,.85), 0 0 32px rgba(184,224,32,.55), 0 0 80px rgba(184,224,32,.28), inset 0 0 18px rgba(184,224,32,.4); }
+    }
+    @media (hover: hover) {
+      .btn.cabina-door:not(:disabled):hover { background: var(--chem-green); color: var(--washed-black); text-shadow: none; }
+      .btn.cabina-door:hover .door-dot { background: var(--washed-black); box-shadow: none; }
+    }
 
     /* Respect people who turn off animations on their device. */
     /* Nothing moves, but colors still fade, so buttons still light up. */
