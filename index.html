@@ -827,6 +827,113 @@
     .drawer[open] .line:nth-child(2) { animation-delay: .05s; }
     .drawer[open] .line:nth-child(n+3) { animation-delay: .1s; }
 
+    /* =================================================================
+       TWO UNIVERSES
+       Light on (the default): the universe of Dstance, a press kit in
+       daylight: ivory paper, black ink, sepia, no MC² green.
+       Light off: the universe of Música Cuántica, the MC² doctrina
+       (washed black, chem green, the rain of numbers).
+       ================================================================= */
+    html:not([data-lights="off"]) .mq, html[data-lights="off"] .ds { display: none; }
+    html:not([data-lights="off"]) .rain { display: none; }
+    html:not([data-lights="off"]) body { background: var(--ivory); color: var(--washed-black); }
+    html:not([data-lights="off"]) .site-header { background: rgba(242,238,230,.86); border-bottom-color: rgba(10,10,10,.12); }
+    html:not([data-lights="off"]) .burger { color: var(--washed-black); }
+    html:not([data-lights="off"]) .site-footer { color: #5a5752; border-image: linear-gradient(to right, transparent, rgba(10,10,10,.15) 20%, rgba(10,10,10,.15) 80%, transparent) 1; }
+    html:not([data-lights="off"]) .site-footer .link { color: inherit; }
+    .ds .eyebrow { color: var(--sepia); }
+    .ds h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.4rem;
+    }
+    .ds > .eyebrow, .ds > h2, .ds > p, .ds > ul, .ds > ol, .ds > div { max-width: 1200px; margin-left: auto; margin-right: auto; }
+    .ds { padding: 4rem clamp(1rem, 4vw, 3rem); }
+    /* Buttons in daylight: black ink instead of ivory print. */
+    .ds .btn { background: var(--washed-black); color: var(--ivory); }
+    .ds .btn-ghost { background: none; color: var(--washed-black); border: 1px solid rgba(10,10,10,.45); }
+    @media (hover: hover) {
+      .ds .btn:not(:disabled):hover { background: var(--sepia); color: var(--washed-black); box-shadow: 0 10px 28px rgba(10,10,10,.18); }
+      .ds .btn-ghost:not(:disabled):hover { background: var(--washed-black); color: var(--ivory); border-color: var(--washed-black); }
+    }
+    @media (hover: none) {
+      .ds .btn:not(:disabled):active { background: var(--sepia); color: var(--washed-black); }
+      .ds .btn-ghost:not(:disabled):active { background: var(--washed-black); color: var(--ivory); }
+      .ds .btn:not(:disabled)::after { background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.35) 50%, transparent 70%); }
+    }
+    .ds :focus-visible { outline-color: var(--washed-black); }
+
+    /* The press kit's cover: the portrait and the name. */
+    .ds-hero {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center;
+      max-width: 1300px; margin: 0 auto; min-height: calc(88vh - 4rem);
+    }
+    .ds-hero-photo { margin: 0; }
+    .ds-hero-text { min-width: 0; }
+    .ds-hero-photo img { display: block; width: 100%; height: auto; max-height: 78vh; object-fit: cover; filter: grayscale(1) contrast(1.05); }
+    .ds-name {
+      font: 900 clamp(3.4rem, 8.6vw, 8.4rem)/.82 var(--font-display); text-transform: uppercase; letter-spacing: -.04em;
+      margin: 0 0 1.2rem;
+    }
+    .ds-lede { font-size: clamp(1.05rem, 2.2vw, 1.3rem); max-width: 34ch; margin: 0 0 1rem; }
+    .ds-stat { font: 400 .74rem var(--font-mono); letter-spacing: .16em; text-transform: uppercase; margin: 0 0 1.8rem; }
+    .ds-stat b { font: 900 1.6rem var(--font-display); letter-spacing: -.01em; margin-right: .3rem; }
+    .ds-stat span { color: var(--sepia); }
+    @media (max-width: 760px) {
+      .ds-name { font-size: clamp(3.4rem, 19vw, 6rem); }
+      .ds-hero { grid-template-columns: 1fr; min-height: 0; padding-top: 1.5rem; }
+      .ds-hero-photo img { max-height: 62vh; }
+    }
+
+    /* Trayectoria: the releases on a line, oldest first. */
+    .timeline { list-style: none; padding: 0; display: grid; gap: 0; border-top: 1px solid rgba(10,10,10,.15); }
+    .release {
+      display: grid; grid-template-columns: clamp(84px, 16vw, 150px) minmax(0, 1fr); gap: 1.4rem; align-items: center;
+      padding: 1.2rem 0; border-bottom: 1px solid rgba(10,10,10,.15);
+    }
+    .release img, .rel-dark { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
+    .release h3 { font: 900 clamp(1.3rem, 3.4vw, 2.2rem)/1 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; margin: .2rem 0 .35rem; }
+    .release p { margin: 0; }
+    .rel-year { font: 700 .78rem var(--font-mono); letter-spacing: .2em; color: var(--sepia); }
+    .rel-meta { font: 400 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+    .rel-link {
+      display: inline-block; margin-top: .7rem; padding: 0; background: none; border: 0; cursor: pointer; color: inherit;
+      font: 700 .72rem var(--font-mono); letter-spacing: .2em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px;
+    }
+    /* The record still to come: a black square, MC² waiting in it. */
+    .rel-dark {
+      display: grid; place-items: center; background: var(--washed-black); color: var(--muted);
+      font: 900 clamp(1.4rem, 4vw, 2.6rem) var(--font-display);
+    }
+    .rel-dark sup { font-size: .45em; }
+
+    /* Fotos: 120 film, black and white, like contact prints. */
+    .press-grid { list-style: none; padding: 0; display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
+    .press-grid img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; background: #d9d3c7; }
+    .press-grid li:last-child { grid-column: 1 / -1; }
+    .press-grid li:last-child img { aspect-ratio: 3 / 2; max-height: 70vh; }
+
+    /* Shop: the pieces are MC², so they sit on a black sheet even in daylight. */
+    .shop .products { padding: clamp(1rem, 3vw, 2rem); background: var(--washed-black); color: var(--ivory); }
+    .shop-intro { max-width: 58ch; margin-bottom: 2rem !important; }
+    .shop-note { margin-top: 1.4rem !important; font: 400 .74rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
+    .shop-note .link { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+    /* About and Shows in daylight. */
+    .ds .about-links { border-top-color: rgba(10,10,10,.15); }
+    .ds .about-links a { border-bottom-color: rgba(10,10,10,.15); }
+    @media (hover: hover) { .ds .about-links a:hover { color: var(--sepia); } }
+    .ds .about-links a:active { color: var(--sepia); }
+    .ds .no-shows { border-color: rgba(10,10,10,.4); }
+    .ds .no-shows-tag { color: var(--washed-black); }
+    .ds .no-shows .door-dot { background: #e0623a; box-shadow: none; }
+
+    /* The light switch: the page goes out (or comes on) with a flicker. */
+    html.switching body { animation: switch-flicker .55s steps(1); }
+    @keyframes switch-flicker {
+      0% { filter: brightness(1); } 15% { filter: brightness(.15); } 30% { filter: brightness(.9); }
+      45% { filter: brightness(.05); } 70% { filter: brightness(.6); } 100% { filter: none; }
+    }
+
     /* ---------- THE MENU: a dialog that slides in from the left ---------- */
     .menu {
       margin: 0 auto 0 0; width: min(440px, 100vw); height: 100dvh; max-height: 100dvh;
@@ -952,7 +1059,7 @@
   <!-- THE SIGNAL: code rains in the background (canvas) and the words
        decode out of it. JavaScript at the bottom of the file runs it.
        Lesson 4: the strip is a link (<a>) to the waiting list. -->
-  <a class="signal" id="signal" href="#lista">
+  <a class="signal mq" id="signal" href="#lista">
     <p class="signal-text">
       <span class="sr-only">Música Cuántica: coming soon.</span>
       <span aria-hidden="true"><span id="signal-words">MÚSICA CUÁNTICA</span> <span class="soon" id="signal-soon">COMING SOON</span><span class="cursor">_</span></span>
@@ -961,7 +1068,113 @@
   </a>
 
   <main>
-    <section class="hero" aria-labelledby="album-title">
+    <!-- ============================================================
+         AFUERA: EL UNIVERSO DE DSTANCE (luz prendida)
+         A press kit: who he is, links, trayectoria, photos, shop and
+         shows. Turning the light off ("Apagar la luz") swaps this for
+         the universe of Música Cuántica (.mq), the inside of the studio.
+         ============================================================ -->
+    <section class="ds ds-hero" id="top" aria-labelledby="ds-title">
+      <figure class="ds-hero-photo">
+        <img src="photos/ds-retrato.jpg" width="1376" height="1400" fetchpriority="high"
+             alt="Retrato en blanco y negro, rollo 120: un hombre con camisa de lino y los ojos cerrados frente a una manta blanca, en un nogal sin hojas">
+      </figure>
+      <div class="ds-hero-text">
+        <span class="eyebrow">Press kit</span>
+        <h1 class="ds-name" id="ds-title">Dstance</h1>
+        <p class="ds-lede">Dstance es Dany Dstance. Tres lanzamientos, un sencillo nuevo y un disco en camino: Música Cuántica.</p>
+        <!-- Spotify, October 2026. Update it now and then. -->
+        <p class="ds-stat"><b>322.8K</b> oyentes mensuales en Spotify <span>· oct 2026</span></p>
+        <div class="hero-actions">
+          <a class="btn" href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Escuchar ↗</a>
+          <!-- The light switch: turning it off shows the way into La Cabina. -->
+          <button class="btn btn-ghost lights-btn" id="lights" type="button" aria-pressed="false">Apagar la luz</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT: a very short bio and his links. -->
+    <section class="ds about" id="about" aria-labelledby="about-title">
+      <span class="eyebrow">About</span>
+      <h2 id="about-title">Dstance</h2>
+      <p class="about-text">Dstance es Dany Dstance. Su próximo disco es Música Cuántica; Todo Cae es el primer sencillo.</p>
+      <ul class="about-links" aria-label="Dstance en línea">
+        <li><a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify ↗</a></li>
+        <li><a href="https://www.youtube.com/@danydstance" target="_blank" rel="noopener">YouTube ↗</a></li>
+        <li><a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music ↗</a></li>
+        <li><a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram ↗</a></li>
+      </ul>
+    </section>
+
+    <!-- TRAYECTORIA: his releases, oldest first (facts from Spotify). -->
+    <section class="ds trayectoria" id="trayectoria" aria-labelledby="tray-title">
+      <span class="eyebrow">Trayectoria</span>
+      <h2 id="tray-title">Discografía</h2>
+      <ol class="timeline">
+        <li class="release">
+          <img src="photos/disco-estaciones.jpg" width="640" height="640" loading="lazy" alt="Portada de Estaciones">
+          <div><p class="rel-year">2020</p><h3>Estaciones</h3><p class="rel-meta">EP · 5 canciones</p>
+          <a class="rel-link" href="https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr" target="_blank" rel="noopener">Spotify ↗</a></div>
+        </li>
+        <li class="release">
+          <img src="photos/disco-hasta-que-la-vida-diga-adios.jpg" width="640" height="640" loading="lazy" alt="Portada de Hasta Que la Vida Diga Adiós">
+          <div><p class="rel-year">2022</p><h3>Hasta Que la Vida Diga Adiós</h3><p class="rel-meta">Álbum · 11 canciones</p>
+          <a class="rel-link" href="https://open.spotify.com/album/14Ca0sNQjuJT8hWTolmxUG" target="_blank" rel="noopener">Spotify ↗</a></div>
+        </li>
+        <li class="release">
+          <img src="photos/disco-falsas-expectativas.jpg" width="640" height="640" loading="lazy" alt="Portada de Falsas Expectativas">
+          <div><p class="rel-year">2025</p><h3>Falsas Expectativas</h3><p class="rel-meta">Álbum · 10 canciones</p>
+          <a class="rel-link" href="https://open.spotify.com/album/3lN91lruKySYJbYIHwqYIf" target="_blank" rel="noopener">Spotify ↗</a></div>
+        </li>
+        <li class="release">
+          <img src="photos/todo-cae.jpg" width="1000" height="1000" loading="lazy" alt="Portada de Todo Cae">
+          <div><p class="rel-year">2026</p><h3>Todo Cae</h3><p class="rel-meta">Sencillo · el primero de Música Cuántica</p>
+          <a class="rel-link" href="https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh" target="_blank" rel="noopener">Spotify ↗</a></div>
+        </li>
+        <li class="release release-next">
+          <div class="rel-dark" aria-hidden="true"><span>MC<sup>2</sup></span></div>
+          <div><p class="rel-year">Próximamente</p><h3>Música Cuántica</h3><p class="rel-meta">Álbum · grabado en Sonic Ranch, Tornillo, TX</p>
+          <button class="rel-link lights-btn" type="button" aria-pressed="false">Apagar la luz</button></div>
+        </li>
+      </ol>
+    </section>
+
+    <!-- FOTOS: exterior photos, 120 film (Drive: Dstance - Sonic Ranch / Film / 120). -->
+    <section class="ds fotos" id="fotos" aria-labelledby="fotos-title">
+      <span class="eyebrow">Fotos // rollo 120</span>
+      <h2 id="fotos-title">Fotos</h2>
+      <ul class="press-grid">
+        <li><img src="photos/ds-manta.jpg" width="1178" height="1200" loading="lazy" alt="Blanco y negro: un hombre de pie frente a una manta blanca en medio de un nogal sin hojas"></li>
+        <li><img src="photos/ds-sentado.jpg" width="1180" height="1200" loading="lazy" alt="Blanco y negro: un hombre sentado frente a la manta, abrazándose la rodilla, con los ojos cerrados"></li>
+        <li><img src="photos/ds-silueta.jpg" width="1200" height="1093" loading="lazy" alt="Blanco y negro: la silueta de perfil de un hombre contra las ramas del nogal"></li>
+        <li><img src="photos/ds-camioneta.jpg" width="1179" height="1200" loading="lazy" alt="Color: un hombre sentado sobre el techo de una camioneta blanca, frente a una bodega azul"></li>
+        <li><img src="photos/ds-campo-noche.jpg" width="1400" height="933" loading="lazy" alt="De noche: un hombre con los brazos abiertos en un campo de pasto iluminado por una sola luz"></li>
+      </ul>
+    </section>
+
+    <!-- SHOP: everything Dstance sells. Today that is the MC² collection;
+         the MC² shop also lives inside, with the light off. -->
+    <section class="ds shop" id="shop" aria-labelledby="shop-title">
+      <span class="eyebrow">Shop // Dstance</span>
+      <h2 id="shop-title">Shop</h2>
+      <p class="shop-intro">Todo lo de Dstance en un lugar. Hoy: la colección MC² de Música Cuántica. Todavía no está a la venta: agrégala a tu lista.</p>
+      <div class="products" id="shop-all"></div>
+      <p class="shop-note">La tienda de MC² también vive adentro del estudio. <button class="link lights-btn" type="button" aria-pressed="false">Apagar la luz</button></p>
+    </section>
+
+    <!-- SHOWS Y TOURS: there are no dates yet. When there are, they go here. -->
+    <section class="ds shows" id="shows" aria-labelledby="shows-title">
+      <span class="eyebrow">En vivo</span>
+      <h2 id="shows-title">Shows y tours</h2>
+      <div class="no-shows" role="status">
+        <p class="no-shows-tag"><span class="door-dot" aria-hidden="true"></span>Aviso</p>
+        <p class="no-shows-title">Aún no hay fechas.</p>
+        <p>No hay shows ni tour anunciados todavía. Cuando los haya, se anuncian aquí primero.</p>
+        <a class="btn btn-ghost" href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Entérate en Instagram ↗</a>
+      </div>
+    </section>
+
+    <section class="hero mq" id="musica-cuantica" aria-labelledby="album-title">
       <!-- The ² is a <sup> so we control its size and height, like the print.
            aria-label makes screen readers say "MC²" instead of "MC 2". -->
       <h1 class="lockup" id="album-title" aria-label="MC²">MC<sup>2</sup></h1>
@@ -985,8 +1198,8 @@
 
       <div class="hero-actions">
         <a class="btn" href="#session-01">Ver Session 01</a>
-        <!-- This button is our first bit of JavaScript (see the bottom of the file). -->
-        <button class="btn btn-ghost" id="lights" type="button" aria-pressed="false">Apagar la luz</button>
+        <!-- The light switch. There is one in each universe (.lights-btn). -->
+        <button class="btn btn-ghost lights-btn" type="button" aria-pressed="false">Apagar la luz</button>
         <!-- Only there with the lights off: the way into La Cabina. -->
         <button class="btn btn-ghost cabina-door" id="cabina-door" type="button" hidden><span class="door-dot" aria-hidden="true"></span>La cabina ↗</button>
       </div>
@@ -995,7 +1208,7 @@
     <!-- TODO CAE: the first single of the record, already out.
          "Sintonízala en la cabina" turns the lights off and goes straight
          to Frecuencia, where the song is the signal to find. -->
-    <section class="single" id="todo-cae" aria-labelledby="single-title">
+    <section class="single mq" id="todo-cae" aria-labelledby="single-title">
       <figure class="single-cover">
         <img src="photos/todo-cae.jpg" width="1000" height="1000" loading="lazy"
              alt="Portada de Todo Cae: un perfil casi negro dibujado por ramas iluminadas en verde">
@@ -1014,7 +1227,7 @@
       </div>
     </section>
 
-    <section class="drop" id="session-01" aria-labelledby="drop-title">
+    <section class="drop mq" id="session-01" aria-labelledby="drop-title">
       <span class="eyebrow">Drop // MC2 · Session 01</span>
       <h2 id="drop-title">Session 01</h2>
       <p class="drop-intro">Tres piezas en negro mineral deslavado, mismo lote de lavado para toda la familia. Cada una se lava, se cuartea y se desgasta para sentirse como una prenda de 40 años desde el primer día. Tiraje cerrado: archive locked. Todavía no está a la venta: únete a la lista de espera y te avisamos el día del drop.</p>
@@ -1030,7 +1243,7 @@
          A real <form>. The browser checks the email format by itself
          (type="email"); JavaScript checks the WhatsApp number and saves
          the sign-up (see "THE WAITING LIST" at the bottom of the file). -->
-    <section class="lista" id="lista" aria-labelledby="lista-title">
+    <section class="lista mq" id="lista" aria-labelledby="lista-title">
       <div class="lista-inner">
         <div class="waitlist" id="waitlist">
           <span class="eyebrow">Lista de espera // Session 01</span>
@@ -1092,7 +1305,7 @@
     <!-- VINYL Y CD: the record in physical formats. Not on sale yet, so
          there is no price and no cart button: format, run and price are
          still to be announced. -->
-    <section class="formats" id="formatos" aria-labelledby="formats-title">
+    <section class="formats mq" id="formatos" aria-labelledby="formats-title">
       <span class="eyebrow">Formatos // Música Cuántica</span>
       <h2 id="formats-title">Vinyl y CD</h2>
       <p class="drop-intro">El disco también va a existir en físico. Formato, tiraje y precio se anuncian con el lanzamiento: hasta entonces, archive locked.</p>
@@ -1120,7 +1333,7 @@
 
     <!-- The outer section carries the background photo full width;
          the inner .story keeps the text and Polaroids at a readable width. -->
-    <section class="disco" aria-labelledby="story-title">
+    <section class="disco mq" aria-labelledby="story-title">
       <div class="story">
         <div>
           <span class="eyebrow">Acta // Sonic Ranch</span>
@@ -1148,29 +1361,6 @@
                alt="Polaroid casi negra de un retrato con el contorno iluminado en verde"></figure></li>
         </ul>
       </div>
-    </section>
-    <!-- SHOWS: there are no dates yet. When there are, they go here. -->
-    <section class="shows" id="shows" aria-labelledby="shows-title">
-      <span class="eyebrow">En vivo // Música Cuántica</span>
-      <h2 id="shows-title">Shows</h2>
-      <div class="no-shows" role="status">
-        <p class="no-shows-tag"><span class="door-dot" aria-hidden="true"></span>Aviso</p>
-        <p class="no-shows-title">Aún no hay fechas.</p>
-        <p>Cuando las haya, se anuncian aquí primero.</p>
-        <a class="btn btn-ghost" href="#lista">Avísame cuando haya fechas →</a>
-      </div>
-    </section>
-
-    <!-- ABOUT: Dstance, in a few words, and where to find him. -->
-    <section class="about" id="about" aria-labelledby="about-title">
-      <span class="eyebrow">About</span>
-      <h2 id="about-title">Dstance</h2>
-      <p class="about-text">Dstance es Dany Dstance. Su próximo disco es Música Cuántica; Todo Cae es el primer sencillo.</p>
-      <ul class="about-links" aria-label="Dstance en línea">
-        <li><a href="https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2" target="_blank" rel="noopener">Spotify ↗</a></li>
-        <li><a href="https://music.apple.com/mx/artist/dstance/1435797154" target="_blank" rel="noopener">Apple Music ↗</a></li>
-        <li><a href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram ↗</a></li>
-      </ul>
     </section>
   </main>
 
@@ -1249,7 +1439,7 @@
     <div class="bar"><span>MC² · <span class="code">menú</span></span><button class="x" type="button" data-close aria-label="Cerrar el menú">×</button></div>
     <nav aria-label="Principal">
       <ol class="menu-list">
-        <li><a href="#session-01"><span class="menu-n">01</span>Shop</a></li>
+        <li><a href="#shop"><span class="menu-n">01</span>Shop</a></li>
         <li><a class="menu-cabina" href="#cabina"><span class="menu-n">02</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
         <li><a href="#top"><span class="menu-n">03</span>Home</a></li>
         <li><a href="#shows"><span class="menu-n">04</span>Shows</a></li>
@@ -1502,8 +1692,9 @@
       return card;
     }
 
-    const grid = document.getElementById("products");
-    grid.append(...products.map(renderProduct));
+    // The same pieces in both shops: MC² inside (lights off), all of Dstance outside.
+    document.getElementById("products").append(...products.map(renderProduct));
+    document.getElementById("shop-all").append(...products.map(renderProduct));
 
 
     /* ---------------------------------------------------------------
@@ -1970,20 +2161,55 @@
        2. Listen for an event (a click).
        3. Change something in response.
 
-       LA CABINA: with the lights off the print glows, as before, and a
-       second button appears: "La cabina", the control room where the
-       record was made. Its code lives in cabina/ and is only downloaded
-       when someone goes in, so the store loads exactly as fast as before. */
-    const lightsButton = document.getElementById("lights");
+       TWO UNIVERSES, ONE LIGHT SWITCH
+       Light on: the universe of Dstance (.ds), a press kit.
+       Light off: the universe of Música Cuántica (.mq): the MC² colors,
+       the rain of numbers, the MC² shop and "La cabina", the control
+       room where the record was made. Its code lives in cabina/ and is
+       only downloaded when someone goes in. */
+    const lightsButtons = document.querySelectorAll(".lights-btn");
     const doorButton = document.getElementById("cabina-door");
     let cabina = null;   // La Cabina's code, once it starts loading
 
     function setLights(off) {
-      document.documentElement.dataset.lights = off ? "off" : "on";   // the CSS reacts to this
-      lightsButton.textContent = off ? "Prender la luz" : "Apagar la luz";
-      lightsButton.setAttribute("aria-pressed", String(off));
+      const root = document.documentElement;
+      const changed = (root.dataset.lights === "off") !== off;
+      root.dataset.lights = off ? "off" : "on";   // the CSS reacts to this
+      for (const button of lightsButtons) {
+        button.textContent = off ? "Prender la luz" : "Apagar la luz";
+        button.setAttribute("aria-pressed", String(off));
+      }
       doorButton.hidden = !off;   // La Cabina is only there in the dark
+      // The switch flickers the whole page, like a real light going.
+      if (changed && !noMotion.matches) {
+        root.classList.remove("switching");
+        void root.offsetWidth;   // restart the animation
+        root.classList.add("switching");
+      }
     }
+    document.documentElement.addEventListener("animationend", (event) => {
+      if (event.animationName === "switch-flicker") document.documentElement.classList.remove("switching");
+    });
+
+    // A link to a section of the other universe flips the light first,
+    // so the section is there when the page scrolls to it.
+    const universeOf = (id) => {
+      const target = id && document.getElementById(id);
+      return target ? (target.closest(".mq") ? "mq" : target.closest(".ds") ? "ds" : null) : null;
+    };
+    function followUniverse(hash) {
+      if (!hash || hash.startsWith("#cabina")) return false;
+      const universe = universeOf(decodeURIComponent(hash.slice(1)));
+      const off = document.documentElement.dataset.lights === "off";
+      if (!universe || (universe === "mq") === off) return false;
+      setLights(universe === "mq");
+      return true;
+    }
+    document.addEventListener("click", (event) => {
+      const link = event.target.closest('a[href^="#"]');
+      if (link) followUniverse(link.getAttribute("href"));
+    });
+    if (followUniverse(location.hash)) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 
     // import() fetches a JavaScript file only when it is called.
     function loadCabina() {
@@ -2005,9 +2231,12 @@
       }
     }
 
-    lightsButton.addEventListener("click", () => {
-      setLights(document.documentElement.dataset.lights !== "off");
-    });
+    for (const button of lightsButtons) {
+      button.addEventListener("click", () => {
+        setLights(document.documentElement.dataset.lights !== "off");
+        window.scrollTo({ top: 0 });   // the other universe starts at its top
+      });
+    }
     doorButton.addEventListener("click", enterCabina);
 
     // A link straight in (…/#cabina) or the back button into it turns the lights off and goes in.
@@ -2091,7 +2320,9 @@
       new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; }).observe(canvas);
       setInterval(() => {
         // Also paused while La Cabina covers the store.
-        if (!visible || document.hidden || document.documentElement.classList.contains("cabina-on")) return;
+        // And with the light on: the numbers belong to Música Cuántica.
+        if (!visible || document.hidden || document.documentElement.classList.contains("cabina-on")
+            || document.documentElement.dataset.lights !== "off") return;
         rain();
         decode();
       }, 55);
