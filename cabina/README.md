@@ -76,8 +76,7 @@ La estación 06 es el dibujo que hizo Hector (`photos/equipo-dibujo-hector.jpg`)
 Sonic Ranch: Hector, Gü, Greta, Jere, Nava, Jack Kool, Rabi, Dany Dstance y Felipe. Cada persona es un botón
 sobre el dibujo; al tocarla "colapsa" y aparece su ficha.
 
-- ROL: solo están confirmados Hector (músico y productor) y Dany (el artista). Los demás dicen "ROL: por confirmar":
-  escribe su rol en `rol` (músico, productor, fotógrafo…). El nombre del dibujo va en `dibujo`.
+- Roles (integrantes de DSTANCE en Sonic Ranch): Rabi, bajo · Jere, batería · Gü, guitarra · Yakult (Jack Kool en el dibujo), teclado y synths · Greta, voz · Nava, fotógrafo y cafetero · Felipe, ingeniero · Dany, DSTANCE · Hector, músico y productor (hizo el dibujo). Se cambian en `rol`; el nombre del dibujo va en `dibujo`.
 - Si cambias el dibujo, mueve `x, y, w, h` de cada persona (centro y tamaño, en % del dibujo).
 
 ### Audio

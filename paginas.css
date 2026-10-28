@@ -83,3 +83,5 @@ h3 { font-weight: 800; font-size: 1.5rem; line-height: 1; margin: 0 0 .4rem; }
 .foot nav { display: flex; flex-wrap: wrap; gap: .4rem 1.1rem; }
 .foot a { text-decoration: none; }
 .foot a:hover { text-decoration: underline; }
+.facts.team { margin-top: 0; }
+.facts.team dt { font: 800 1rem var(--font-display); font-stretch: 75%; letter-spacing: .02em; color: var(--ink); text-transform: uppercase; }

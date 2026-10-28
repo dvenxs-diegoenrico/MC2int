@@ -102,19 +102,19 @@ const SINGLE = {
 
 // The test keys. Each one opens its own hidden content in the slot.
 // Compared without dashes or spaces, so "mc2 tee 01" works too.
-/* EL EQUIPO: the people in Hector's drawing, left to right. "dibujo" is
-   how the drawing names them; x, y, w, h place them on it (center and
-   size, in % of the drawing). ROL: an empty "rol" says "por confirmar". */
+/* EL EQUIPO: the people in Hector's drawing, left to right: the members
+   of DSTANCE at Sonic Ranch. "dibujo" is how the drawing names them;
+   x, y, w, h place them on it (center and size, in % of the drawing). */
 const EQUIPO = [
   { nombre: "Hector",       dibujo: "yo",        rol: "músico y productor · hizo este dibujo", x: 7.3,  y: 82, w: 6.5, h: 27 },
-  { nombre: "Gü",           dibujo: "gü",        rol: "",                                      x: 14.8, y: 78, w: 7,   h: 25 },
-  { nombre: "Greta",        dibujo: "greta",     rol: "",                                      x: 21.7, y: 80, w: 7,   h: 29 },
-  { nombre: "Jere",         dibujo: "jere",      rol: "",                                      x: 30,   y: 82, w: 8,   h: 34 },
-  { nombre: "Nava",         dibujo: "nava",      rol: "",                                      x: 37,   y: 79, w: 7.5, h: 28 },
-  { nombre: "Jack Kool",    dibujo: "jack kool", rol: "",                                      x: 43.4, y: 83, w: 6.5, h: 28 },
-  { nombre: "Rabi",         dibujo: "rabi",      rol: "",                                      x: 52.4, y: 81, w: 12,  h: 34 },
-  { nombre: "Dany Dstance", dibujo: "dani",      rol: "el artista · música cuántica",          x: 63.1, y: 79, w: 8,   h: 33 },
-  { nombre: "Felipe",       dibujo: "felipe",    rol: "",                                      x: 73.5, y: 80, w: 9,   h: 34 },
+  { nombre: "Gü",           dibujo: "gü",        rol: "guitarra",                              x: 14.8, y: 78, w: 7,   h: 25 },
+  { nombre: "Greta",        dibujo: "greta",     rol: "voz",                                   x: 21.7, y: 80, w: 7,   h: 29 },
+  { nombre: "Jere",         dibujo: "jere",      rol: "batería",                               x: 30,   y: 82, w: 8,   h: 34 },
+  { nombre: "Nava",         dibujo: "nava",      rol: "fotógrafo y cafetero",                  x: 37,   y: 79, w: 7.5, h: 28 },
+  { nombre: "Yakult",       dibujo: "jack kool", rol: "teclado y synths",                      x: 43.4, y: 83, w: 6.5, h: 28 },
+  { nombre: "Rabi",         dibujo: "rabi",      rol: "bajo",                                  x: 52.4, y: 81, w: 12,  h: 34 },
+  { nombre: "Dany Dstance", dibujo: "dani",      rol: "DSTANCE",                               x: 63.1, y: 79, w: 8,   h: 33 },
+  { nombre: "Felipe",       dibujo: "felipe",    rol: "ingeniero",                             x: 73.5, y: 80, w: 9,   h: 34 },
 ];
 
 const LLAVES = {
@@ -1662,9 +1662,10 @@ function setupEquipo() {
       $("#dibujo").classList.add("collapsed");
       const tag = el("p", "st-tag");
       tag.append(`en el dibujo: "${p.dibujo}" // `, el("b", "", "colapsado"));
-      const name = el("h3", "sp-line");
-      name.append(el("span", "sp-a", p.nombre), el("span", "sp-b", p.nombre));
-      card.replaceChildren(tag, name, el("p", "persona-rol", p.rol || "ROL: por confirmar"),
+      const name = el("h3", "sp-line"), echo = el("span", "sp-b", p.nombre);
+      echo.setAttribute("aria-hidden", "true");   // the superposed copy is only visual
+      name.append(el("span", "sp-a", p.nombre), echo);
+      card.replaceChildren(tag, name, el("p", "persona-rol", p.rol),
         el("p", "st-note", "sonic ranch 2026 · tornillo, tx"));
       card.classList.remove("on");
       void card.offsetWidth;   // restart the collapse
