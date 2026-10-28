@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://dstance.com.mx/</loc><lastmod>2026-10-28</lastmod><priority>1.0</priority></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://dstance.com.mx/</loc><lastmod>2026-10-28</lastmod><priority>1.0</priority>
+    <image:image><image:loc>https://dstance.com.mx/photos/ds-campo-dia.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://dstance.com.mx/todo-cae/</loc><lastmod>2026-10-28</lastmod><priority>0.9</priority>
+    <image:image><image:loc>https://dstance.com.mx/photos/todo-cae.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://dstance.com.mx/musica-cuantica/</loc><lastmod>2026-10-28</lastmod><priority>0.9</priority>
+    <image:image><image:loc>https://dstance.com.mx/photos/sesion-consola.jpg</image:loc></image:image>
+  </url>
+  <url>
+    <loc>https://dstance.com.mx/nina-bonita/</loc><lastmod>2026-10-28</lastmod><priority>0.8</priority>
+    <image:image><image:loc>https://dstance.com.mx/photos/disco-nina-bonita-acustico.jpg</image:loc></image:image>
+  </url>
   <url><loc>https://dstance.com.mx/aviso-de-privacidad.html</loc><lastmod>2026-10-28</lastmod><priority>0.2</priority></url>
 </urlset>
