@@ -406,15 +406,10 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
   background: var(--washed-black); transform-origin: 50% 100%;
   transform: rotate(var(--a, -48deg));
 }
-/* The overdubs strip has no stem: its "meter" is the take lamp. */
-.vu-take {
-  display: grid; place-content: center; justify-items: center; gap: .2rem;
-  color: var(--washed-black); font: 700 .5rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase;
-}
-.vu-take::before, .vu-take::after { display: none; }
-.vu-take-led { width: 9px; height: 9px; border-radius: 50%; background: #e0623a; box-shadow: 0 0 8px rgba(224,98,58,.8); }
-.ch-od .vu-take-led { transition: background-color .3s ease, box-shadow .3s ease; }
+/* The overdubs strip's VU carries the take lamp: red live, green overdubs. */
+.vu-take-led { position: absolute; top: 6px; left: 6px; width: 8px; height: 8px; border-radius: 50%; background: #e0623a; box-shadow: 0 0 8px rgba(224,98,58,.8); transition: background-color .3s ease, box-shadow .3s ease; }
 .desk-wrap:has(.take-word.od) .vu-take-led { background: var(--chem-green); box-shadow: 0 0 10px var(--chem-green); }
+.ch-tape small { display: block; font-size: .78em; font-weight: 400; opacity: .7; text-align: center; }
 /* Eight strips (seven stems + overdubs). Wide screens fit them all; on a
    phone the desk scrolls sideways, strip by strip, like a real console. */
 .desk {

@@ -60,6 +60,8 @@ const MEDIA = {
   // STEMS: the official stems of Todo Cae (Nach MIX v2, Drive "Stems Todo
   // Cae"), one per channel, left to right. The same 60 seconds of each
   // (from 1:48), so they play in sync; all faders at 0 db = Nach's mix.
+  // The last one, "overdubs", is the take's overdub (the synths): its
+  // fader also decides the acta, recorded live (down) or some overdubs (up).
   consola: {
     cancion: "todo cae · mezcla de nach (v2)",
     desde: 108,   // where the fragment starts in the song, in seconds
@@ -68,9 +70,9 @@ const MEDIA = {
       coros:     { label: "coros",     file: "cabina/audio/todo-cae-coros.m4a" },      // BVs All
       guitarras: { label: "guitarras", file: "cabina/audio/todo-cae-guitarras.m4a" },  // EG All
       teclados:  { label: "teclados",  file: "cabina/audio/todo-cae-teclados.m4a" },   // Keys All
-      sintes:    { label: "sintes",    file: "cabina/audio/todo-cae-sintes.m4a" },     // Synth All
       bajo:      { label: "bajo",      file: "cabina/audio/todo-cae-bajo.m4a" },       // Bass A
       bateria:   { label: "batería",   file: "cabina/audio/todo-cae-bateria.m4a" },    // Drums A
+      overdubs:  { label: "overdubs",  nota: "sintes", file: "cabina/audio/todo-cae-sintes.m4a" },  // Synth All
     },
   },
   // VIDEO: the transmissions of Canal MC². Each one is a video file
@@ -277,19 +279,17 @@ function build() {
     `<i style="left:${(random() * 100).toFixed(1)}%;top:${(random() * 100).toFixed(1)}%"></i>`).join("");
 
   // A channel strip, top to bottom: its VU meter, the tape with its name,
-  // solo and mute (only the stems have them), the fader and its level.
-  const fader = (name, label, value, r) => `
+  // solo and mute, the fader and its level. The overdubs strip also has
+  // the take lamp: red for recorded live, green for some overdubs.
+  const fader = (name, stem, value, r) => `
     <div class="ch${name === "overdubs" ? " ch-od" : ""}">
-      ${name === "overdubs"
-        ? `<span class="vu vu-take" aria-hidden="true"><span class="vu-take-led"></span>toma</span>`
-        : `<span class="vu" data-vu="${name}" aria-hidden="true"><span class="vu-needle"></span></span>`}
-      <span class="ch-tape" style="--r:${r}deg">${label}</span>
-      ${name === "overdubs" ? `<span class="ch-btns" aria-hidden="true"></span>` : `
+      <span class="vu" data-vu="${name}" aria-hidden="true"><span class="vu-needle"></span>${name === "overdubs" ? `<span class="vu-take-led"></span>` : ""}</span>
+      <span class="ch-tape" style="--r:${r}deg">${stem.label}${stem.nota ? `<small>${stem.nota}</small>` : ""}</span>
       <span class="ch-btns">
-        <button class="ch-btn" type="button" data-solo="${name}" aria-pressed="false" aria-label="solo ${label}">s</button>
-        <button class="ch-btn" type="button" data-mute="${name}" aria-pressed="false" aria-label="mute ${label}">m</button>
-      </span>`}
-      <div class="fader-slot"><input type="range" min="0" max="100" value="${value}" data-ch="${name}" aria-label="fader ${label}"></div>
+        <button class="ch-btn" type="button" data-solo="${name}" aria-pressed="false" aria-label="solo ${stem.label}">s</button>
+        <button class="ch-btn" type="button" data-mute="${name}" aria-pressed="false" aria-label="mute ${stem.label}">m</button>
+      </span>
+      <div class="fader-slot"><input type="range" min="0" max="100" value="${value}" data-ch="${name}" aria-label="fader ${stem.label}${stem.nota ? " (" + stem.nota + ")" : ""}"></div>
       <span class="ch-db" aria-hidden="true"></span>
     </div>`;
 
@@ -373,7 +373,7 @@ function build() {
     ${station("consola", `
       <!-- CONSOLA is the desk, and it plays: the official stems of Todo Cae,
            one per channel strip, with solo and mute and a VU that reads its
-           real level. The last fader, overdubs, decides the take. -->
+           real level. The last one, overdubs (the synths), also decides the take. -->
       <div class="desk-wrap">
         <p class="take"><span class="led-rec" aria-hidden="true">● rec</span><span class="take-word" id="take-word" aria-live="polite"></span><small>toma 01 // session 01 · sonic ranch</small></p>
         <div class="transport">
@@ -381,12 +381,12 @@ function build() {
           <span class="mix-time" id="mix-time" aria-hidden="true"></span>
           <span class="mix-song">${esc(MEDIA.consola.cancion)}</span>
         </div>
-        <div class="desk" role="group" aria-label="consola: ${Object.keys(MEDIA.consola.stems).length} stems y el fader overdubs">
-          ${Object.entries(MEDIA.consola.stems).map(([name, stem], i) => fader(name, stem.label, 75, [-2, 1.5, -1, 2, -1.5, 1, -2][i % 7])).join("")}
-          ${fader("overdubs", "overdubs", state.overdubs, 2)}
+        <div class="desk" role="group" aria-label="consola: ${Object.keys(MEDIA.consola.stems).length} stems">
+          ${Object.entries(MEDIA.consola.stems).map(([name, stem], i) =>
+            fader(name, stem, name === "overdubs" ? state.overdubs : 75, [-2, 1.5, -1, 2, -1.5, 1, 2][i % 7])).join("")}
         </div>
         <p class="desk-hint" aria-hidden="true">← desliza la consola →</p>
-        <p class="st-note">el fader overdubs está entrelazado con tu acta: lo que muevas aquí, aparece allá.</p>
+        <p class="st-note">overdubs son los sintes que se grabaron encima de la toma: abajo, la toma queda en vivo; arriba, entran los overdubs. y está entrelazado con tu acta: lo que muevas aquí, aparece allá.</p>
       </div>`, "dale play · mueve los faders, haz solo o mute · el último decide qué tan en vivo quedó")}
 
     ${station("canal", `
