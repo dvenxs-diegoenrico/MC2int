@@ -42,7 +42,7 @@ Cada estación es el objeto mismo, a pantalla completa: atrás su mundo (`MEDIA.
 | canal | la tele: pantalla completa y botones de canal | `photos/cabina-monitor.jpg` |
 | archivo | el cajón abierto: fichas que se hojean | `photos/escena-archivo.jpg` |
 | llave | el panel: display LCD y la ranura donde entra la tarjeta | `photos/escena-llave.jpg` |
-| el equipo | el vidrio: el dibujo de Hector pegado en él, con todos los que fueron a Sonic Ranch | `photos/sesion-sala-en-vivo.jpg` (foto real) |
+| el equipo | el vidrio: el dibujo de Héctor pegado en él, con todos los que fueron a Sonic Ranch | `photos/sesion-sala-en-vivo.jpg` (foto real) |
 | acta | la hoja de sesión: firmas en ella y se voltea en tu acta | `photos/cabina-hoja.jpg` |
 
 Las escenas nuevas (`escena-*.jpg`) se generaron con la IA de Canva. Para cambiar una, reemplaza el archivo o la ruta en `MEDIA.scenes`.
@@ -72,11 +72,12 @@ Una panorámica real de la cabina puede reemplazar a la generada.
 
 ### El equipo (`EQUIPO` en `cabina.js`)
 
-La estación 06 es el dibujo que hizo Hector (`photos/equipo-dibujo-hector.jpg`) de todos los que fueron a
-Sonic Ranch: Hector, Gü, Greta, Jere, Nava, Jack Kool, Rabi, Dany Dstance y Felipe. Cada persona es un botón
+La estación 06 es el dibujo que hizo Héctor (`photos/equipo-dibujo-hector.jpg`) de todos los que fueron a
+Sonic Ranch: Héctor, Gü, Greta, Jere, Nava, Jack Kool, Rabi, Dany Dstance y Felipe. Cada persona es un botón
 sobre el dibujo; al tocarla "colapsa" y aparece su ficha.
 
-- Roles (integrantes de DSTANCE en Sonic Ranch): Rabi, bajo · Jere, batería · Gü, guitarra · Yakult (Jack Kool en el dibujo), teclado y synths · Greta, voz · Nava, fotógrafo y cafetero · Felipe, ingeniero · Dany, DSTANCE · Hector, músico y productor (hizo el dibujo). Se cambian en `rol`; el nombre del dibujo va en `dibujo`.
+- Roles (integrantes de DSTANCE en Sonic Ranch): Rabi, bajo · Jere, batería · Gü, guitarra · Yakult (Jack Kool en el dibujo), teclado y synths · Greta, voz · Nava, fotógrafo y cafetero · Felipe, ingeniero · Dany, DSTANCE · Héctor, músico y productor (hizo el dibujo). Se cambian en `rol`; el nombre del dibujo va en `dibujo`.
+- Fotos: `photos/equipo-<nombre>.jpg` (640 px), del rollo 120 y las Polaroids de Sonic Ranch. Se cambian en `foto`; `pelicula` es `"120"` o `"polaroid"` (la Polaroid lleva su marco blanco). Al colapsar a alguien, su foto se revela. Nava aún no tiene foto.
 - Si cambias el dibujo, mueve `x, y, w, h` de cada persona (centro y tamaño, en % del dibujo).
 
 ### Audio
