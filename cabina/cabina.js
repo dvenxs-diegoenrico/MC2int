@@ -104,17 +104,19 @@ const SINGLE = {
 // Compared without dashes or spaces, so "mc2 tee 01" works too.
 /* EL EQUIPO: the people in Hector's drawing, left to right: the members
    of DSTANCE at Sonic Ranch. "dibujo" is how the drawing names them;
-   x, y, w, h place them on it (center and size, in % of the drawing). */
+   x, y, w, h place them on it (center and size, in % of the drawing).
+   "foto" is their photo from the session (Drive: Dstance - Sonic Ranch /
+   Film), "pelicula" says which film: polaroid or 120. No photo, no frame. */
 const EQUIPO = [
-  { nombre: "Hector",       dibujo: "yo",        rol: "músico y productor · hizo este dibujo", x: 7.3,  y: 82, w: 6.5, h: 27 },
-  { nombre: "Gü",           dibujo: "gü",        rol: "guitarra",                              x: 14.8, y: 78, w: 7,   h: 25 },
-  { nombre: "Greta",        dibujo: "greta",     rol: "voz",                                   x: 21.7, y: 80, w: 7,   h: 29 },
-  { nombre: "Jere",         dibujo: "jere",      rol: "batería",                               x: 30,   y: 82, w: 8,   h: 34 },
+  { nombre: "Héctor",       dibujo: "yo",        rol: "músico y productor · hizo este dibujo", x: 7.3,  y: 82, w: 6.5, h: 27, foto: "photos/equipo-hector.jpg", pelicula: "120" },
+  { nombre: "Gü",           dibujo: "gü",        rol: "guitarra",                              x: 14.8, y: 78, w: 7,   h: 25, foto: "photos/equipo-gu.jpg", pelicula: "120" },
+  { nombre: "Greta",        dibujo: "greta",     rol: "voz",                                   x: 21.7, y: 80, w: 7,   h: 29, foto: "photos/equipo-greta.jpg", pelicula: "polaroid" },
+  { nombre: "Jere",         dibujo: "jere",      rol: "batería",                               x: 30,   y: 82, w: 8,   h: 34, foto: "photos/equipo-jere.jpg", pelicula: "polaroid" },
   { nombre: "Nava",         dibujo: "nava",      rol: "fotógrafo y cafetero",                  x: 37,   y: 79, w: 7.5, h: 28 },
-  { nombre: "Yakult",       dibujo: "jack kool", rol: "teclado y synths",                      x: 43.4, y: 83, w: 6.5, h: 28 },
-  { nombre: "Rabi",         dibujo: "rabi",      rol: "bajo",                                  x: 52.4, y: 81, w: 12,  h: 34 },
-  { nombre: "Dany Dstance", dibujo: "dani",      rol: "DSTANCE",                               x: 63.1, y: 79, w: 8,   h: 33 },
-  { nombre: "Felipe",       dibujo: "felipe",    rol: "ingeniero",                             x: 73.5, y: 80, w: 9,   h: 34 },
+  { nombre: "Yakult",       dibujo: "jack kool", rol: "teclado y synths",                      x: 43.4, y: 83, w: 6.5, h: 28, foto: "photos/equipo-yakult.jpg", pelicula: "polaroid" },
+  { nombre: "Rabi",         dibujo: "rabi",      rol: "bajo",                                  x: 52.4, y: 81, w: 12,  h: 34, foto: "photos/equipo-rabi.jpg", pelicula: "polaroid" },
+  { nombre: "Dany Dstance", dibujo: "dani",      rol: "DSTANCE",                               x: 63.1, y: 79, w: 8,   h: 33, foto: "photos/equipo-dani.jpg", pelicula: "polaroid" },
+  { nombre: "Felipe",       dibujo: "felipe",    rol: "ingeniero",                             x: 73.5, y: 80, w: 9,   h: 34, foto: "photos/equipo-felipe.jpg", pelicula: "120" },
 ];
 
 const LLAVES = {
@@ -447,10 +449,10 @@ function build() {
            Sonic Ranch with Dany, as Hector drew them. Each one is in
            superposition until you look at them. -->
       <div class="equipo">
-        <p class="st-tag">quién estuvo en sonic ranch // dibujo de <b>hector</b></p>
+        <p class="st-tag">quién estuvo en sonic ranch // dibujo de <b>héctor</b></p>
         <div class="dibujo" id="dibujo">
           <div class="dibujo-sheet">
-            <img src="${MEDIA.dibujo}" alt="Dibujo de Hector: Sonic Ranch 2026, Mamerronix 3000 septeto koreano, Música Cuántica, y las nueve personas que fueron: ${EQUIPO.map((p) => p.nombre).join(", ")}.">
+            <img src="${MEDIA.dibujo}" alt="Dibujo de Héctor: Sonic Ranch 2026, Mamerronix 3000 septeto koreano, Música Cuántica, y las nueve personas que fueron: ${EQUIPO.map((p) => p.nombre).join(", ")}.">
             ${EQUIPO.map((p, i) => `
               <button class="persona" type="button" data-persona="${i}" aria-label="${esc(p.nombre)}" aria-pressed="false"
                       style="left:${p.x - p.w / 2}%;top:${p.y - p.h / 2}%;width:${p.w}%;height:${p.h}%"><span></span></button>`).join("")}
@@ -1665,8 +1667,21 @@ function setupEquipo() {
       const name = el("h3", "sp-line"), echo = el("span", "sp-b", p.nombre);
       echo.setAttribute("aria-hidden", "true");   // the superposed copy is only visual
       name.append(el("span", "sp-a", p.nombre), echo);
-      card.replaceChildren(tag, name, el("p", "persona-rol", p.rol),
-        el("p", "st-note", "sonic ranch 2026 · tornillo, tx"));
+      const text = el("div", "persona-text");
+      text.append(tag, name, el("p", "persona-rol", p.rol),
+        el("p", "st-note", "sonic ranch 2026 · tornillo, tx" + (p.pelicula ? " · " + (p.pelicula === "120" ? "rollo 120" : "polaroid") : "")));
+      const parts = [text];
+      if (p.foto) {
+        // The photo develops like a Polaroid: washed out and blurred, then sharp.
+        const figure = el("figure", "persona-foto" + (p.pelicula === "polaroid" ? " is-polaroid" : ""));
+        const img = el("img");
+        img.src = p.foto;
+        img.alt = "Foto de " + p.nombre + " en Sonic Ranch (" + (p.pelicula === "120" ? "rollo 120" : "Polaroid") + ")";
+        figure.append(img);
+        parts.unshift(figure);
+      }
+      card.replaceChildren(...parts);
+      card.classList.toggle("has-foto", Boolean(p.foto));
       card.classList.remove("on");
       void card.offsetWidth;   // restart the collapse
       card.classList.add("on");
