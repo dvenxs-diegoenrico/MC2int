@@ -38,11 +38,13 @@
   <meta property="og:description" content="Pop alternativo desde Puebla. Escucha Todo Cae, el primer sencillo de Música Cuántica.">
   <meta property="og:url" content="https://dstance.com.mx/">
   <meta property="og:image" content="https://dstance.com.mx/photos/ds-campo-dia.jpg">
+  <meta property="og:image:width" content="1400">
+  <meta property="og:image:height" content="1750">
   <meta property="og:image:alt" content="Dstance de pie en un campo seco frente a un muro blanco, al atardecer">
   <meta property="og:locale" content="es_MX">
   <meta name="twitter:card" content="summary_large_image">
   <!-- For search engines: who Dstance is, his profiles and his records. -->
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "MusicGroup", "name": "Dstance", "alternateName": "Dany Dstance", "genre": "Pop alternativo", "url": "https://dstance.com.mx/", "image": "https://dstance.com.mx/photos/ds-campo-dia.jpg", "email": "hola@dstance.mx", "foundingLocation": {"@type": "Place", "name": "Puebla, México"}, "sameAs": ["https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2", "https://www.youtube.com/@danydstance", "https://music.apple.com/mx/artist/dstance/1435797154", "https://www.instagram.com/danydstance/", "https://www.tiktok.com/@danydstance", "https://www.facebook.com/DanyDstance"], "album": [{"@type": "MusicAlbum", "name": "Estaciones", "datePublished": "2020-12-04", "url": "https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr"}, {"@type": "MusicAlbum", "name": "Hasta Que la Vida Diga Adiós", "datePublished": "2022-04-21", "url": "https://open.spotify.com/album/14Ca0sNQjuJT8hWTolmxUG"}, {"@type": "MusicAlbum", "name": "Falsas Expectativas", "datePublished": "2025-05-30", "url": "https://open.spotify.com/album/3lN91lruKySYJbYIHwqYIf"}, {"@type": "MusicAlbum", "name": "Todo Cae", "datePublished": "2026-09-18", "url": "https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh"}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "MusicGroup", "name": "Dstance", "alternateName": "Dany Dstance", "genre": "Pop alternativo", "url": "https://dstance.com.mx/", "image": "https://dstance.com.mx/photos/ds-campo-dia.jpg", "email": "hola@dstance.mx", "foundingLocation": {"@type": "Place", "name": "Puebla, México"}, "sameAs": ["https://open.spotify.com/artist/1NxTfbylQiyMQ8yOFxG3x2", "https://www.youtube.com/@danydstance", "https://music.apple.com/mx/artist/dstance/1435797154", "https://www.instagram.com/danydstance/", "https://www.tiktok.com/@danydstance", "https://www.facebook.com/DanyDstance"], "track": [{"@type": "MusicRecording", "name": "Todo Cae", "url": "https://dstance.com.mx/todo-cae/", "datePublished": "2026-09-18"}, {"@type": "MusicRecording", "name": "Niña Bonita - Acústico", "url": "https://dstance.com.mx/nina-bonita/", "datePublished": "2020-02-14"}], "album": [{"@type": "MusicAlbum", "name": "Estaciones", "datePublished": "2020-12-04", "url": "https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr"}, {"@type": "MusicAlbum", "name": "Hasta Que la Vida Diga Adiós", "datePublished": "2022-04-21", "url": "https://open.spotify.com/album/14Ca0sNQjuJT8hWTolmxUG"}, {"@type": "MusicAlbum", "name": "Falsas Expectativas", "datePublished": "2025-05-30", "url": "https://open.spotify.com/album/3lN91lruKySYJbYIHwqYIf"}, {"@type": "MusicAlbum", "name": "Todo Cae", "datePublished": "2026-09-18", "url": "https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh"}, {"@type": "MusicAlbum", "name": "Música Cuántica", "url": "https://dstance.com.mx/musica-cuantica/"}]}</script>
 
   <!-- FONTS: the two typefaces of the MC² doctrina (MC2-DOC-00).
          Archivo     = display + body. Heavy (800/900) for the MC² lockup and titles.
@@ -982,6 +984,9 @@
     }
     .release img, .rel-dark { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
     .release h3 { font: 900 clamp(1.3rem, 3.4vw, 2.2rem)/1 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; margin: .2rem 0 .35rem; }
+    .release h3 a { text-decoration: none; }
+    @media (hover: hover) { .release h3 a:hover { text-decoration: underline; } }
+    .release .rel-link + .rel-link { margin-left: 1rem; }
     .release p { margin: 0; }
     .rel-year { font: 700 .78rem var(--font-mono); letter-spacing: .2em; color: var(--sepia); }
     .rel-meta { font: 400 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
@@ -1164,8 +1169,11 @@
          ============================================================ -->
     <!-- The cover of the press kit: the field, the wall, him, the sky. -->
     <section class="ds ds-hero" id="top" aria-labelledby="ds-title">
-      <img class="ds-hero-photo" src="photos/ds-campo-dia.jpg" width="1400" height="1750" fetchpriority="high"
+      <picture>
+        <source type="image/webp" srcset="photos/ds-campo-dia-800.webp 800w, photos/ds-campo-dia.webp 1400w" sizes="100vw">
+        <img class="ds-hero-photo" decoding="async" src="photos/ds-campo-dia.jpg" width="1400" height="1750" fetchpriority="high"
            alt="Dstance de pie en un campo seco frente a un muro blanco, con el cielo al atardecer (foto del press kit)">
+      </picture>
       <div class="ds-hero-text">
         <h1 class="ds-name" id="ds-title">Dstance</h1>
         <p class="ds-genre">Pop alternativo</p>
@@ -1199,6 +1207,11 @@
       <h2 id="tray-title">Discografía</h2>
       <ol class="timeline">
         <li class="release">
+          <img src="photos/disco-nina-bonita-acustico.jpg" width="640" height="640" loading="lazy" alt="Portada de Niña Bonita (Acústico)">
+          <div><p class="rel-year">2020</p><h3><a href="/nina-bonita/">Niña Bonita</a></h3><p class="rel-meta">Sencillo · acústico y con Melissa Robles</p>
+          <a class="rel-link" href="/nina-bonita/">Versiones y video</a> <a class="rel-link" href="https://open.spotify.com/track/0z05t8LJ4GYWqqVBZBqjYK" target="_blank" rel="noopener">Spotify ↗</a></div>
+        </li>
+        <li class="release">
           <img src="photos/disco-estaciones.jpg" width="640" height="640" loading="lazy" alt="Portada de Estaciones">
           <div><p class="rel-year">2020</p><h3>Estaciones</h3><p class="rel-meta">EP · 5 canciones</p>
           <a class="rel-link" href="https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr" target="_blank" rel="noopener">Spotify ↗</a></div>
@@ -1215,13 +1228,14 @@
         </li>
         <li class="release">
           <img src="photos/todo-cae.jpg" width="1000" height="1000" loading="lazy" alt="Portada de Todo Cae">
-          <div><p class="rel-year">2026</p><h3>Todo Cae</h3><p class="rel-meta">Sencillo · el primero de Música Cuántica</p>
+          <div><p class="rel-year">2026</p><h3><a href="/todo-cae/">Todo Cae</a></h3><p class="rel-meta">Sencillo · el primero de Música Cuántica</p>
+          <a class="rel-link" href="/todo-cae/">Letra y créditos</a>
           <a class="rel-link" href="https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release release-next">
           <div class="rel-dark" aria-hidden="true"><span>MC<sup>2</sup></span></div>
-          <div><p class="rel-year">2026 · próximamente</p><h3>Música Cuántica</h3><p class="rel-meta">Álbum · grabado en Sonic Ranch, Tornillo, TX</p>
-          <button class="rel-link lights-btn" type="button" aria-pressed="false">Apagar la luz</button></div>
+          <div><p class="rel-year">2026 · próximamente</p><h3><a href="/musica-cuantica/">Música Cuántica</a></h3><p class="rel-meta">Álbum · grabado en Sonic Ranch, Tornillo, TX</p>
+          <a class="rel-link" href="/musica-cuantica/">El disco</a> <button class="rel-link lights-btn" type="button" aria-pressed="false">Apagar la luz</button></div>
         </li>
       </ol>
     </section>
@@ -1306,7 +1320,7 @@
     <section class="hero mq" id="musica-cuantica" aria-labelledby="album-title">
       <!-- The ² is a <sup> so we control its size and height, like the print.
            aria-label makes screen readers say "MC²" instead of "MC 2". -->
-      <h1 class="lockup" id="album-title" aria-label="MC²">MC<sup>2</sup></h1>
+      <h2 class="lockup" id="album-title" aria-label="MC²">MC<sup>2</sup></h2>
       <p class="album-name">Música Cuántica</p>
       <!-- Sonic Ranch, Tornillo TX: the exact coordinates printed on every piece. -->
       <p class="coords">31.4456°N 106.0078°W</p>
