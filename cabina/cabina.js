@@ -56,17 +56,21 @@ const MEDIA = {
   dibujo: "photos/equipo-dibujo-hector.jpg",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
-  frecuencia: "cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the four stems)
-  // STEMS: the four tracks of Todo Cae (Nach MIX v2) for the console, the
-  // same 60 seconds of each (from 1:48), so they play in sync.
+  frecuencia: "cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the seven stems)
+  // STEMS: the official stems of Todo Cae (Nach MIX v2, Drive "Stems Todo
+  // Cae"), one per channel, left to right. The same 60 seconds of each
+  // (from 1:48), so they play in sync; all faders at 0 db = Nach's mix.
   consola: {
     cancion: "todo cae · mezcla de nach (v2)",
     desde: 108,   // where the fragment starts in the song, in seconds
     stems: {
-      voz:       "cabina/audio/todo-cae-voz.m4a",
-      guitarras: "cabina/audio/todo-cae-guitarras.m4a",
-      bajo:      "cabina/audio/todo-cae-bajo.m4a",
-      bateria:   "cabina/audio/todo-cae-bateria.m4a",
+      voz:       { label: "voz",       file: "cabina/audio/todo-cae-voz.m4a" },        // Lead All
+      coros:     { label: "coros",     file: "cabina/audio/todo-cae-coros.m4a" },      // BVs All
+      guitarras: { label: "guitarras", file: "cabina/audio/todo-cae-guitarras.m4a" },  // EG All
+      teclados:  { label: "teclados",  file: "cabina/audio/todo-cae-teclados.m4a" },   // Keys All
+      sintes:    { label: "sintes",    file: "cabina/audio/todo-cae-sintes.m4a" },     // Synth All
+      bajo:      { label: "bajo",      file: "cabina/audio/todo-cae-bajo.m4a" },       // Bass A
+      bateria:   { label: "batería",   file: "cabina/audio/todo-cae-bateria.m4a" },    // Drums A
     },
   },
   // VIDEO: the transmissions of Canal MC². Each one is a video file
@@ -272,10 +276,13 @@ function build() {
   const dust = Array.from({ length: 22 }, () =>
     `<i style="left:${(random() * 100).toFixed(1)}%;top:${(random() * 100).toFixed(1)}%"></i>`).join("");
 
-  // A channel strip: tape with its name, solo and mute (only the four
-  // stems have them), the fader and its level in db.
+  // A channel strip, top to bottom: its VU meter, the tape with its name,
+  // solo and mute (only the stems have them), the fader and its level.
   const fader = (name, label, value, r) => `
     <div class="ch${name === "overdubs" ? " ch-od" : ""}">
+      ${name === "overdubs"
+        ? `<span class="vu vu-take" aria-hidden="true"><span class="vu-take-led"></span>toma</span>`
+        : `<span class="vu" data-vu="${name}" aria-hidden="true"><span class="vu-needle"></span></span>`}
       <span class="ch-tape" style="--r:${r}deg">${label}</span>
       ${name === "overdubs" ? `<span class="ch-btns" aria-hidden="true"></span>` : `
       <span class="ch-btns">
@@ -364,9 +371,9 @@ function build() {
       </div>`, "gira la perilla · donde la estática se limpia, la canción colapsa")}
 
     ${station("consola", `
-      <!-- CONSOLA is the desk, and it plays: the four stems of Todo Cae,
-           one per fader, with solo and mute; the meter bridge reads their
-           real level. The fifth fader, overdubs, decides the take. -->
+      <!-- CONSOLA is the desk, and it plays: the official stems of Todo Cae,
+           one per channel strip, with solo and mute and a VU that reads its
+           real level. The last fader, overdubs, decides the take. -->
       <div class="desk-wrap">
         <p class="take"><span class="led-rec" aria-hidden="true">● rec</span><span class="take-word" id="take-word" aria-live="polite"></span><small>toma 01 // session 01 · sonic ranch</small></p>
         <div class="transport">
@@ -374,13 +381,11 @@ function build() {
           <span class="mix-time" id="mix-time" aria-hidden="true"></span>
           <span class="mix-song">${esc(MEDIA.consola.cancion)}</span>
         </div>
-        <div class="bridge" aria-hidden="true">
-          ${[["voz", "voz"], ["guitarras", "guitarras"], ["bajo", "bajo"], ["bateria", "batería"]].map(([name, label]) => `
-            <div class="vu" data-vu="${name}"><span class="vu-needle"></span><span class="vu-name">${label}</span></div>`).join("")}
+        <div class="desk" role="group" aria-label="consola: ${Object.keys(MEDIA.consola.stems).length} stems y el fader overdubs">
+          ${Object.entries(MEDIA.consola.stems).map(([name, stem], i) => fader(name, stem.label, 75, [-2, 1.5, -1, 2, -1.5, 1, -2][i % 7])).join("")}
+          ${fader("overdubs", "overdubs", state.overdubs, 2)}
         </div>
-        <div class="desk">
-          ${fader("voz", "voz", 75, -2)}${fader("guitarras", "guitarras", 70, 1.5)}${fader("bajo", "bajo", 72, -1)}${fader("bateria", "batería", 72, 1)}${fader("overdubs", "overdubs", state.overdubs, 2)}
-        </div>
+        <p class="desk-hint" aria-hidden="true">← desliza la consola →</p>
         <p class="st-note">el fader overdubs está entrelazado con tu acta: lo que muevas aquí, aparece allá.</p>
       </div>`, "dale play · mueve los faders, haz solo o mute · el último decide qué tan en vivo quedó")}
 
@@ -1320,7 +1325,7 @@ function setupConsola() {
     input.addEventListener("change", saveState);
   }
 
-  // THE MIX. The four stems are decoded once (on the first play) and
+  // THE MIX. The stems are decoded once (on the first play) and
   // started together on the same clock, looping. Each one runs through
   // its own gain (fader × mute × solo) and an analyser for its meter, into
   // a master with a soft compressor so pushing every fader never clips.
@@ -1354,7 +1359,7 @@ function setupConsola() {
     }
     applyGains();
     return Promise.all(NAMES.map((name) =>
-      fetch(MEDIA.consola.stems[name]).then((r) => r.arrayBuffer()).then(decode)))
+      fetch(MEDIA.consola.stems[name].file).then((r) => r.arrayBuffer()).then(decode)))
       .then((decoded) => { buffers = decoded; });
   }
   const length = () => buffers[0].duration;

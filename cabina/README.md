@@ -82,8 +82,8 @@ sobre el dibujo; al tocarla "colapsa" y aparece su ficha.
 
 ### Audio
 
-- **Consola** (`MEDIA.consola`): los 4 stems de *Todo Cae* (mezcla de Nach v2: voz, guitarras, bajo y batería), 60 s desde 1:48, en `cabina/audio/todo-cae-*.m4a`. Cada fader controla su stem, cada canal tiene solo (s) y mute (m) y los VU leen el nivel real. El quinto fader, overdubs, no suena: decide la toma del acta. Para cambiar el fragmento, corta los mismos segundos de cada stem (que sigan sincronizados) y ajusta `desde`.
-- **Frecuencia** (`MEDIA.frecuencia`): ya suena el mismo fragmento de *Todo Cae* (la mezcla de los 4 stems) al sintonizar 106.0.
+- **Consola** (`MEDIA.consola`): los 7 stems oficiales de *Todo Cae* (mezcla de Nach v2, carpeta de Drive "Stems Todo Cae"): voz (Lead All), coros (BVs All), guitarras (EG All), teclados (Keys All), sintes (Synth All), bajo (Bass A) y batería (Drums A). 60 s desde 1:48, en `cabina/audio/todo-cae-*.m4a`. Todos los faders en 0 db suenan como la mezcla de Nach. Cada canal tiene su VU con el nivel real, solo (s) y mute (m); en el teléfono la consola se desliza de lado. El último fader, overdubs, no suena: decide la toma del acta (su foco se prende verde con "some overdubs"). Para cambiar el fragmento, corta los mismos segundos de cada stem (que sigan sincronizados) y ajusta `desde`.
+- **Frecuencia** (`MEDIA.frecuencia`): ya suena el mismo fragmento de *Todo Cae* (la mezcla de los 7 stems) al sintonizar 106.0.
 
 - Si `MEDIA.frecuencia` queda vacío, el radio vuelve a sonar con un acorde de prueba hecho por el navegador.
 
