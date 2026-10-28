@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dstance.com.mx/sitemap.xml
