@@ -540,6 +540,16 @@
     .size-table td:first-child { font-weight: 700; color: var(--chem-green); }
     .size-note { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .04em; color: var(--sepia); margin: .8rem 0 0; }
     .sizes-dialog { width: min(560px, 100vw); }
+    /* The waiting / mailing list pop-up. */
+    .waitlist-dialog { width: min(560px, 100vw); }
+    .waitlist-dialog .waitlist { max-width: none; padding: 1.4rem clamp(1rem, 3vw, 2rem) 2rem; }
+    .waitlist-dialog h2 {
+      font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
+      font-size: clamp(2rem, 6vw, 3rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1rem;
+    }
+    .waitlist-dialog .drop-intro { margin-bottom: 0; }
+    .topics { margin-top: 1.2rem; }
+    .shop-cta { margin: -1rem 0 2rem !important; }
     .sizes-dialog .size-guide { margin: 0; padding: 1.4rem clamp(1rem, 3vw, 2rem) 2rem; }
     .site-footer button.link {
       background: none; border: 0; padding: 0; cursor: pointer; color: inherit;
@@ -1265,7 +1275,10 @@
         <p class="no-shows-tag"><span class="door-dot" aria-hidden="true"></span>Aviso</p>
         <p class="no-shows-title">Aún no hay fechas.</p>
         <p>No hay shows ni tour anunciados todavía. Cuando los haya, se anuncian aquí primero.</p>
-        <a class="btn btn-ghost" href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Entérate en Instagram ↗</a>
+        <div class="hero-actions">
+          <button class="btn" type="button" data-waitlist="shows">Avísame de las fechas</button>
+          <a class="btn btn-ghost" href="https://www.instagram.com/danydstance/" target="_blank" rel="noopener">Instagram ↗</a>
+        </div>
       </div>
     </section>
 
@@ -1274,7 +1287,8 @@
     <section class="ds shop" id="shop" aria-labelledby="shop-title">
       <span class="eyebrow">Shop // Dstance</span>
       <h2 id="shop-title">Shop</h2>
-      <p class="shop-intro">Todo lo de Dstance en un lugar. Hoy: la colección MC² de Música Cuántica. Todavía no está a la venta: agrégala a tu lista.</p>
+      <p class="shop-intro">Todo lo de Dstance en un lugar. Hoy: la colección MC² de Música Cuántica. Todavía no está a la venta: únete a la lista de espera y te avisamos el día del drop.</p>
+      <p class="shop-cta"><button class="btn" type="button" data-waitlist="drop">Unirme a la lista de espera</button></p>
       <div class="products" id="shop-all"></div>
       <p class="shop-note">La tienda de MC² también vive adentro del estudio. <button class="link lights-btn" type="button" aria-pressed="false">Apagar la luz</button></p>
     </section>
@@ -1365,49 +1379,9 @@
           <h2 id="lista-title">Avísame el día del drop</h2>
           <p class="drop-intro">Session 01 sale una sola vez y el tiraje está cerrado. Déjanos tu correo o tu WhatsApp y te escribimos el día del drop. Un mensaje, sin spam.</p>
 
-          <form id="waitlist-form" novalidate>
-            <fieldset class="opt">
-              <legend>Avísame por</legend>
-              <div class="pills">
-                <label class="pill"><input type="radio" name="channel" value="email" checked><span>Correo</span></label>
-                <label class="pill"><input type="radio" name="channel" value="whatsapp"><span>WhatsApp</span></label>
-              </div>
-            </fieldset>
-
-            <label class="field">
-              <span class="qty-label" id="contact-label">Tu correo</span>
-              <input id="contact" name="contact" type="email" autocomplete="email" inputmode="email"
-                     placeholder="tu@correo.com" required aria-describedby="contact-error">
-            </label>
-            <p class="field-error" id="contact-error" aria-live="polite"></p>
-
-            <span class="qty-label">Me interesa</span>
-            <ul class="wish" id="wish" aria-label="Piezas que te interesan"></ul>
-            <p class="wish-empty" id="wish-empty">Elige piezas en Session 01 y aparecen aquí. Es opcional.</p>
-
-            <label class="consent">
-              <input type="checkbox" id="consent" required>
-              <span>Acepto que me escriban sobre el drop y el <a href="aviso-de-privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</span>
-            </label>
-            <p class="field-error" id="consent-error" aria-live="polite"></p>
-
-            <!-- Spam trap: hidden from people, bots fill it in and Formspree drops them. -->
-            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"
-                   style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0">
-
-            <button class="btn" type="submit">Unirme a la lista de espera</button>
-            <p class="waitlist-note">Sin precios todavía: se anuncian el día del drop.</p>
-          </form>
-
-          <!-- Shown after joining. -->
-          <div class="joined" id="joined" hidden tabindex="-1">
-            <h3>Estás en la lista</h3>
-            <p id="joined-text"></p>
-            <svg class="rings" viewBox="0 0 46 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
-              <circle cx="16" cy="12" r="9"/><circle cx="30" cy="12" r="9"/>
-            </svg>
-            <p><button class="remove" type="button" id="joined-edit">Cambiar mis datos</button></p>
-          </div>
+          <!-- The form lives in the waiting-list pop-up (#waitlist-dialog). -->
+          <button class="btn" type="button" data-waitlist="drop">Unirme a la lista de espera</button>
+          <p class="waitlist-note">Sin precios todavía: se anuncian el día del drop.</p>
         </div>
 
         <figure class="polaroid">
@@ -1490,6 +1464,7 @@
       <a href="https://www.facebook.com/DanyDstance" target="_blank" rel="noopener">Facebook</a>
     </nav>
     <nav aria-label="Información">
+      <button class="link" type="button" data-waitlist="musica">Lista de correo</button>
       <a href="#contacto">Contacto</a>
       <a href="mailto:hola@dstance.mx">hola@dstance.mx</a>
       <button class="link" type="button" id="sizes-open" aria-haspopup="dialog">Guía de tallas</button>
@@ -1552,6 +1527,77 @@
   </dialog>
 
   <!-- Cart drawer -->
+  <!-- WAITING / MAILING LIST POP-UP: one form for the whole site. Every
+       "lista de espera" button opens it (data-waitlist="drop|shows|musica"
+       preselects what it is about). Sign-ups go to Formspree. -->
+  <dialog class="sheet waitlist-dialog" id="waitlist-dialog" aria-labelledby="wl-title">
+    <div class="bar">
+      <span>DSTANCE · <span class="code">lista</span></span>
+      <button class="x" type="button" data-close aria-label="Cerrar">×</button>
+    </div>
+    <div class="waitlist" id="waitlist">
+      <span class="eyebrow" id="wl-kicker">Lista de espera</span>
+      <h2 id="wl-title">Avísame</h2>
+      <p class="drop-intro" id="wl-intro">Déjanos tu correo o tu WhatsApp y te escribimos cuando haya algo: el drop de MC², shows o música nueva.</p>
+          <form id="waitlist-form" novalidate>
+        <fieldset class="opt">
+          <legend>Avísame por</legend>
+          <div class="pills">
+            <label class="pill"><input type="radio" name="channel" value="email" checked><span>Correo</span></label>
+            <label class="pill"><input type="radio" name="channel" value="whatsapp"><span>WhatsApp</span></label>
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span class="qty-label" id="contact-label">Tu correo</span>
+          <input id="contact" name="contact" type="email" autocomplete="email" inputmode="email"
+                 placeholder="tu@correo.com" required aria-describedby="contact-error">
+        </label>
+        <p class="field-error" id="contact-error" aria-live="polite"></p>
+
+        <fieldset class="opt topics">
+          <legend>Avísame de</legend>
+          <div class="pills">
+            <label class="pill"><input type="checkbox" name="topic" value="drop"><span>El drop de MC²</span></label>
+            <label class="pill"><input type="checkbox" name="topic" value="shows"><span>Shows y tours</span></label>
+            <label class="pill"><input type="checkbox" name="topic" value="musica"><span>Música nueva</span></label>
+          </div>
+        </fieldset>
+        <p class="field-error" id="topic-error" aria-live="polite"></p>
+
+        <span class="qty-label">Piezas que te interesan</span>
+        <ul class="wish" id="wish" aria-label="Piezas que te interesan"></ul>
+        <p class="wish-empty" id="wish-empty">Elige piezas en el Shop y aparecen aquí. Es opcional.</p>
+
+        <input type="hidden" name="origen" id="waitlist-origin" value="">
+
+        <label class="consent">
+          <input type="checkbox" id="consent" required>
+          <span>Acepto que me escriban sobre lo que elegí y el <a href="aviso-de-privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</span>
+        </label>
+        <p class="field-error" id="consent-error" aria-live="polite"></p>
+
+        <!-- Spam trap: hidden from people, bots fill it in and Formspree drops them. -->
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true"
+               style="position:absolute; left:-9999px; width:1px; height:1px; opacity:0">
+
+        <button class="btn" type="submit">Unirme a la lista</button>
+        <p class="waitlist-note">Un mensaje cuando haya algo que contar. Sin spam.</p>
+      </form>
+
+      <!-- Shown after joining. -->
+      <div class="joined" id="joined" hidden tabindex="-1">
+        <h3>Estás en la lista</h3>
+        <p id="joined-text"></p>
+        <p><button class="btn btn-ghost" type="button" data-close>Listo</button></p>
+        <svg class="rings" viewBox="0 0 46 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+          <circle cx="16" cy="12" r="9"/><circle cx="30" cy="12" r="9"/>
+        </svg>
+        <p><button class="remove" type="button" id="joined-edit">Cambiar mis datos</button></p>
+      </div>
+    </div>
+  </dialog>
+
   <!-- VIDEO POP-UP: the music videos, big. Filled by JavaScript. -->
   <dialog class="video-pop" id="video-pop" aria-labelledby="vp-title">
     <div class="vp-frame" id="vp-frame"></div>
@@ -2005,7 +2051,7 @@
       event.preventDefault();   // a <form> would reload the page; we don't want that
       addToCart(currentProduct.sku, chosenOptions());
       closeDialog(productDialog);
-      goToWaitlist();
+      openWaitlist("drop", "pieza " + currentProduct.sku);
     });
 
 
@@ -2120,6 +2166,10 @@
     const wishList     = document.getElementById("wish");
     const wishEmpty    = document.getElementById("wish-empty");
     const joinedBox    = document.getElementById("joined");
+    const waitlistDialog = document.getElementById("waitlist-dialog");
+    const originInput  = document.getElementById("waitlist-origin");
+    const topicError   = document.getElementById("topic-error");
+    const TOPICS = { drop: "El drop de MC²", shows: "Shows y tours", musica: "Música nueva" };
 
     // Each channel: what the label says and how the input behaves.
     const channels = {
@@ -2172,16 +2222,35 @@
       if (input) input.setAttribute("aria-invalid", String(Boolean(message)));
     }
 
-    function goToWaitlist() {
-      const section = document.getElementById("lista");
-      section.scrollIntoView({ behavior: noMotion.matches ? "auto" : "smooth", block: "start" });
-      // Focus without jumping, so the smooth scroll isn't interrupted.
-      if (!waitlistForm.hidden) setTimeout(() => contactInput.focus({ preventScroll: true }), noMotion.matches ? 0 : 500);
+    /* THE POP-UP. Every waiting-list button opens it, in both universes.
+       `topic` ticks what the button is about (drop, shows, música);
+       `origin` says where it was opened, so the list shows what brings
+       people in (it travels to Formspree as "origen"). */
+    function openWaitlist(topic = "drop", origin = "") {
+      for (const box of waitlistForm.elements.topic) if (box.value === topic) box.checked = true;
+      showError(null, topicError, "");
+      const universe = document.documentElement.dataset.lights === "off" ? "Música Cuántica" : "Dstance";
+      originInput.value = universe + (origin ? " · " + origin : "");
+      renderWish();
+      if (!waitlistDialog.open) waitlistDialog.showModal();
+      waitlistDialog.scrollTop = 0;
+      setTimeout(() => (waitlistForm.hidden ? joinedBox : contactInput).focus({ preventScroll: true }), noMotion.matches ? 0 : 350);
     }
+    const goToWaitlist = () => openWaitlist("drop", "mi lista");
+    for (const button of document.querySelectorAll("[data-waitlist]")) {
+      button.addEventListener("click", () =>
+        openWaitlist(button.dataset.waitlist, button.closest("section")?.id || (button.closest("footer") ? "footer" : "")));
+    }
+    // The "COMING SOON" strip used to scroll to the form: now it opens it.
+    document.getElementById("signal").addEventListener("click", (event) => {
+      event.preventDefault();
+      openWaitlist("drop", "coming soon");
+    });
 
     function showJoined(signup) {
       const how = signup.channel === "email" ? "a " + signup.contact : "por WhatsApp al " + signup.contact;
-      document.getElementById("joined-text").textContent = "Te escribimos " + how + " el día del drop.";
+      const what = (signup.topics || ["drop"]).map((t) => TOPICS[t].replace(/^\w/, (c) => c.toLowerCase())).join(", ");
+      document.getElementById("joined-text").textContent = "Te escribimos " + how + " sobre: " + what + ".";
       waitlistForm.hidden = true;
       joinedBox.hidden = false;
     }
@@ -2193,12 +2262,16 @@
       const contactProblem = checkContact(channel, contact);
       showError(contactInput, contactError, contactProblem);
       showError(consentInput, consentError, consentInput.checked ? "" : "Necesitamos tu permiso para escribirte.");
+      const topics = new FormData(waitlistForm).getAll("topic");
+      showError(null, topicError, topics.length ? "" : "Elige al menos una cosa de la que quieras enterarte.");
       if (contactProblem) { contactInput.focus(); return; }
+      if (!topics.length) { waitlistForm.elements.topic[0].focus(); return; }
       if (!consentInput.checked) { consentInput.focus(); return; }
 
       const signup = {
         channel, contact,
         pieces: cart.map((line) => [line.sku, ...Object.values(line.options)].join(" · ")),
+        topics,
         date: new Date().toISOString(),
       };
       const button = waitlistForm.querySelector("[type=submit]");
@@ -2208,10 +2281,12 @@
           // The names below become the columns in Formspree. "email" is
           // special: Formspree uses it as the reply-to of the notification.
           const fields = {
-            _subject: "Lista de espera MC² · " + (channel === "email" ? "Correo" : "WhatsApp"),
+            _subject: "Lista DSTANCE · " + topics.map((t) => TOPICS[t]).join(", "),
             canal: channel === "email" ? "Correo" : "WhatsApp",
             [channel === "email" ? "email" : "whatsapp"]: contact,
+            intereses: topics.map((t) => TOPICS[t]).join(" | "),
             piezas: signup.pieces.join(" | ") || "Ninguna",
+            origen: originInput.value || "sitio",
             _gotcha: waitlistForm.elements._gotcha.value,   // spam trap, see the HTML
           };
           const response = await fetch(WAITLIST_ENDPOINT, {
@@ -2326,7 +2401,7 @@
       link.addEventListener("click", () => menuDialog.close());
     }
 
-    for (const dialog of [productDialog, cartDialog, sizesDialog, legalDialog, menuDialog]) {
+    for (const dialog of [productDialog, cartDialog, sizesDialog, legalDialog, menuDialog, waitlistDialog]) {
       dialog.addEventListener("click", (event) => {
         if (event.target === dialog) closeDialog(dialog);
       });
