@@ -979,6 +979,25 @@
     .ds.envivo .no-shows { border-color: rgba(255,255,255,.45); }
     .envivo .btn-ghost { color: #fff; border-color: rgba(255,255,255,.7); }
     .ds.envivo .no-shows-tag { color: #fff; }
+    /* The dates: one row per show, like a tour poster. */
+    .tour-dates { list-style: none; margin: 0 0 1.4rem; padding: 0; max-width: 60rem; border-top: 1px solid rgba(255,255,255,.3); }
+    .tour-date {
+      display: grid; grid-template-columns: 4.6rem minmax(0, 1fr) auto; gap: 1.2rem; align-items: center;
+      padding: 1.1rem 0; border-bottom: 1px solid rgba(255,255,255,.3);
+    }
+    .td-day { display: grid; justify-items: center; line-height: 1; text-transform: uppercase; }
+    .td-day b { font: 900 2.6rem/1 var(--font-display); font-stretch: 62%; }
+    .td-day span { font: 400 .7rem var(--font-mono); letter-spacing: .2em; margin-top: .3rem; }
+    .td-place { min-width: 0; overflow-wrap: anywhere; }
+    .td-place h3 { margin: 0; font: 900 clamp(1.3rem, 3vw, 1.8rem)/1.05 var(--font-display); font-stretch: 62%; text-transform: uppercase; }
+    .td-place p { margin: .3rem 0 0; font: 400 .74rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.75); }
+    .ds.envivo .tour-date .btn { white-space: nowrap; }
+    @media (max-width: 560px) {
+      .tour-date { grid-template-columns: 3.6rem minmax(0, 1fr); }
+      .tour-date .btn { grid-column: 2; justify-self: start; }
+    }
+    .tour-source { margin: 0; font: 400 .74rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
+    .tour-source a { color: #fff; }
     .contacto .about-links a { text-transform: none; }
 
     /* Trayectoria: the releases on a line, oldest first. */
@@ -1077,6 +1096,7 @@
       display: grid; gap: .6rem; justify-items: start;
     }
     .no-shows p { margin: 0; }
+    .no-shows[hidden] { display: none; }   /* display: grid would beat the hidden attribute */
     .no-shows-tag {
       display: inline-flex; align-items: center; gap: .5rem; color: var(--chem-green);
       font: 400 .7rem var(--font-mono); letter-spacing: .28em; text-transform: uppercase;
@@ -1290,7 +1310,12 @@
     <section class="ds envivo" id="shows" aria-labelledby="shows-title">
       <span class="eyebrow">Próximamente</span>
       <h2 id="shows-title">Shows y tours</h2>
-      <div class="no-shows" role="status">
+      <!-- The dates come from Dstance's Bandsintown profile (see "Fechas" in
+           the script). With none, or if Bandsintown doesn't answer, the
+           notice below stays. -->
+      <ol class="tour-dates" id="tour-dates" aria-label="Próximas fechas" hidden></ol>
+      <p class="tour-source" id="tour-source" hidden><a href="https://www.bandsintown.com/a/15552291" target="_blank" rel="noopener">Sigue a Dstance en Bandsintown ↗</a></p>
+      <div class="no-shows" id="no-shows" role="status">
         <p class="no-shows-tag"><span class="door-dot" aria-hidden="true"></span>Aviso</p>
         <p class="no-shows-title">Aún no hay fechas.</p>
         <p>No hay shows ni tour anunciados todavía. Cuando los haya, se anuncian aquí primero.</p>
@@ -2605,6 +2630,75 @@
         rain();
         decode();
       }, 55);
+    })();
+
+    /* ---------- FECHAS: Shows y tours, from Bandsintown ----------
+       The dates Dany announces on his Bandsintown profile show up here on
+       their own. If there are none, or Bandsintown doesn't answer, the
+       "Aún no hay fechas" notice stays. */
+    (function () {
+      const BANDSINTOWN = "https://rest.bandsintown.com/artists/id_15552291/events?app_id=752e436d22da3539f2aa1bfc837dec86&date=upcoming";
+      const list = document.getElementById("tour-dates");
+      if (!list || !window.fetch) return;
+      const MESES = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+      const ctrl = window.AbortController ? new AbortController() : null;
+      if (ctrl) setTimeout(() => ctrl.abort(), 8000);
+
+      // Only links back to Bandsintown and ticket sites over https.
+      const safeUrl = (u) => (typeof u === "string" && /^https:\/\//.test(u) ? u : "");
+
+      fetch(BANDSINTOWN, { signal: ctrl ? ctrl.signal : undefined, headers: { Accept: "application/json" } })
+        .then((r) => (r.ok ? r.json() : []))
+        .then((events) => {
+          if (!Array.isArray(events) || !events.length) return;
+          const shows = [];
+          for (const ev of events.slice(0, 20)) {
+            // "2026-11-20T21:00:00" is the venue's local time: read it as is.
+            const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(ev.datetime || "");
+            if (!m) continue;
+            const v = ev.venue || {};
+            const lugar = [v.city, v.region, v.country].filter(Boolean).join(", ");
+            const offer = (ev.offers || []).find((o) => safeUrl(o.url));
+            const link = safeUrl(offer && offer.url) || safeUrl(ev.url);
+
+            const li = document.createElement("li");
+            li.className = "tour-date";
+            const day = document.createElement("p");
+            day.className = "td-day";
+            const d = document.createElement("b"); d.textContent = String(Number(m[3]));
+            const mo = document.createElement("span"); mo.textContent = MESES[Number(m[2]) - 1] + " " + m[1];
+            day.append(d, mo);
+            const place = document.createElement("div");
+            place.className = "td-place";
+            const h = document.createElement("h3"); h.textContent = v.name || ev.title || "Dstance en vivo";
+            const c = document.createElement("p"); c.textContent = lugar;
+            place.append(h, c);
+            li.append(day, place);
+            if (link) {
+              const a = document.createElement("a");
+              a.className = "btn"; a.href = link; a.target = "_blank"; a.rel = "noopener";
+              a.textContent = offer ? "Boletos ↗" : "Más info ↗";
+              li.append(a);
+            }
+            list.append(li);
+            shows.push({ "@type": "MusicEvent", name: "Dstance" + (v.name ? " en " + v.name : ""), startDate: ev.datetime,
+              eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+              location: { "@type": "Place", name: v.name || lugar, address: lugar },
+              performer: { "@type": "MusicGroup", name: "Dstance", url: "https://dstance.com.mx/" },
+              ...(link ? { url: link } : {}) });
+          }
+          if (!shows.length) return;
+          list.hidden = false;
+          document.getElementById("tour-source").hidden = false;
+          document.getElementById("no-shows").hidden = true;
+          document.querySelector("#shows .eyebrow").textContent = "En vivo";
+          // The dates for Google too, as events.
+          const ld = document.createElement("script");
+          ld.type = "application/ld+json";
+          ld.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": shows });
+          document.head.append(ld);
+        })
+        .catch(() => {});   // no answer: the notice stays
     })();
   </script>
 </body>
