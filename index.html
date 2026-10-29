@@ -984,7 +984,11 @@
     .tour-date {
       display: grid; grid-template-columns: 4.6rem minmax(0, 1fr) auto; gap: 1.2rem; align-items: center;
       padding: 1.1rem 0; border-bottom: 1px solid rgba(255,255,255,.3);
+      color: inherit; text-decoration: none;
     }
+    a.tour-date { cursor: pointer; transition: background-color .2s ease; }
+    @media (hover: hover) { a.tour-date:hover { background: rgba(255,255,255,.07); } a.tour-date:hover .btn { background: var(--sepia); color: var(--washed-black); } }
+    a.tour-date:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
     .td-day { display: grid; justify-items: center; line-height: 1; text-transform: uppercase; }
     .td-day b { font: 900 2.6rem/1 var(--font-display); font-stretch: 62%; }
     .td-day span { font: 400 .7rem var(--font-mono); letter-spacing: .2em; margin-top: .3rem; }
@@ -2661,8 +2665,15 @@
             const offer = (ev.offers || []).find((o) => safeUrl(o.url));
             const link = safeUrl(offer && offer.url) || safeUrl(ev.url);
 
+            // The whole show is one link: tapping anywhere on it opens the
+            // tickets (or the show's Bandsintown page if none yet).
             const li = document.createElement("li");
-            li.className = "tour-date";
+            const row = document.createElement(link ? "a" : "div");
+            row.className = "tour-date";
+            if (link) {
+              row.href = link; row.target = "_blank"; row.rel = "noopener";
+              row.setAttribute("aria-label", (offer ? "Boletos: " : "Más info: ") + (v.name || ev.title || "Dstance en vivo") + ", " + Number(m[3]) + " " + MESES[Number(m[2]) - 1] + " " + m[1] + (lugar ? ", " + lugar : ""));
+            }
             const day = document.createElement("p");
             day.className = "td-day";
             const d = document.createElement("b"); d.textContent = String(Number(m[3]));
@@ -2673,13 +2684,14 @@
             const h = document.createElement("h3"); h.textContent = v.name || ev.title || "Dstance en vivo";
             const c = document.createElement("p"); c.textContent = lugar;
             place.append(h, c);
-            li.append(day, place);
+            row.append(day, place);
             if (link) {
-              const a = document.createElement("a");
-              a.className = "btn"; a.href = link; a.target = "_blank"; a.rel = "noopener";
-              a.textContent = offer ? "Boletos ↗" : "Más info ↗";
-              li.append(a);
+              const cta = document.createElement("span");
+              cta.className = "btn"; cta.setAttribute("aria-hidden", "true");
+              cta.textContent = offer ? "Boletos ↗" : "Más info ↗";
+              row.append(cta);
             }
+            li.append(row);
             list.append(li);
             shows.push({ "@type": "MusicEvent", name: "Dstance" + (v.name ? " en " + v.name : ""), startDate: ev.datetime,
               eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
