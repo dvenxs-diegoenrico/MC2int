@@ -18,7 +18,8 @@
 <head>
   <meta charset="utf-8">
   <!-- Every section and La Cabina have their own address (/shows/,
-       /cabina/consola/…), all served by this page: relative paths start at the root. -->
+       /cabina/consola/…), all served by this page. Every path in it starts
+       at the root (/photos/…); <base> is only a safety net. -->
   <base href="/">
   <!-- This line makes the page fit phone screens. Never delete it. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -415,7 +416,7 @@
     /* Hero: glowing branches. "lighten" only adds the green light on top of
        the acid wash, and the mask fades the photo out behind the lockup. */
     .hero::before {
-      background: url("photos/fondo-ramas.jpg") right center / auto 100% no-repeat;   /* the whole print, full height */
+      background: url("/photos/fondo-ramas.jpg") right center / auto 100% no-repeat;   /* the whole print, full height */
       mix-blend-mode: lighten; opacity: .75;
       /* Two masks multiplied: fade in from the left, fade in at the top and out at the bottom. */
       -webkit-mask-image: linear-gradient(to right, transparent 45%, #000 85%), linear-gradient(to bottom, transparent, #000 18%, #000 60%, transparent);
@@ -430,7 +431,7 @@
     /* El disco: the spotlit field as a faded texture, fading into black at
        the top and bottom so the section melts into the page. */
     .disco::before {
-      background: url("photos/fondo-claro.jpg") center 62% / cover no-repeat;
+      background: url("/photos/fondo-claro.jpg") center 62% / cover no-repeat;
       opacity: .32;
       -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
               mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
@@ -665,7 +666,7 @@
     .lista { position: relative; isolation: isolate; overflow: hidden; }
     .lista::before {
       content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-      background: url("photos/fondo-estudio.jpg") center 40% / cover no-repeat;
+      background: url("/photos/fondo-estudio.jpg") center 40% / cover no-repeat;
       opacity: .22; filter: saturate(.8);
       -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
               mask-image: linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
@@ -977,7 +978,7 @@
     .video-pop.closing .vp-cap, .video-pop.closing .vp-close { opacity: 0; transition: opacity .15s ease; }
 
     /* En vivo: under the press kit's night sky. */
-    .envivo { background: #0b1016 url("photos/ds-cielo.jpg") center top / cover; color: #fff; }
+    .envivo { background: #0b1016 url("/photos/ds-cielo.jpg") center top / cover; color: #fff; }
     .envivo .eyebrow { color: rgba(255,255,255,.65); }
     .ds.envivo .no-shows { border-color: rgba(255,255,255,.45); }
     .envivo .btn-ghost { color: #fff; border-color: rgba(255,255,255,.7); }
@@ -1203,8 +1204,8 @@
     <!-- The cover of the press kit: the field, the wall, him, the sky. -->
     <section class="ds ds-hero" id="top" aria-labelledby="ds-title">
       <picture>
-        <source type="image/webp" srcset="photos/ds-campo-dia-800.webp 800w, photos/ds-campo-dia.webp 1400w" sizes="100vw">
-        <img class="ds-hero-photo" decoding="async" src="photos/ds-campo-dia.jpg" width="1400" height="1750" fetchpriority="high"
+        <source type="image/webp" srcset="/photos/ds-campo-dia-800.webp 800w, /photos/ds-campo-dia.webp 1400w" sizes="100vw">
+        <img class="ds-hero-photo" decoding="async" src="/photos/ds-campo-dia.jpg" width="1400" height="1750" fetchpriority="high"
            alt="Dstance de pie en un campo seco frente a un muro blanco, con el cielo al atardecer (foto del press kit)">
       </picture>
       <div class="ds-hero-text">
@@ -1240,27 +1241,27 @@
       <h2 id="tray-title">Discografía</h2>
       <ol class="timeline">
         <li class="release">
-          <img src="photos/disco-nina-bonita-acustico.jpg" width="640" height="640" loading="lazy" alt="Portada de Niña Bonita (Acústico)">
+          <img src="/photos/disco-nina-bonita-acustico.jpg" width="640" height="640" loading="lazy" alt="Portada de Niña Bonita (Acústico)">
           <div><p class="rel-year">2020</p><h3><a href="/nina-bonita/">Niña Bonita</a></h3><p class="rel-meta">Sencillo · acústico y con Melissa Robles</p>
           <a class="rel-link" href="/nina-bonita/">Versiones y video</a> <a class="rel-link" href="https://open.spotify.com/track/0z05t8LJ4GYWqqVBZBqjYK" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="photos/disco-estaciones.jpg" width="640" height="640" loading="lazy" alt="Portada de Estaciones">
+          <img src="/photos/disco-estaciones.jpg" width="640" height="640" loading="lazy" alt="Portada de Estaciones">
           <div><p class="rel-year">2020</p><h3>Estaciones</h3><p class="rel-meta">EP · 5 canciones</p>
           <a class="rel-link" href="https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="photos/disco-hasta-que-la-vida-diga-adios.jpg" width="640" height="640" loading="lazy" alt="Portada de Hasta Que la Vida Diga Adiós">
+          <img src="/photos/disco-hasta-que-la-vida-diga-adios.jpg" width="640" height="640" loading="lazy" alt="Portada de Hasta Que la Vida Diga Adiós">
           <div><p class="rel-year">2022</p><h3>Hasta Que la Vida Diga Adiós</h3><p class="rel-meta">Álbum · 11 canciones · con Josean Log y Los Rumberos</p>
           <a class="rel-link" href="https://open.spotify.com/album/14Ca0sNQjuJT8hWTolmxUG" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="photos/disco-falsas-expectativas.jpg" width="640" height="640" loading="lazy" alt="Portada de Falsas Expectativas">
+          <img src="/photos/disco-falsas-expectativas.jpg" width="640" height="640" loading="lazy" alt="Portada de Falsas Expectativas">
           <div><p class="rel-year">2025</p><h3>Falsas Expectativas</h3><p class="rel-meta">Álbum · 10 canciones</p>
           <a class="rel-link" href="https://open.spotify.com/album/3lN91lruKySYJbYIHwqYIf" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="photos/todo-cae.jpg" width="1000" height="1000" loading="lazy" alt="Portada de Todo Cae">
+          <img src="/photos/todo-cae.jpg" width="1000" height="1000" loading="lazy" alt="Portada de Todo Cae">
           <div><p class="rel-year">2026</p><h3><a href="/todo-cae/">Todo Cae</a></h3><p class="rel-meta">Sencillo · el primero de Música Cuántica</p>
           <a class="rel-link" href="/todo-cae/">Letra y créditos</a>
           <a class="rel-link" href="https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh" target="_blank" rel="noopener">Spotify ↗</a></div>
@@ -1280,32 +1281,32 @@
       <h2 id="videos-title">Videos</h2>
       <ul class="videos">
           <li><button class="video" type="button" data-yt="U9XBk22Vr_w" aria-label="Ver Niña Bonita (2020)">
-            <img src="photos/video-nina-bonita.jpg" width="960" height="540" loading="lazy" alt="">
+            <img src="/photos/video-nina-bonita.jpg" width="960" height="540" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Niña Bonita</span><span class="video-year">2020</span>
           </button></li>
           <li><button class="video" type="button" data-yt="A24SmyaCDxU" aria-label="Ver La Peor Droga de Todas (2021)">
-            <img src="photos/video-la-peor-droga.jpg" width="960" height="540" loading="lazy" alt="">
+            <img src="/photos/video-la-peor-droga.jpg" width="960" height="540" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">La Peor Droga de Todas</span><span class="video-year">2021</span>
           </button></li>
           <li><button class="video" type="button" data-yt="QEESLSNo-Ec" aria-label="Ver No Me Falta Nada (2022)">
-            <img src="photos/video-no-me-falta-nada.jpg" width="960" height="540" loading="lazy" alt="">
+            <img src="/photos/video-no-me-falta-nada.jpg" width="960" height="540" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">No Me Falta Nada</span><span class="video-year">2022</span>
           </button></li>
           <li><button class="video" type="button" data-yt="khfSRTsbQXY" aria-label="Ver Si Fui Yo (2023)">
-            <img src="photos/video-si-fui-yo.jpg" width="960" height="540" loading="lazy" alt="">
+            <img src="/photos/video-si-fui-yo.jpg" width="960" height="540" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Si Fui Yo</span><span class="video-year">2023</span>
           </button></li>
           <li><button class="video" type="button" data-yt="YQ3rtjxuTKc" aria-label="Ver Calma (2025)">
-            <img src="photos/video-calma.jpg" width="960" height="540" loading="lazy" alt="">
+            <img src="/photos/video-calma.jpg" width="960" height="540" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Calma</span><span class="video-year">2025</span>
           </button></li>
           <li><button class="video" type="button" data-yt="9jpzjeNJ354" aria-label="Ver Tiempo a Solas (2025)">
-            <img src="photos/video-tiempo-a-solas.jpg" width="960" height="540" loading="lazy" alt="">
+            <img src="/photos/video-tiempo-a-solas.jpg" width="960" height="540" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Tiempo a Solas</span><span class="video-year">2025</span>
           </button></li>
@@ -1391,7 +1392,7 @@
          to Frecuencia, where the song is the signal to find. -->
     <section class="single mq" id="todo-cae" aria-labelledby="single-title">
       <figure class="single-cover">
-        <img src="photos/todo-cae.jpg" width="1000" height="1000" loading="lazy"
+        <img src="/photos/todo-cae.jpg" width="1000" height="1000" loading="lazy"
              alt="Portada de Todo Cae: un perfil casi negro dibujado por ramas iluminadas en verde">
       </figure>
       <div>
@@ -1437,7 +1438,7 @@
         </div>
 
         <figure class="polaroid">
-          <img src="photos/polaroid-saludo.jpg" width="900" height="1108" loading="lazy"
+          <img src="/photos/polaroid-saludo.jpg" width="900" height="1108" loading="lazy"
                alt="Polaroid verde de un músico saludando con la mano desde una puerta">
         </figure>
       </div>
@@ -1490,15 +1491,15 @@
           </ul>
         </div>
         <figure class="polaroid polaroid-main">
-          <img src="photos/polaroid-sonic-ranch.jpg" width="900" height="1105" loading="lazy"
+          <img src="/photos/polaroid-sonic-ranch.jpg" width="900" height="1105" loading="lazy"
                alt="Polaroid en verde y amarillo de la banda frente a la cabaña de Sonic Ranch, con «Sonic Ranch» y una carita escritos a mano">
         </figure>
         <ul class="polaroids" aria-label="Más Polaroids de la sesión">
-          <li><figure class="polaroid"><img src="photos/polaroid-huerto.jpg" width="900" height="1111" loading="lazy"
+          <li><figure class="polaroid"><img src="/photos/polaroid-huerto.jpg" width="900" height="1111" loading="lazy"
                alt="Polaroid amarilla de una persona sentada frente a una tela blanca en un nogal sin hojas"></figure></li>
-          <li><figure class="polaroid"><img src="photos/polaroid-guitarra.jpg" width="900" height="1112" loading="lazy"
+          <li><figure class="polaroid"><img src="/photos/polaroid-guitarra.jpg" width="900" height="1112" loading="lazy"
                alt="Polaroid verde de un músico con guitarra acústica en el estudio, con luces amarillas detrás"></figure></li>
-          <li><figure class="polaroid"><img src="photos/polaroid-claro.jpg" width="900" height="1108" loading="lazy"
+          <li><figure class="polaroid"><img src="/photos/polaroid-claro.jpg" width="900" height="1108" loading="lazy"
                alt="Polaroid verde de una persona de pie en un claro de pasto iluminado, de noche"></figure></li>
         </ul>
       </div>
@@ -1520,7 +1521,7 @@
       <a href="/contacto/">Contacto</a>
       <a href="mailto:hola@dstance.mx">hola@dstance.mx</a>
       <button class="link" type="button" id="sizes-open" aria-haspopup="dialog">Guía de tallas</button>
-      <a href="aviso-de-privacidad.html">Aviso de privacidad</a>
+      <a href="/aviso-de-privacidad.html">Aviso de privacidad</a>
     </nav>
   </footer>
 
@@ -1625,7 +1626,7 @@
 
         <label class="consent">
           <input type="checkbox" id="consent" required>
-          <span>Acepto que me escriban sobre lo que elegí y el <a href="aviso-de-privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</span>
+          <span>Acepto que me escriban sobre lo que elegí y el <a href="/aviso-de-privacidad.html" target="_blank" rel="noopener">aviso de privacidad</a>.</span>
         </label>
         <p class="field-error" id="consent-error" aria-live="polite"></p>
 
@@ -1717,12 +1718,12 @@
         sku: "MC2-TEE-01",
         name: "Playera MC²",
         description: "Jersey boxy 250 g, print cuarteado, destrucción a mano. Versión glow disponible.",
-        photo: { src: "photos/mc2-tee-01.jpg", width: 1000, height: 1000,
+        photo: { src: "/photos/mc2-tee-01.jpg", width: 1000, height: 1000,
                  alt: "Playera MC² boxy en negro mineral deslavado con el lockup MC² marfil cuarteado y coordenadas en verde químico" },
         gallery: [
-          { src: "photos/mc2-tee-01.jpg", width: 1000, height: 1000,
+          { src: "/photos/mc2-tee-01.jpg", width: 1000, height: 1000,
             alt: "Playera MC² boxy en negro mineral deslavado con el lockup MC² marfil cuarteado y coordenadas en verde químico" },
-          { src: "photos/mc2-coleccion-flat.jpg", width: 1000, height: 1000,
+          { src: "/photos/mc2-coleccion-flat.jpg", width: 1000, height: 1000,
             alt: "La playera MC² sobre el tote MC² y las dos gorras de Session 01, en negro mineral deslavado" },
         ],
         details: [
@@ -1760,16 +1761,16 @@
         sku: "MC2-CAP-01",
         name: "Gorra MC²",
         description: "Print cuarteado, lavada armada, destrucción a mano, bordado verde y marfil.",
-        photo: { src: "photos/mc2-cap-01.jpg", width: 780, height: 780,
+        photo: { src: "/photos/mc2-cap-01.jpg", width: 780, height: 780,
                  alt: "Gorra MC² deslavada, vista frontal con el lockup MC² y coordenadas en verde" },
-        photoDetail: { src: "photos/mc2-cap-01-acta.jpg", width: 432, height: 432,
+        photoDetail: { src: "/photos/mc2-cap-01-acta.jpg", width: 432, height: 432,
                  alt: "Etiqueta interior de la gorra con el acta: Session 01, Sonic Ranch, Recorded live, No overdubs, Archive locked" },
         gallery: [
-          { src: "photos/mc2-cap-01.jpg", width: 780, height: 780,
+          { src: "/photos/mc2-cap-01.jpg", width: 780, height: 780,
             alt: "Gorra MC² deslavada, vista frontal con el lockup MC² y coordenadas en verde" },
-          { src: "photos/mc2-cap-01-acta.jpg", width: 432, height: 432,
+          { src: "/photos/mc2-cap-01-acta.jpg", width: 432, height: 432,
             alt: "Etiqueta interior de la gorra con el acta: Session 01, Sonic Ranch, Recorded live, No overdubs, Archive locked" },
-          { src: "photos/mc2-cap-01-vistas.jpg", width: 1402, height: 1122,
+          { src: "/photos/mc2-cap-01-vistas.jpg", width: 1402, height: 1122,
             alt: "Seis vistas de la gorra: frente, costado, espalda con DSTANCE bordado, botón, interior con cinta verde y etiqueta" },
         ],
         details: [
@@ -1792,7 +1793,7 @@
         sku: "MC2-TOT-01",
         name: "Tote MC²",
         description: "Lona de algodón 10 oz, acid wash negro con destrucción a mano.",
-        photo: { src: "photos/mc2-tot-01.jpg", width: 1000, height: 1000,
+        photo: { src: "/photos/mc2-tot-01.jpg", width: 1000, height: 1000,
                  alt: "Tote MC² en lona negra con acid wash, lockup MC², coordenadas y acta de archivo impresa" },
         details: [
           "El tote maestro de la familia: lona de algodón 10 oz, acid wash negro y destrucción a mano en asas y bordes.",
@@ -1817,22 +1818,22 @@
         kicker: "3 piezas + 1 extra",
         description: "La playera, la gorra y el tote, del mismo lote de lavado. Y un extra que eliges tú:",
         extras: ["Una Polaroid de la sesión, impresa", "El disco antes que nadie", "Una escucha privada"],
-        photo: { src: "photos/mc2-bundle-look.jpg", width: 1000, height: 1502,
+        photo: { src: "/photos/mc2-bundle-look.jpg", width: 1000, height: 1502,
                  alt: "Look completo de Session 01: playera MC² boxy, gorra MC² y tote MC² en negro mineral deslavado" },
-        extraPhoto: { src: "photos/polaroid-big-green.jpg", width: 900, height: 1108,
+        extraPhoto: { src: "/photos/polaroid-big-green.jpg", width: 900, height: 1108,
                  alt: "Polaroid verde de un músico recargado en un estudio de lámina, con «El Big Green» escrito a mano" },
         gallery: [
-          { src: "photos/mc2-bundle-look.jpg", width: 1000, height: 1502,
+          { src: "/photos/mc2-bundle-look.jpg", width: 1000, height: 1502,
             alt: "Look completo de Session 01: playera MC² boxy, gorra MC² y tote MC² en negro mineral deslavado" },
-          { src: "photos/mc2-coleccion-flat.jpg", width: 1000, height: 1000,
+          { src: "/photos/mc2-coleccion-flat.jpg", width: 1000, height: 1000,
             alt: "La playera MC² sobre el tote MC² y las dos gorras de Session 01, en negro mineral deslavado" },
-          { src: "photos/mc2-tee-01.jpg", width: 1000, height: 1000,
+          { src: "/photos/mc2-tee-01.jpg", width: 1000, height: 1000,
             alt: "Playera MC² boxy en negro mineral deslavado con el lockup MC² marfil cuarteado y coordenadas en verde químico" },
-          { src: "photos/mc2-cap-01.jpg", width: 780, height: 780,
+          { src: "/photos/mc2-cap-01.jpg", width: 780, height: 780,
             alt: "Gorra MC² deslavada, vista frontal con el lockup MC² y coordenadas en verde" },
-          { src: "photos/mc2-tot-01.jpg", width: 1000, height: 1000,
+          { src: "/photos/mc2-tot-01.jpg", width: 1000, height: 1000,
             alt: "Tote MC² en lona negra con acid wash, lockup MC², coordenadas y acta de archivo impresa" },
-          { src: "photos/polaroid-big-green.jpg", width: 900, height: 1108,
+          { src: "/photos/polaroid-big-green.jpg", width: 900, height: 1108,
             alt: "Polaroid verde de un músico recargado en un estudio de lámina, con «El Big Green» escrito a mano" },
         ],
         details: [
@@ -2429,7 +2430,7 @@
         });
       return legalLoaded;
     }
-    for (const link of document.querySelectorAll('a[href="aviso-de-privacidad.html"]')) {
+    for (const link of document.querySelectorAll('a[href="/aviso-de-privacidad.html"]')) {
       link.addEventListener("click", async (event) => {
         event.preventDefault();   // also stops the consent box from ticking itself
         try {

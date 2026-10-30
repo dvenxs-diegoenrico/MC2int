@@ -13,7 +13,7 @@ Solo se descarga al apagar la luz: la tienda carga igual que antes.
 ## Cómo cambiar un placeholder
 
 1. Pon el archivo en `cabina/img/` (fotos), `cabina/audio/` o `cabina/video/`.
-2. En `cabina.js`, dentro de `MEDIA`, escribe la ruta. Por ejemplo: `consola: "cabina/img/consola.jpg"`.
+2. En `cabina.js`, dentro de `MEDIA`, escribe la ruta. Por ejemplo: `consola: "/cabina/img/consola.jpg"` (las rutas empiezan con `/`).
 3. Listo: la foto reemplaza su tarjeta "FOTO: …". Si la ruta queda vacía, vuelve el placeholder.
 
 ## El cuarto (220°)

@@ -19,44 +19,44 @@
 /* ---------------------------------------------------------------
    1. MEDIA (placeholders)
    Empty = the placeholder stays. Paths are relative to index.html,
-   for example "cabina/img/consola.jpg".
+   for example "/cabina/img/consola.jpg".
    --------------------------------------------------------------- */
 const MEDIA = {
   // The room's objects (ventana … apagador) were generated with Canva AI
   // in the style of the session Polaroids; swap them for real photos anytime.
   photos: {
-    ventana:    "photos/cabina-ventana.jpg",   // FOTO: el vidrio de la cabina hacia la sala   → el equipo
-    monitor:    "photos/cabina-monitor.jpg",   // FOTO: la tele / monitor de la cabina         → canal mc²
-    archivero:  "photos/cabina-archivero.jpg",   // FOTO: el archivero                           → archivo
-    consola:    "photos/cabina-consola.jpg",   // FOTO: la consola, los faders                 → consola
-    perilla:    "photos/cabina-perilla.jpg",   // FOTO: la perilla, vista desde arriba (cuadrada) → frecuencia
-    hoja:       "photos/cabina-hoja.jpg",   // FOTO: la hoja de sesión (track sheet)        → acta
-    ranura:     "photos/cabina-ranura.jpg",   // FOTO: la ranura de la llave                  → llave
-    apagador:   "photos/cabina-apagador.jpg",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
-    boveda:     "photos/sesion-la-sala-de-noche.jpg",   // FOTO: lo que abre la llave MC2-TEE-01 (Drive, Digital/_DSC5312)
+    ventana:    "/photos/cabina-ventana.jpg",   // FOTO: el vidrio de la cabina hacia la sala   → el equipo
+    monitor:    "/photos/cabina-monitor.jpg",   // FOTO: la tele / monitor de la cabina         → canal mc²
+    archivero:  "/photos/cabina-archivero.jpg",   // FOTO: el archivero                           → archivo
+    consola:    "/photos/cabina-consola.jpg",   // FOTO: la consola, los faders                 → consola
+    perilla:    "/photos/cabina-perilla.jpg",   // FOTO: la perilla, vista desde arriba (cuadrada) → frecuencia
+    hoja:       "/photos/cabina-hoja.jpg",   // FOTO: la hoja de sesión (track sheet)        → acta
+    ranura:     "/photos/cabina-ranura.jpg",   // FOTO: la ranura de la llave                  → llave
+    apagador:   "/photos/cabina-apagador.jpg",   // FOTO: el apagador de la cabina               → pared 08, prender la luz
+    boveda:     "/photos/sesion-la-sala-de-noche.jpg",   // FOTO: lo que abre la llave MC2-TEE-01 (Drive, Digital/_DSC5312)
   },
   // FOTO PANORÁMICA: the whole control room in one photo, wrapped on
   // the 220° curve around the fan. Generated with Canva AI; a real
   // panorama of the room (the phone's panorama mode) can replace it. If
   // you change it, move the objects in OBJECTS to where things are.
-  panorama: "photos/cabina-panoramica.jpg",
+  panorama: "/photos/cabina-panoramica.jpg",
   panoramaRatio: 1628 / 644,   // its width / height
   // ESCENAS: what you see behind each station, full screen (Canva AI,
   // in the style of the session Polaroids).
   scenes: {
-    frecuencia: "photos/escena-frecuencia.jpg",   // the glowing scale of an old radio
-    consola:    "photos/sesion-consola.jpg",      // the real control room (Drive, Digital/_DSC5808)
-    canal:      "photos/cabina-monitor.jpg",      // the TV on its shelf
-    archivo:    "photos/escena-archivo.jpg",      // an open drawer full of cards
-    llave:      "photos/escena-llave.jpg",        // a metal panel with a display and a slot
-    equipo:     "photos/sesion-sala-en-vivo.jpg", // the live room, playing (Drive, Digital/_DSC5554)
-    acta:       "photos/sesion-hoja-todavia.jpg", // the real chord sheet of "Todavía" (Drive, Digital/_DSC5746)
+    frecuencia: "/photos/escena-frecuencia.jpg",   // the glowing scale of an old radio
+    consola:    "/photos/sesion-consola.jpg",      // the real control room (Drive, Digital/_DSC5808)
+    canal:      "/photos/cabina-monitor.jpg",      // the TV on its shelf
+    archivo:    "/photos/escena-archivo.jpg",      // an open drawer full of cards
+    llave:      "/photos/escena-llave.jpg",        // a metal panel with a display and a slot
+    equipo:     "/photos/sesion-sala-en-vivo.jpg", // the live room, playing (Drive, Digital/_DSC5554)
+    acta:       "/photos/sesion-hoja-todavia.jpg", // the real chord sheet of "Todavía" (Drive, Digital/_DSC5746)
   },
   // EL EQUIPO: the drawing Hector made of everyone who went to Sonic Ranch.
-  dibujo: "photos/equipo-dibujo-hector.jpg",
+  dibujo: "/photos/equipo-dibujo-hector.jpg",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
-  frecuencia: "cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the seven stems)
+  frecuencia: "/cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the seven stems)
   // STEMS: the official stems of Todo Cae (Nach MIX v2, Drive "Stems Todo
   // Cae"), one per channel, left to right. The same 60 seconds of each
   // (from 1:48), so they play in sync; all faders at 0 db = Nach's mix.
@@ -66,13 +66,13 @@ const MEDIA = {
     cancion: "todo cae · mezcla de nach (v2)",
     desde: 108,   // where the fragment starts in the song, in seconds
     stems: {
-      voz:       { label: "voz",       file: "cabina/audio/todo-cae-voz.m4a" },        // Lead All
-      coros:     { label: "coros",     file: "cabina/audio/todo-cae-coros.m4a" },      // BVs All
-      guitarras: { label: "guitarras", file: "cabina/audio/todo-cae-guitarras.m4a" },  // EG All
-      teclados:  { label: "teclados",  file: "cabina/audio/todo-cae-teclados.m4a" },   // Keys All
-      bajo:      { label: "bajo",      file: "cabina/audio/todo-cae-bajo.m4a" },       // Bass A
-      bateria:   { label: "batería",   file: "cabina/audio/todo-cae-bateria.m4a" },    // Drums A
-      overdubs:  { label: "overdubs",  nota: "sintes", file: "cabina/audio/todo-cae-sintes.m4a" },  // Synth All
+      voz:       { label: "voz",       file: "/cabina/audio/todo-cae-voz.m4a" },        // Lead All
+      coros:     { label: "coros",     file: "/cabina/audio/todo-cae-coros.m4a" },      // BVs All
+      guitarras: { label: "guitarras", file: "/cabina/audio/todo-cae-guitarras.m4a" },  // EG All
+      teclados:  { label: "teclados",  file: "/cabina/audio/todo-cae-teclados.m4a" },   // Keys All
+      bajo:      { label: "bajo",      file: "/cabina/audio/todo-cae-bajo.m4a" },       // Bass A
+      bateria:   { label: "batería",   file: "/cabina/audio/todo-cae-bateria.m4a" },    // Drums A
+      overdubs:  { label: "overdubs",  nota: "sintes", file: "/cabina/audio/todo-cae-sintes.m4a" },  // Synth All
     },
   },
   // VIDEO: the transmissions of Canal MC². Each one is a video file
@@ -81,9 +81,9 @@ const MEDIA = {
   canal: [
     { id: "tx-01", titulo: "todo cae · lyric video", youtube: "7zEhOL9S19s" },
     // tx-02 … tx-04: fragments of the Sonic Ranch vlog (Drive, "Sonic ranch vlog").
-    { id: "tx-02", titulo: "la cabina, de noche",     video: "cabina/video/tx-02-cabina-noche.mp4" },   // DJI_…_0098, 0:00–0:14
-    { id: "tx-03", titulo: "llegando a sonic ranch",  video: "cabina/video/tx-03-llegada.mp4" },        // DJI_…_0047, 0:04–0:20
-    { id: "tx-04", titulo: "voz · en la cabina",      video: "cabina/video/tx-04-voz.mp4" },            // DJI_…_0082, 0:40–0:56
+    { id: "tx-02", titulo: "la cabina, de noche",     video: "/cabina/video/tx-02-cabina-noche.mp4" },   // DJI_…_0098, 0:00–0:14
+    { id: "tx-03", titulo: "llegando a sonic ranch",  video: "/cabina/video/tx-03-llegada.mp4" },        // DJI_…_0047, 0:04–0:20
+    { id: "tx-04", titulo: "voz · en la cabina",      video: "/cabina/video/tx-04-voz.mp4" },            // DJI_…_0082, 0:40–0:56
   ],
 };
 
@@ -108,15 +108,15 @@ const SINGLE = {
    "foto" is their photo from the session (Drive: Dstance - Sonic Ranch /
    Film), "pelicula" says which film: polaroid or 120. No photo, no frame. */
 const EQUIPO = [
-  { nombre: "Héctor",       dibujo: "yo",        rol: "músico y productor · hizo este dibujo", x: 7.3,  y: 82, w: 6.5, h: 27, foto: "photos/equipo-hector.jpg", pelicula: "120" },
-  { nombre: "Gü",           dibujo: "gü",        rol: "guitarra",                              x: 14.8, y: 78, w: 7,   h: 25, foto: "photos/equipo-gu.jpg", pelicula: "120" },
-  { nombre: "Greta",        dibujo: "greta",     rol: "voz",                                   x: 21.7, y: 80, w: 7,   h: 29, foto: "photos/equipo-greta.jpg", pelicula: "polaroid" },
-  { nombre: "Jere",         dibujo: "jere",      rol: "batería",                               x: 30,   y: 82, w: 8,   h: 34, foto: "photos/equipo-jere.jpg", pelicula: "polaroid" },
+  { nombre: "Héctor",       dibujo: "yo",        rol: "músico y productor · hizo este dibujo", x: 7.3,  y: 82, w: 6.5, h: 27, foto: "/photos/equipo-hector.jpg", pelicula: "120" },
+  { nombre: "Gü",           dibujo: "gü",        rol: "guitarra",                              x: 14.8, y: 78, w: 7,   h: 25, foto: "/photos/equipo-gu.jpg", pelicula: "120" },
+  { nombre: "Greta",        dibujo: "greta",     rol: "voz",                                   x: 21.7, y: 80, w: 7,   h: 29, foto: "/photos/equipo-greta.jpg", pelicula: "polaroid" },
+  { nombre: "Jere",         dibujo: "jere",      rol: "batería",                               x: 30,   y: 82, w: 8,   h: 34, foto: "/photos/equipo-jere.jpg", pelicula: "polaroid" },
   { nombre: "Nava",         dibujo: "nava",      rol: "fotógrafo y cafetero",                  x: 37,   y: 79, w: 7.5, h: 28 },
-  { nombre: "Yakult",       dibujo: "jack kool", rol: "teclado y synths",                      x: 43.4, y: 83, w: 6.5, h: 28, foto: "photos/equipo-yakult.jpg", pelicula: "polaroid" },
-  { nombre: "Rabi",         dibujo: "rabi",      rol: "bajo",                                  x: 52.4, y: 81, w: 12,  h: 34, foto: "photos/equipo-rabi.jpg", pelicula: "polaroid" },
-  { nombre: "Dany Dstance", dibujo: "dani",      rol: "DSTANCE",                               x: 63.1, y: 79, w: 8,   h: 33, foto: "photos/equipo-dani.jpg", pelicula: "polaroid" },
-  { nombre: "Felipe",       dibujo: "felipe",    rol: "ingeniero",                             x: 73.5, y: 80, w: 9,   h: 34, foto: "photos/equipo-felipe.jpg", pelicula: "120" },
+  { nombre: "Yakult",       dibujo: "jack kool", rol: "teclado y synths",                      x: 43.4, y: 83, w: 6.5, h: 28, foto: "/photos/equipo-yakult.jpg", pelicula: "polaroid" },
+  { nombre: "Rabi",         dibujo: "rabi",      rol: "bajo",                                  x: 52.4, y: 81, w: 12,  h: 34, foto: "/photos/equipo-rabi.jpg", pelicula: "polaroid" },
+  { nombre: "Dany Dstance", dibujo: "dani",      rol: "DSTANCE",                               x: 63.1, y: 79, w: 8,   h: 33, foto: "/photos/equipo-dani.jpg", pelicula: "polaroid" },
+  { nombre: "Felipe",       dibujo: "felipe",    rol: "ingeniero",                             x: 73.5, y: 80, w: 9,   h: 34, foto: "/photos/equipo-felipe.jpg", pelicula: "120" },
 ];
 
 const LLAVES = {
