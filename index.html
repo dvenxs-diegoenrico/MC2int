@@ -2590,14 +2590,16 @@
       }
     });
 
-    // import() fetches a JavaScript file only when it is called.
+    // import() fetches a JavaScript file only when it is called. The path
+    // starts at the root: Safari resolves it from the address (/cabina/equipo/),
+    // not from <base>.
     function loadCabina() {
       const css = document.createElement("link");
       css.rel = "stylesheet";
-      css.href = "cabina/cabina.css";
+      css.href = "/cabina/cabina.css";
       const cssLoaded = new Promise((resolve, reject) => { css.onload = resolve; css.onerror = reject; });
       document.head.append(css);
-      return Promise.all([import("./cabina/cabina.js"), cssLoaded]).then(([module]) => module);
+      return Promise.all([import("/cabina/cabina.js"), cssLoaded]).then(([module]) => module);
     }
 
     async function enterCabina() {
