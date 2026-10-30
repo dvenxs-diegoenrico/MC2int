@@ -17,6 +17,9 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
+  <!-- Every section and La Cabina have their own address (/shows/,
+       /cabina/consola/…), all served by this page: relative paths start at the root. -->
+  <base href="/">
   <!-- This line makes the page fit phone screens. Never delete it. -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <!-- Saved to a phone's home screen, the site opens full screen like an
@@ -1160,7 +1163,8 @@
   <!-- VERCEL WEB ANALYTICS: anonymous visit counts, no cookies. It only
        records once Analytics is turned on in the Vercel project. -->
   <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
-  <script defer src="/_vercel/insights/script.js"></script>
+  <!-- Pageviews are sent by the page itself ("ADDRESSES" in the script), one per section and station. -->
+  <script defer src="/_vercel/insights/script.js" data-disable-auto-track="true"></script>
 </head>
 
 <body>
@@ -1173,7 +1177,7 @@
     <button class="burger" id="menu-open" type="button" aria-haspopup="dialog" aria-controls="menu" aria-label="Menú">
       <span></span><span></span><span></span>
     </button>
-    <a class="wordmark" href="#top">DSTANCE</a>
+    <a class="wordmark" href="/">DSTANCE</a>
     <!-- Lesson 4: the cart is now "tu lista", the pieces you want to hear about. -->
     <button class="cart-link" id="cart-open" type="button" aria-haspopup="dialog">Mi lista (<span id="cart-count">0</span>)</button>
   </header>
@@ -1181,7 +1185,7 @@
   <!-- THE SIGNAL: code rains in the background (canvas) and the words
        decode out of it. JavaScript at the bottom of the file runs it.
        Lesson 4: the strip is a link (<a>) to the waiting list. -->
-  <a class="signal mq" id="signal" href="#lista">
+  <a class="signal mq" id="signal" href="/mc2/lista/">
     <p class="signal-text">
       <span class="sr-only">Música Cuántica: coming soon.</span>
       <span aria-hidden="true"><span id="signal-words">MÚSICA CUÁNTICA</span> <span class="soon" id="signal-soon">COMING SOON</span><span class="cursor">_</span></span>
@@ -1374,7 +1378,7 @@
       </ul>
 
       <div class="hero-actions">
-        <a class="btn" href="#session-01">Ver Session 01</a>
+        <a class="btn" href="/mc2/session-01/">Ver Session 01</a>
         <!-- The light switch. There is one in each universe (.lights-btn). -->
         <button class="btn btn-ghost lights-btn" type="button" aria-pressed="false">Apagar la luz</button>
         <!-- Only there with the lights off: the way into La Cabina. -->
@@ -1400,7 +1404,7 @@
           <li><a href="https://music.apple.com/mx/album/todo-cae/6805595531?i=6805595532" target="_blank" rel="noopener">Apple Music ↗</a></li>
           <li><a href="https://youtu.be/7zEhOL9S19s" target="_blank" rel="noopener">Lyric video ↗</a></li>
         </ul>
-        <a class="btn btn-ghost single-tune" href="#cabina/frecuencia">Sintonízala en la cabina</a>
+        <a class="btn btn-ghost single-tune" href="/cabina/frecuencia/">Sintonízala en la cabina</a>
       </div>
     </section>
 
@@ -1470,7 +1474,7 @@
 
     <!-- The outer section carries the background photo full width;
          the inner .story keeps the text and Polaroids at a readable width. -->
-    <section class="disco mq" aria-labelledby="story-title">
+    <section class="disco mq" id="sesion" aria-labelledby="story-title">
       <div class="story">
         <div>
           <span class="eyebrow">Acta // Sonic Ranch</span>
@@ -1513,7 +1517,7 @@
     </nav>
     <nav aria-label="Información">
       <button class="link" type="button" data-waitlist="musica">Lista de correo</button>
-      <a href="#contacto">Contacto</a>
+      <a href="/contacto/">Contacto</a>
       <a href="mailto:hola@dstance.mx">hola@dstance.mx</a>
       <button class="link" type="button" id="sizes-open" aria-haspopup="dialog">Guía de tallas</button>
       <a href="aviso-de-privacidad.html">Aviso de privacidad</a>
@@ -1658,15 +1662,15 @@
     <div class="bar"><span>DSTANCE · <span class="code">menú</span></span><button class="x" type="button" data-close aria-label="Cerrar el menú">×</button></div>
     <nav aria-label="Principal">
       <ol class="menu-list">
-        <li><a href="#top"><span class="menu-n">01</span>Home</a></li>
-        <li><a href="#trayectoria"><span class="menu-n">02</span>Música</a></li>
-        <li><a href="#videos"><span class="menu-n">03</span>Videos</a></li>
-        <li><a href="#shows"><span class="menu-n">04</span>Shows</a></li>
-        <li><a href="#shop"><span class="menu-n">05</span>Shop</a></li>
-        <li><a href="#about"><span class="menu-n">06</span>Links</a></li>
-        <li><a href="#contacto"><span class="menu-n">07</span>Contacto</a></li>
+        <li><a href="/"><span class="menu-n">01</span>Home</a></li>
+        <li><a href="/discografia/"><span class="menu-n">02</span>Música</a></li>
+        <li><a href="/videos/"><span class="menu-n">03</span>Videos</a></li>
+        <li><a href="/shows/"><span class="menu-n">04</span>Shows</a></li>
+        <li><a href="/shop/"><span class="menu-n">05</span>Shop</a></li>
+        <li><a href="/links/"><span class="menu-n">06</span>Links</a></li>
+        <li><a href="/contacto/"><span class="menu-n">07</span>Contacto</a></li>
         <!-- The way inside: always lit, it turns the light off and goes in. -->
-        <li><a class="menu-cabina" href="#cabina"><span class="menu-n">MC²</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
+        <li><a class="menu-cabina" href="/cabina/"><span class="menu-n">MC²</span>La Cabina<span class="door-dot" aria-hidden="true"></span></a></li>
       </ol>
     </nav>
     <div class="menu-foot">
@@ -2505,19 +2509,86 @@
       const target = id && document.getElementById(id);
       return target ? (target.closest(".mq") ? "mq" : target.closest(".ds") ? "ds" : null) : null;
     };
-    function followUniverse(hash) {
-      if (!hash || hash.startsWith("#cabina")) return false;
-      const universe = universeOf(decodeURIComponent(hash.slice(1)));
+    function followUniverse(id) {
+      const universe = universeOf(id);
       const off = document.documentElement.dataset.lights === "off";
       if (!universe || (universe === "mq") === off) return false;
       setLights(universe === "mq");
       return true;
     }
+
+    /* ADDRESSES
+       Every section and La Cabina have their own address, so Analytics
+       counts each one: /shows/, /mc2/lista/, /cabina/consola/… They are
+       all this same page (vercel.json sends them here). Scrolling into a
+       section changes the address without adding a step to the back
+       button; La Cabina's screens are real steps. Each address is
+       reported once per visit as a pageview (the Analytics script does
+       not count by itself: data-disable-auto-track). */
+    const SECTIONS = {
+      top: "/", about: "/links/", trayectoria: "/discografia/", videos: "/videos/",
+      shows: "/shows/", shop: "/shop/", contacto: "/contacto/",
+      "musica-cuantica": "/mc2/", "todo-cae": "/mc2/todo-cae/", "session-01": "/mc2/session-01/",
+      lista: "/mc2/lista/", formatos: "/mc2/formatos/", sesion: "/mc2/sesion/",
+    };
+    const sectionAt = Object.fromEntries(Object.entries(SECTIONS).map(([id, path]) => [path, id]));
+    const isCabina = (path) => path === "/cabina" || path.startsWith("/cabina/");
+    const seen = new Set();
+    function report(path) {
+      seen.add(path);
+      window.va("pageview", { route: path, path });
+    }
+    function goTo(path) { history.replaceState(history.state, "", path + location.search); }
+
+    // Old links (#shows, #cabina/consola) move to their new address.
+    function fromHash() {
+      const hash = decodeURIComponent(location.hash.slice(1));
+      if (hash.startsWith("cabina")) goTo("/cabina/" + (hash.split("/")[1] ? hash.split("/")[1] + "/" : ""));
+      else if (SECTIONS[hash]) goTo(SECTIONS[hash]);
+    }
+    function showSection(id, smooth) {
+      followUniverse(id);
+      document.getElementById(id)?.scrollIntoView({ behavior: smooth && !noMotion.matches ? "smooth" : "auto" });
+    }
+    fromHash();
+    if (sectionAt[location.pathname] && location.pathname !== "/") {
+      showSection(sectionAt[location.pathname]);
+      addEventListener("load", () => showSection(sectionAt[location.pathname]), { once: true });   // again, once the photos have their size
+    }
+    report(location.pathname);
+
+    // The section in the middle of the screen gives the page its address.
+    const sectionWatch = new IntersectionObserver((entries) => {
+      if (isCabina(location.pathname) || document.documentElement.classList.contains("cabina-on")) return;
+      for (const entry of entries) {
+        const path = entry.isIntersecting && SECTIONS[entry.target.id];
+        if (!path || path === location.pathname) continue;
+        goTo(path);
+        if (!seen.has(path)) report(path);
+      }
+    }, { rootMargin: "-50% 0px -50% 0px" });
+    for (const id of Object.keys(SECTIONS)) {
+      const section = document.getElementById(id);
+      if (section) sectionWatch.observe(section);
+    }
+
+    // Links to a section scroll to it (flipping the light first if it is
+    // in the other universe); links to La Cabina go in.
     document.addEventListener("click", (event) => {
-      const link = event.target.closest('a[href^="#"]');
-      if (link) followUniverse(link.getAttribute("href"));
+      const link = event.target.closest("a[href]");
+      if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || link.target) return;
+      const url = new URL(link.href);
+      if (url.origin !== location.origin) return;
+      if (isCabina(url.pathname)) {
+        event.preventDefault();
+        history.pushState(null, "", url.pathname);
+        report(url.pathname);
+        enterCabina();
+      } else if (sectionAt[url.pathname] && !url.hash) {
+        event.preventDefault();
+        showSection(sectionAt[url.pathname], true);
+      }
     });
-    if (followUniverse(location.hash)) document.getElementById(location.hash.slice(1))?.scrollIntoView();
 
     // import() fetches a JavaScript file only when it is called.
     function loadCabina() {
@@ -2547,16 +2618,24 @@
     }
     doorButton.addEventListener("click", enterCabina);
 
-    // A link straight in (…/#cabina) or the back button into it turns the lights off and goes in.
-    const wantsCabina = () => location.hash.startsWith("#cabina");
-    window.addEventListener("hashchange", () => {
-      if (wantsCabina() && !document.documentElement.classList.contains("cabina-on")) enterCabina();
+    // A link straight in (/cabina/…) or the back button into it turns the lights off and goes in.
+    const inCabina = () => document.documentElement.classList.contains("cabina-on");
+    window.addEventListener("popstate", () => {
+      report(location.pathname);
+      if (isCabina(location.pathname) && !inCabina()) enterCabina();
     });
-    if (wantsCabina()) enterCabina();
+    // An old link typed or pasted on the page (#cabina, #shows).
+    window.addEventListener("hashchange", () => {
+      fromHash();
+      if (isCabina(location.pathname)) { if (!inCabina()) enterCabina(); }
+      else if (sectionAt[location.pathname]) showSection(sectionAt[location.pathname]);
+      if (!seen.has(location.pathname)) report(location.pathname);
+    });
+    if (isCabina(location.pathname)) enterCabina();
 
     // What La Cabina may use from the store: the products, "Mi lista",
     // the product pop-up, and a way to turn the light back on.
-    window.MC2 = { findProduct, openProduct, cart: () => cart, lightsOn: () => setLights(false) };
+    window.MC2 = { findProduct, openProduct, cart: () => cart, lightsOn: () => setLights(false), report };
 
     /* THE SIGNAL
        Two loops share one timer:
