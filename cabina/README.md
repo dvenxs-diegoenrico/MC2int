@@ -77,7 +77,7 @@ Sonic Ranch: Héctor, Gü, Greta, Jere, Nava, Jack Kool, Rabi, Dany Dstance y Fe
 sobre el dibujo; al tocarla "colapsa" y aparece su ficha.
 
 - Roles (integrantes de DSTANCE en Sonic Ranch): Rabi, bajo · Jere, batería · Gü, guitarra · Yakult (Jack Kool en el dibujo), teclado y synths · Greta, voz · Nava, fotógrafo y cafetero · Felipe, ingeniero · Dany, DSTANCE · Héctor, músico y productor (hizo el dibujo). Se cambian en `rol`; el nombre del dibujo va en `dibujo`.
-- Fotos: `photos/equipo-<nombre>.jpg` (640 px), del rollo 120 y las Polaroids de Sonic Ranch. Se cambian en `foto`; `pelicula` es `"120"` o `"polaroid"` (la Polaroid lleva su marco blanco). Al colapsar a alguien, su foto se revela. Nava aún no tiene foto.
+- Fotos: `photos/equipo-<nombre>.jpg` (640 px), del rollo 120 y las Polaroids de Sonic Ranch. Se cambian en `foto`; `pelicula` es `"120"` o `"polaroid"` (la Polaroid lleva su marco blanco). Al colapsar a alguien, su foto se revela. Antes de tocar a nadie, la tarjeta muestra la Polaroid del equipo entero (`MEDIA.equipoFoto`).
 - Si cambias el dibujo, mueve `x, y, w, h` de cada persona (centro y tamaño, en % del dibujo).
 
 ### Audio
