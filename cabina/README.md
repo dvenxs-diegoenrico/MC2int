@@ -1,7 +1,7 @@
 # La Cabina
 
 La segunda capa del sitio. **Apagar la luz** oscurece la tienda (el print brilla, como antes) y hace aparecer el botón **La cabina**: solo con la luz apagada se puede entrar. Dentro, **prender la luz** (o el apagador de la pared 08) te regresa a la tienda con la luz prendida.
-También se puede entrar directo con un link: `…/#cabina` (el hub) o `…/#cabina/consola` (una estación).
+También se puede entrar directo con un link: `dstance.com.mx/cabina/` (el hub) o `dstance.com.mx/cabina/consola/` (una estación). Cada pantalla tiene su dirección, así que Vercel Analytics cuenta cuántos entran y a qué estaciones van. Los links viejos con `#cabina` siguen funcionando.
 
 Solo se descarga al apagar la luz: la tienda carga igual que antes.
 

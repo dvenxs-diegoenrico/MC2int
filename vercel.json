@@ -1,3 +1,10 @@
 {
-  "trailingSlash": true
+  "trailingSlash": true,
+  "rewrites": [
+    { "source": "/(links|discografia|videos|shows|shop|contacto)/", "destination": "/index.html" },
+    { "source": "/mc2/", "destination": "/index.html" },
+    { "source": "/mc2/(todo-cae|session-01|lista|formatos|sesion)/", "destination": "/index.html" },
+    { "source": "/cabina/", "destination": "/index.html" },
+    { "source": "/cabina/(frecuencia|consola|canal|archivo|llave|equipo|acta)/", "destination": "/index.html" }
+  ]
 }

@@ -10,9 +10,9 @@
       Write a path there and the real file replaces the placeholder.
    2. build() writes the whole layer once.
    3. enter() / exit() show it over the store and hide it again.
-   4. The address drives the screens: #cabina is the hub and
-      #cabina/consola a station, so the phone's back button works and
-      any screen can be linked.
+   4. The address drives the screens: /cabina/ is the hub and
+      /cabina/consola/ a station, so the phone's back button works, any
+      screen can be linked and Analytics counts each one.
    5. One block per station, further down.
    ================================================================= */
 
@@ -508,7 +508,8 @@ function build() {
     const go = event.target.closest("[data-go]");
     if (go && !jumping) {
       lastSpot = go.dataset.go;
-      history.pushState({ fromHub: true }, "", "#cabina/" + go.dataset.go);
+      history.pushState({ fromHub: true }, "", address(go.dataset.go));
+      report();
       quantumJump(go, () => openScreen(go.dataset.go, true));
     }
     if (event.target.closest("[data-back]")) back();
@@ -530,9 +531,9 @@ function build() {
   window.addEventListener("keydown", (event) => {
     if (open && event.key === "Escape" && STATIONS[current]) { event.preventDefault(); back(); }
   });
-  window.addEventListener("hashchange", () => {
+  window.addEventListener("popstate", () => {
     if (!open) return;
-    if (!location.hash.startsWith("#cabina")) exit();
+    if (!inside()) exit();
     else if (!booting) route();
   });
 
@@ -560,6 +561,11 @@ function usePhoto(card, key) {
    keyboard and screen readers only see the cabin.
    --------------------------------------------------------------- */
 let open = false, booting = false, booted = false, current = null, lastSpot = null;
+
+// The addresses: /cabina/ is the hub, /cabina/consola/ a station.
+const address = (name) => "/cabina/" + (STATIONS[name] ? name + "/" : "");
+const inside = () => location.pathname === "/cabina" || location.pathname.startsWith("/cabina/");
+const report = () => window.MC2.report?.(location.pathname);   // a pageview for Analytics
 const viewport = document.querySelector('meta[name="viewport"]');
 const viewportBase = viewport ? viewport.content : "";
 
@@ -577,7 +583,7 @@ export function enter() {
     document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
   }
   root.hidden = false;
-  if (!location.hash.startsWith("#cabina")) history.pushState(null, "", "#cabina");
+  if (!inside()) { history.pushState(null, "", address("hub")); report(); }
   boot().then(() => { if (open) route(); });
 }
 
@@ -597,7 +603,7 @@ function exit() {
 
 // "Prender la luz" (and "ver en la tienda"): a new history step back to the store.
 function leaveTo(then) {
-  history.pushState(null, "", location.pathname + location.search);
+  history.pushState(null, "", "/" + location.search);
   exit();
   if (then) then();
 }
@@ -656,7 +662,7 @@ function show(name) {
 }
 
 function route() {
-  const name = location.hash.slice(1).split("/")[1];
+  const name = location.pathname.split("/")[2];
   openScreen(STATIONS[name] ? name : "hub");
 }
 
@@ -696,7 +702,7 @@ function stopStation(name) {
 // back button and this one do the same thing.
 function back() {
   if (history.state && history.state.fromHub) history.back();
-  else { history.replaceState(null, "", "#cabina"); openScreen("hub"); }
+  else { history.replaceState(null, "", address("hub")); report(); openScreen("hub"); }
 }
 
 const starts = {}, stops = {};
