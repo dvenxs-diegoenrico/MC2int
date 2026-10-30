@@ -54,6 +54,8 @@ const MEDIA = {
   },
   // EL EQUIPO: the drawing Hector made of everyone who went to Sonic Ranch.
   dibujo: "/photos/equipo-dibujo-hector.jpg",
+  // The Polaroid of everyone together, on the card until you look at someone.
+  equipoFoto: "/photos/polaroid-sonic-ranch.jpg",
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "/cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the seven stems)
@@ -112,7 +114,7 @@ const EQUIPO = [
   { nombre: "Gü",           dibujo: "gü",        rol: "guitarra",                              x: 14.8, y: 78, w: 7,   h: 25, foto: "/photos/equipo-gu.jpg", pelicula: "120" },
   { nombre: "Greta",        dibujo: "greta",     rol: "voz",                                   x: 21.7, y: 80, w: 7,   h: 29, foto: "/photos/equipo-greta.jpg", pelicula: "polaroid" },
   { nombre: "Jere",         dibujo: "jere",      rol: "batería",                               x: 30,   y: 82, w: 8,   h: 34, foto: "/photos/equipo-jere.jpg", pelicula: "polaroid" },
-  { nombre: "Nava",         dibujo: "nava",      rol: "fotógrafo y cafetero",                  x: 37,   y: 79, w: 7.5, h: 28 },
+  { nombre: "Nava",         dibujo: "nava",      rol: "fotógrafo y cafetero",                  x: 37,   y: 79, w: 7.5, h: 28, foto: "/photos/equipo-nava.jpg", pelicula: "polaroid" },
   { nombre: "Yakult",       dibujo: "jack kool", rol: "teclado y synths",                      x: 43.4, y: 83, w: 6.5, h: 28, foto: "/photos/equipo-yakult.jpg", pelicula: "polaroid" },
   { nombre: "Rabi",         dibujo: "rabi",      rol: "bajo",                                  x: 52.4, y: 81, w: 12,  h: 34, foto: "/photos/equipo-rabi.jpg", pelicula: "polaroid" },
   { nombre: "Dany Dstance", dibujo: "dani",      rol: "DSTANCE",                               x: 63.1, y: 79, w: 8,   h: 33, foto: "/photos/equipo-dani.jpg", pelicula: "polaroid" },
@@ -458,10 +460,13 @@ function build() {
                       style="left:${p.x - p.w / 2}%;top:${p.y - p.h / 2}%;width:${p.w}%;height:${p.h}%"><span></span></button>`).join("")}
           </div>
         </div>
-        <div class="persona-card" id="persona-card" aria-live="polite">
-          <p class="st-tag">nueve personas // en superposición</p>
-          <h3>¿quién estuvo?</h3>
-          <p class="st-note">toca a alguien del dibujo: hasta que lo miras, puede ser cualquiera.</p>
+        <div class="persona-card${MEDIA.equipoFoto ? " has-foto" : ""}" id="persona-card" aria-live="polite">
+          ${MEDIA.equipoFoto ? `<figure class="persona-foto is-polaroid"><img src="${MEDIA.equipoFoto}" alt="Polaroid de todo el equipo frente a la cabaña de Sonic Ranch, con «Sonic Ranch» escrito a mano"></figure>` : ""}
+          <div class="persona-text">
+            <p class="st-tag">nueve personas // en superposición</p>
+            <h3>¿quién estuvo?</h3>
+            <p class="st-note">toca a alguien del dibujo: hasta que lo miras, puede ser cualquiera.</p>
+          </div>
         </div>
       </div>`, "toca a alguien del dibujo · al mirarlo, colapsa")}
 
