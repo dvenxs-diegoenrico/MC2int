@@ -89,18 +89,17 @@ const MEDIA = {
       },
     },
     {
-      // A spoiler: four stems of the first chorus (Nach MIX v2, 1:30.8
+      // A spoiler: three stems of the first chorus (Nach MIX v2, 1:30.8
       // for 23.8 seconds). The rest stays out until the song is.
       titulo: "De Tener Me",
-      nota: "spoiler · 4 stems del coro",
+      nota: "spoiler · 3 stems del coro",
       toma: "todavía no sale",
-      texto: "un spoiler: cuatro stems del coro. lo demás, cuando salga.",
+      texto: "un spoiler: tres stems del coro. lo demás, cuando salga.",
       desde: 90.8,
       stems: {
         teclados:  { label: "teclados",  file: "/cabina/audio/de-tener-me-teclados.m4a" },   // Keys All
         sintes:    { label: "sintes",    file: "/cabina/audio/de-tener-me-sintes.m4a" },     // Synth All
         acusticas: { label: "acústicas", file: "/cabina/audio/de-tener-me-acusticas.m4a" },  // AG All
-        coros:     { label: "coros",     file: "/cabina/audio/de-tener-me-coros.m4a" },      // BVs All
       },
     },
   ],
