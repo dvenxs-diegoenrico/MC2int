@@ -83,6 +83,7 @@ sobre el dibujo; al tocarla "colapsa" y aparece su ficha.
 ### Audio
 
 - **Consola** (`MEDIA.consola`): los 7 stems oficiales de *Todo Cae* (mezcla de Nach v2, carpeta de Drive "Stems Todo Cae"), uno por canal: voz (Lead All), coros (BVs All), guitarras (EG All), teclados (Keys All), bajo (Bass A), batería (Drums A) y **overdubs** (Synth All: los sintes que se grabaron encima de la toma). 60 s desde 1:48, en `cabina/audio/todo-cae-*.m4a`. Cada canal tiene su VU con el nivel real, solo (s) y mute (m); en el teléfono la consola se desliza de lado. El fader overdubs suena (sube o baja los sintes) y además decide la toma del acta: abajo de la mitad, "recorded live" (foco rojo); arriba, "some overdubs" (foco verde). Con todos en 0 db suena como la mezcla de Nach. Para cambiar el fragmento, corta los mismos segundos de cada stem (que sigan sincronizados) y ajusta `desde`.
+- **Canciones de la consola:** arriba de la consola hay un reproductor (‹ ›) con el título de cada canción. `MEDIA.consola` es una lista: cada canción tiene `titulo`, `nota`, `toma`, `texto`, `desde` y sus `stems`. Hoy son *Todo Cae* y el spoiler de *De Tener Me* (3 stems del primer coro, 23.8 s desde 1:30.8: teclados, sintes y acústicas, en `cabina/audio/de-tener-me-*.m4a`). Para agregar otra, suma un objeto a la lista.
 - **Frecuencia** (`MEDIA.frecuencia`): ya suena el mismo fragmento de *Todo Cae* (la mezcla de los 7 stems) al sintonizar 106.0.
 
 - Si `MEDIA.frecuencia` queda vacío, el radio vuelve a sonar con un acorde de prueba hecho por el navegador.
