@@ -55,7 +55,7 @@
          Space Mono  = the "technical studio" voice: coordinates, SKUs, the acta. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,300..900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,300..900&family=Space+Mono:wght@400;700&family=Sacramento&family=Sancreek&display=swap" rel="stylesheet">
 
   <style>
     /* ---------------------------------------------------------------
@@ -1072,6 +1072,55 @@
     /* Shop: the pieces are MC², so they sit on a black sheet even in daylight. */
     .shop .products { padding: clamp(1rem, 3vw, 2rem); background: var(--washed-black); color: var(--ivory); }
     .shop-intro { max-width: 58ch; margin-bottom: 2rem !important; }
+    /* DISPONIBLE AHORA in the colors and letters of the Falsas Expectativas
+       cover: red walls with curved lines, an ochre floor, blue frames,
+       cream paper, a monoline script (Sacramento) and spurred wood-type
+       capitals like its DSTANCE (Sancreek). */
+    .fe-shop {
+      --fe-red: #E5574A; --fe-coral: #F07A69; --fe-ochre: #F0A957; --fe-cream: #F7E6D2;
+      --fe-blue: #3D5BB0; --fe-navy: #263C80; --fe-ink: #2E2220; --fe-pink: #F2B6A6;
+      --fe-script: "Sacramento", "Brush Script MT", cursive;
+      --fe-caps: "Sancreek", "Rockwell", Georgia, serif;
+      position: relative; isolation: isolate; overflow: hidden;
+      padding: clamp(1.4rem, 4vw, 2.6rem) clamp(1rem, 3vw, 2rem) clamp(1.6rem, 4vw, 2.4rem);
+      margin: 0 0 2.5rem; color: var(--fe-ink);
+      background:
+        repeating-radial-gradient(circle at 18% -10%, transparent 0 15px, rgba(46,34,32,.55) 15px 17px),
+        var(--fe-red);
+    }
+    /* The ochre floor under the frames, with its long boards. */
+    .fe-shop::before {
+      content: ""; position: absolute; inset: auto 0 0 0; height: 42%; z-index: -1;
+      background:
+        repeating-linear-gradient(-14deg, transparent 0 26px, rgba(46,34,32,.45) 26px 28px),
+        var(--fe-ochre);
+      border-top: 2px solid rgba(46,34,32,.6);
+    }
+    .fe-tag {
+      position: absolute; left: clamp(1rem, 3vw, 2rem); bottom: 0; margin: 0 !important;
+      background: var(--fe-navy); color: var(--fe-cream) !important; padding: .25rem .55rem .15rem;
+      font: 400 .95rem/1 var(--fe-caps) !important; letter-spacing: .04em;
+    }
+    .fe-title {
+      margin: 0 0 1.4rem; color: var(--fe-cream); font: 400 clamp(2.8rem, 9vw, 4.6rem)/1 var(--fe-script);
+      text-transform: none; letter-spacing: 0; text-shadow: 0 2px 0 rgba(46,34,32,.35);
+      transform: rotate(-4deg); transform-origin: left center;
+    }
+    .shop .fe-shop .products { background: none; padding: 0; color: var(--fe-ink); }
+    /* Each piece hangs in a blue frame on cream paper, like the portraits. */
+    .fe-shop .product {
+      background: var(--fe-cream); padding: .9rem .9rem 1.1rem;
+      border: 7px solid var(--fe-blue); box-shadow: inset 0 0 0 2px var(--fe-navy), 6px 8px 0 rgba(46,34,32,.35);
+    }
+    .fe-shop .product-photo { border: 2px solid var(--fe-ink); background: var(--fe-pink); }
+    .fe-shop .sku { background: var(--fe-navy); color: var(--fe-cream); font-family: var(--fe-caps); letter-spacing: .06em; font-size: .78rem; }
+    .fe-shop .product h3 { font: 400 1.35rem/1.1 var(--fe-caps); letter-spacing: .02em; color: var(--fe-ink); }
+    .fe-shop .product p { color: rgba(46,34,32,.82); }
+    .fe-shop .product .sale-price { font: 400 1.3rem var(--fe-caps); color: var(--fe-red); }
+    .fe-shop .product .soon { font: 400 1.9rem/1 var(--fe-script); letter-spacing: 0; text-transform: none; color: var(--fe-blue); }
+    .fe-shop .buy-now { background: var(--fe-blue) !important; color: var(--fe-cream) !important; border: 2px solid var(--fe-navy); }
+    @media (hover: hover) { .fe-shop .buy-now:hover { background: var(--fe-red) !important; color: var(--fe-cream) !important; box-shadow: 0 8px 20px rgba(46,34,32,.3); } }
+    .fe-shop .product-photo .no-photo { color: var(--fe-ink); }
     .shop-sub { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase; margin: 2.5rem 0 1rem; }
     .shop-sub:first-of-type { margin-top: 0; }
     #shop-now { margin-bottom: 1rem; }
@@ -1391,8 +1440,14 @@
       <p class="shop-intro">Todo lo de Dstance en un lugar. Ya a la venta: la plumilla y el CD de <em>Falsas Expectativas</em>.</p>
       <!-- DISPONIBLE AHORA: what can be bought today, each with its price
            and a "Comprar" button that opens its payment link. -->
-      <h3 class="shop-sub" id="shop-now-title">Disponible ahora</h3>
-      <div class="products" id="shop-now" aria-labelledby="shop-now-title"></div>
+      <!-- Dressed like the cover of Falsas Expectativas: the red room with
+           its curved lines, the ochre floor, blue frames, cream paper, the
+           handwritten script and the spurred DSTANCE letters. -->
+      <div class="fe-shop">
+        <p class="fe-tag" aria-hidden="true">DSTANCE</p>
+        <h3 class="fe-title" id="shop-now-title">Disponible ahora</h3>
+        <div class="products" id="shop-now" aria-labelledby="shop-now-title"></div>
+      </div>
       <!-- MC²: the collection of Música Cuántica, still a waiting list. -->
       <h3 class="shop-sub" id="shop-mc2-title">Colección MC²</h3>
       <p class="shop-intro">La colección de Música Cuántica todavía no está a la venta: únete a la lista de espera y te avisamos el día del drop.</p>
