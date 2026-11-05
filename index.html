@@ -1122,6 +1122,9 @@
     @media (hover: hover) { .fe-shop .buy-now:hover { background: var(--fe-red) !important; color: var(--fe-cream) !important; box-shadow: 0 8px 20px rgba(46,34,32,.3); } }
     .fe-shop .product-photo .no-photo { color: var(--fe-ink); }
     .product-photo.two-sided { cursor: pointer; }
+    .fe-shop .product .fe-kicker { margin: .9rem 0 -.6rem; font: 400 1.7rem/1 var(--fe-script); color: var(--fe-red); }
+    .fe-shop .fe-extras { margin: .6rem 0 0; padding-left: 1.1rem; color: rgba(46,34,32,.82); font-size: .9rem; }
+    .fe-shop .fe-extras li::marker { color: var(--fe-blue); }
     .product-photo.two-sided.flipped .alt { opacity: 1; }
     .shop-sub { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase; margin: 2.5rem 0 1rem; }
     .shop-sub:first-of-type { margin-top: 0; }
@@ -2117,6 +2120,16 @@
         link: "",
         photo: { src: "/photos/shop-cd-falsas-expectativas.jpg", width: 1200, height: 1200, alt: "El CD de Falsas Expectativas en su estuche de cartón, con la ilustración de la portada" },
       },
+      {
+        sku: "FE-BUNDLE-01",
+        kicker: "Bundle",
+        name: "Bundle Falsas Expectativas",
+        description: "El CD, la plumilla y una carta firmada por Dstance.",
+        extras: ["CD Falsas Expectativas", "Plumilla Dstance (frente y vuelta)", "Carta firmada por Dstance"],
+        price: null,
+        link: "",
+        photo: { src: "/photos/shop-bundle-falsas-expectativas.jpg", width: 1200, height: 1200, alt: "El CD de Falsas Expectativas, la plumilla verde menta y una carta escrita a mano" },
+      },
     ];
     const pesos = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
     function renderForSale(item) {
@@ -2133,7 +2146,15 @@
         figure.addEventListener("click", () => figure.classList.toggle("flipped"));
       }
       figure.append(makeText("figcaption", "sku", item.sku));
-      card.append(figure, makeText("h3", "", item.name), makeText("p", "", item.description));
+      card.append(figure);
+      if (item.kicker) card.append(makeText("p", "fe-kicker", item.kicker));
+      card.append(makeText("h3", "", item.name), makeText("p", "", item.description));
+      if (item.extras) {
+        const list = document.createElement("ul");
+        list.className = "fe-extras";
+        list.append(...item.extras.map((extra) => makeText("li", "", extra)));
+        card.append(list);
+      }
       if (item.price != null) card.append(makeText("p", "sale-price", pesos.format(item.price) + " MXN"));
       if (item.link) {
         const buy = makeText("a", "btn buy-now", "Comprar ↗");
