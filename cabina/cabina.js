@@ -62,24 +62,48 @@ const MEDIA = {
   // A second, weaker signal elsewhere on the dial: a spoiler of something
   // that isn't out yet. It has static baked in and never comes in clean.
   interferencia: "/cabina/audio/interferencia.m4a",
-  // STEMS: the official stems of Todo Cae (Nach MIX v2, Drive "Stems Todo
-  // Cae"), one per channel, left to right. The same 60 seconds of each
-  // (from 1:48), so they play in sync; all faders at 0 db = Nach's mix.
-  // The last one, "overdubs", is the take's overdub (the synths): its
-  // fader also decides the acta, recorded live (down) or some overdubs (up).
-  consola: {
-    cancion: "todo cae · mezcla de nach (v2)",
-    desde: 108,   // where the fragment starts in the song, in seconds
-    stems: {
-      voz:       { label: "voz",       file: "/cabina/audio/todo-cae-voz.m4a" },        // Lead All
-      coros:     { label: "coros",     file: "/cabina/audio/todo-cae-coros.m4a" },      // BVs All
-      guitarras: { label: "guitarras", file: "/cabina/audio/todo-cae-guitarras.m4a" },  // EG All
-      teclados:  { label: "teclados",  file: "/cabina/audio/todo-cae-teclados.m4a" },   // Keys All
-      bajo:      { label: "bajo",      file: "/cabina/audio/todo-cae-bajo.m4a" },       // Bass A
-      bateria:   { label: "batería",   file: "/cabina/audio/todo-cae-bateria.m4a" },    // Drums A
-      overdubs:  { label: "overdubs",  nota: "sintes", file: "/cabina/audio/todo-cae-sintes.m4a" },  // Synth All
+  // STEMS: the songs on the desk, picked from the player at its top.
+  // Each one: its title, a note under it, where the fragment starts in
+  // the song (desde, seconds) and its stems, one per channel, left to
+  // right. All the stems of a song are the same length, so they play in
+  // sync; all faders at 0 db = the original mix.
+  consola: [
+    {
+      // The official stems of Todo Cae (Nach MIX v2, Drive "Stems Todo
+      // Cae"), 60 seconds from 1:48. The last one, "overdubs", is the
+      // take's overdub (the synths): its fader also decides the acta,
+      // recorded live (down) or some overdubs (up).
+      titulo: "Todo Cae",
+      nota: "mezcla de nach (v2)",
+      toma: "toma 01 // session 01 · sonic ranch",
+      texto: "overdubs son los sintes que se grabaron encima de la toma: abajo, la toma queda en vivo; arriba, entran los overdubs. y está entrelazado con tu acta: lo que muevas aquí, aparece allá.",
+      desde: 108,
+      stems: {
+        voz:       { label: "voz",       file: "/cabina/audio/todo-cae-voz.m4a" },        // Lead All
+        coros:     { label: "coros",     file: "/cabina/audio/todo-cae-coros.m4a" },      // BVs All
+        guitarras: { label: "guitarras", file: "/cabina/audio/todo-cae-guitarras.m4a" },  // EG All
+        teclados:  { label: "teclados",  file: "/cabina/audio/todo-cae-teclados.m4a" },   // Keys All
+        bajo:      { label: "bajo",      file: "/cabina/audio/todo-cae-bajo.m4a" },       // Bass A
+        bateria:   { label: "batería",   file: "/cabina/audio/todo-cae-bateria.m4a" },    // Drums A
+        overdubs:  { label: "overdubs",  nota: "sintes", file: "/cabina/audio/todo-cae-sintes.m4a" },  // Synth All
+      },
     },
-  },
+    {
+      // A spoiler: four stems of the first chorus (Nach MIX v2, 1:30.8
+      // for 23.8 seconds). The rest stays out until the song is.
+      titulo: "De Tener Me",
+      nota: "spoiler · 4 stems del coro",
+      toma: "todavía no sale",
+      texto: "un spoiler: cuatro stems del coro. lo demás, cuando salga.",
+      desde: 90.8,
+      stems: {
+        teclados:  { label: "teclados",  file: "/cabina/audio/de-tener-me-teclados.m4a" },   // Keys All
+        sintes:    { label: "sintes",    file: "/cabina/audio/de-tener-me-sintes.m4a" },     // Synth All
+        acusticas: { label: "acústicas", file: "/cabina/audio/de-tener-me-acusticas.m4a" },  // AG All
+        coros:     { label: "coros",     file: "/cabina/audio/de-tener-me-coros.m4a" },      // BVs All
+      },
+    },
+  ],
   // VIDEO: the transmissions of Canal MC². Each one is a video file
   // (video) or a YouTube video (youtube = its id, the part after youtu.be/).
   // inicio / fin (seconds) play only a fragment of it. Nothing = "sin señal".
@@ -266,6 +290,24 @@ function station(name, body, hint) {
     </section>`;
 }
 
+// A channel strip, top to bottom: its VU meter, the tape with its name,
+// solo and mute, the fader and its level. The overdubs strip also has
+// the take lamp: red for recorded live, green for some overdubs.
+const fader = (name, stem, value, r) => `
+  <div class="ch${name === "overdubs" ? " ch-od" : ""}">
+    <span class="vu" data-vu="${name}" aria-hidden="true"><span class="vu-needle"></span>${name === "overdubs" ? `<span class="vu-take-led"></span>` : ""}</span>
+    <span class="ch-tape" style="--r:${r}deg">${stem.label}${stem.nota ? `<small>${stem.nota}</small>` : ""}</span>
+    <span class="ch-btns">
+      <button class="ch-btn" type="button" data-solo="${name}" aria-pressed="false" aria-label="solo ${stem.label}">s</button>
+      <button class="ch-btn" type="button" data-mute="${name}" aria-pressed="false" aria-label="mute ${stem.label}">m</button>
+    </span>
+    <div class="fader-slot"><input type="range" min="0" max="100" value="${value}" data-ch="${name}" aria-label="fader ${stem.label}${stem.nota ? " (" + stem.nota + ")" : ""}"></div>
+    <span class="ch-db" aria-hidden="true"></span>
+  </div>`;
+// All the strips of one song (the tape labels lean a little, each its own way).
+const strips = (song) => Object.entries(song.stems).map(([name, stem], i) =>
+  fader(name, stem, name === "overdubs" ? state.overdubs : 75, [-2, 1.5, -1, 2, -1.5, 1, 2][i % 7])).join("");
+
 function build() {
   root = el("div", "cab");
   root.id = "cabina-root";
@@ -284,21 +326,6 @@ function build() {
   const random = seeded(31);
   const dust = Array.from({ length: 22 }, () =>
     `<i style="left:${(random() * 100).toFixed(1)}%;top:${(random() * 100).toFixed(1)}%"></i>`).join("");
-
-  // A channel strip, top to bottom: its VU meter, the tape with its name,
-  // solo and mute, the fader and its level. The overdubs strip also has
-  // the take lamp: red for recorded live, green for some overdubs.
-  const fader = (name, stem, value, r) => `
-    <div class="ch${name === "overdubs" ? " ch-od" : ""}">
-      <span class="vu" data-vu="${name}" aria-hidden="true"><span class="vu-needle"></span>${name === "overdubs" ? `<span class="vu-take-led"></span>` : ""}</span>
-      <span class="ch-tape" style="--r:${r}deg">${stem.label}${stem.nota ? `<small>${stem.nota}</small>` : ""}</span>
-      <span class="ch-btns">
-        <button class="ch-btn" type="button" data-solo="${name}" aria-pressed="false" aria-label="solo ${stem.label}">s</button>
-        <button class="ch-btn" type="button" data-mute="${name}" aria-pressed="false" aria-label="mute ${stem.label}">m</button>
-      </span>
-      <div class="fader-slot"><input type="range" min="0" max="100" value="${value}" data-ch="${name}" aria-label="fader ${stem.label}${stem.nota ? " (" + stem.nota + ")" : ""}"></div>
-      <span class="ch-db" aria-hidden="true"></span>
-    </div>`;
 
   root.innerHTML = `
     <div class="cab-bar">
@@ -378,23 +405,31 @@ function build() {
       </div>`, "gira la perilla · donde la estática se limpia, la canción colapsa")}
 
     ${station("consola", `
-      <!-- CONSOLA is the desk, and it plays: the official stems of Todo Cae,
-           one per channel strip, with solo and mute and a VU that reads its
-           real level. The last one, overdubs (the synths), also decides the take. -->
+      <!-- CONSOLA is the desk, and it plays: the stems of a song, one per
+           channel strip, with solo and mute and a VU that reads its real
+           level. The player at the top changes the song. On Todo Cae the
+           last strip, overdubs (the synths), also decides the take. -->
       <div class="desk-wrap">
-        <p class="take"><span class="led-rec" aria-hidden="true">● rec</span><span class="take-word" id="take-word" aria-live="polite"></span><small>toma 01 // session 01 · sonic ranch</small></p>
+        <div class="songs" role="group" aria-label="canciones">
+          <button class="cab-btn song-step" type="button" id="song-prev" aria-label="canción anterior">‹</button>
+          <div class="song-now">
+            <p class="song-n" id="song-n">01 / ${String(MEDIA.consola.length).padStart(2, "0")}</p>
+            <h3 class="song-title" id="song-title" aria-live="polite">${esc(MEDIA.consola[0].titulo)}</h3>
+            <p class="song-note" id="song-note">${esc(MEDIA.consola[0].nota)}</p>
+          </div>
+          <button class="cab-btn song-step" type="button" id="song-next" aria-label="canción siguiente">›</button>
+        </div>
+        <p class="take"><span class="led-rec" aria-hidden="true">● rec</span><span class="take-word" id="take-word" aria-live="polite"></span><small id="take-note">${esc(MEDIA.consola[0].toma)}</small></p>
         <div class="transport">
           <button class="cab-btn solid" type="button" id="mix-play" aria-pressed="false">▶ play la toma</button>
           <span class="mix-time" id="mix-time" aria-hidden="true"></span>
-          <span class="mix-song">${esc(MEDIA.consola.cancion)}</span>
         </div>
-        <div class="desk" role="group" aria-label="consola: ${Object.keys(MEDIA.consola.stems).length} stems">
-          ${Object.entries(MEDIA.consola.stems).map(([name, stem], i) =>
-            fader(name, stem, name === "overdubs" ? state.overdubs : 75, [-2, 1.5, -1, 2, -1.5, 1, 2][i % 7])).join("")}
+        <div class="desk" id="desk" role="group" aria-label="consola: ${Object.keys(MEDIA.consola[0].stems).length} stems">
+          ${strips(MEDIA.consola[0])}
         </div>
         <p class="desk-hint" aria-hidden="true">← desliza la consola →</p>
-        <p class="st-note">overdubs son los sintes que se grabaron encima de la toma: abajo, la toma queda en vivo; arriba, entran los overdubs. y está entrelazado con tu acta: lo que muevas aquí, aparece allá.</p>
-      </div>`, "dale play · mueve los faders, haz solo o mute · el último decide qué tan en vivo quedó")}
+        <p class="st-note" id="desk-note">${esc(MEDIA.consola[0].texto)}</p>
+      </div>`, "elige la canción arriba · dale play · mueve los faders, haz solo o mute")}
 
     ${station("canal", `
       <!-- CANAL MC² is the TV: the screen is everything, the channel
@@ -1335,11 +1370,14 @@ function makeRadio() {
 
 /* ---------------------------------------------------------------
    02 CONSOLA
-   Four faders. The last one, "overdubs", flips the take between
-   "recorded live" and "some overdubs", and the acta remembers it.
+   A player at the top picks the song; the desk below has one strip
+   per stem. On Todo Cae the last one, "overdubs", flips the take
+   between "recorded live" and "some overdubs", and the acta remembers it.
    --------------------------------------------------------------- */
 function setupConsola() {
-  const word = $("#take-word");
+  const SONGS = MEDIA.consola;
+  const word = $("#take-word"), desk = $("#desk");
+  let song = 0, NAMES = Object.keys(SONGS[0].stems);
   const db = (v) => {
     if (v === 0) return "-∞ db";
     const n = Math.round(20 * Math.log10(v / 75));
@@ -1356,31 +1394,48 @@ function setupConsola() {
     word.classList.toggle("od", v >= 50);
     state.overdubs = v;
   }
-  for (const input of root.querySelectorAll("[data-ch]")) {
-    update(input);
-    input.addEventListener("input", () => update(input));
-    input.addEventListener("change", saveState);
+  // A song without the overdubs strip has no take to decide.
+  function showTake() {
+    if (!NAMES.includes("overdubs")) { word.textContent = "spoiler"; word.classList.remove("od"); }
   }
+  // The desk listens once, for every strip of every song.
+  desk.addEventListener("input", (event) => {
+    if (!event.target.dataset.ch) return;
+    update(event.target);
+    applyGains();
+  });
+  desk.addEventListener("change", (event) => { if (event.target.dataset.ch === "overdubs") saveState(); });
+  desk.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-solo], [data-mute]");
+    if (!button) return;
+    const name = button.dataset.solo || button.dataset.mute, set = button.dataset.solo ? solo : muted;
+    if (set.has(name)) set.delete(name); else set.add(name);
+    button.setAttribute("aria-pressed", String(set.has(name)));
+    for (const strip of desk.querySelectorAll(".ch")) {
+      const ch = strip.querySelector("[data-ch]").dataset.ch;
+      strip.classList.toggle("ch-off", gainOf(ch) === 0);
+    }
+    applyGains();
+  });
 
-  // THE MIX. The stems are decoded once (on the first play) and
+  // THE MIX. The stems are decoded once per song (on its first play) and
   // started together on the same clock, looping. Each one runs through
   // its own gain (fader × mute × solo) and an analyser for its meter, into
   // a master with a soft compressor so pushing every fader never clips.
-  const NAMES = Object.keys(MEDIA.consola.stems);
   const playButton = $("#mix-play"), clock = $("#mix-time");
   const solo = new Set(), muted = new Set();
   let ctx = null, buffers = null, loading = null, chans = {}, sources = [], playing = false, startedAt = 0, offset = 0;
 
   const gainOf = (name) => {
     if (muted.has(name) || (solo.size && !solo.has(name))) return 0;
-    return Number(root.querySelector(`[data-ch="${name}"]`).value) / 75;   // 75 = 0 db
+    return Number(desk.querySelector(`[data-ch="${name}"]`).value) / 75;   // 75 = 0 db
   };
   function applyGains() {
-    if (!ctx) return;
+    if (!ctx || !buffers) return;
     for (const name of NAMES) chans[name].gain.gain.setTargetAtTime(gainOf(name), ctx.currentTime, .03);
   }
   // Old Safari only has the callback form of decodeAudioData.
-  const decode = (data) => new Promise((resolve, reject) => ctx.decodeAudioData(data, resolve, reject));
+  const decode = (context, data) => new Promise((resolve, reject) => context.decodeAudioData(data, resolve, reject));
   function load() {
     ctx = new (window.AudioContext || window.webkitAudioContext)();   // made inside the tap, so phones allow sound
     ctx.resume();
@@ -1388,16 +1443,17 @@ function setupConsola() {
     master.gain.value = .8;
     squeeze.threshold.value = -8; squeeze.ratio.value = 4;
     master.connect(squeeze).connect(ctx.destination);
-    for (const name of NAMES) {
+    const names = NAMES, stems = SONGS[song].stems;
+    chans = {};
+    for (const name of names) {
       const gain = ctx.createGain(), meter = ctx.createAnalyser();
       meter.fftSize = 1024;
       gain.connect(meter).connect(master);
       chans[name] = { gain, meter, data: new Float32Array(meter.fftSize), level: 0 };
     }
-    applyGains();
-    return Promise.all(NAMES.map((name) =>
-      fetch(MEDIA.consola.stems[name].file).then((r) => r.arrayBuffer()).then(decode)))
-      .then((decoded) => { buffers = decoded; });
+    const context = ctx;
+    return Promise.all(names.map((name) =>
+      fetch(stems[name].file).then((r) => r.arrayBuffer()).then((data) => decode(context, data))));
   }
   const length = () => buffers[0].duration;
   const position = () => playing ? (ctx.currentTime - startedAt) % length() : offset;
@@ -1430,41 +1486,64 @@ function setupConsola() {
   }
   const mmss = (t) => Math.floor(t / 60) + ":" + String(Math.floor(t % 60)).padStart(2, "0");
   function tickClock() {
-    clock.textContent = buffers ? mmss(MEDIA.consola.desde + position()) : mmss(MEDIA.consola.desde);
+    const from = SONGS[song].desde;
+    clock.textContent = buffers ? mmss(from + position()) : mmss(from);
   }
 
   playButton.addEventListener("click", async () => {
     if (loading && !buffers) return;   // still arriving
     if (!ctx) {
       showTransport("cargando la toma…");
+      const wanted = song;
       loading = load();
-      try { await loading; } catch {
+      let got;
+      try { got = await loading; } catch {
+        if (wanted !== song) return;   // the song changed while it loaded
         showTransport("no se pudo cargar · intenta otra vez");
-        ctx = null; loading = null;
+        ctx?.close(); ctx = null; loading = null;
         return;
       }
+      if (wanted !== song) return;   // the song changed while it loaded
+      buffers = got;
+      applyGains();
     }
     await ctx.resume();
     if (playing) pause(); else play();
   });
-  for (const button of root.querySelectorAll("[data-solo], [data-mute]")) {
-    button.addEventListener("click", () => {
-      const name = button.dataset.solo || button.dataset.mute, set = button.dataset.solo ? solo : muted;
-      if (set.has(name)) set.delete(name); else set.add(name);
-      button.setAttribute("aria-pressed", String(set.has(name)));
-      for (const strip of root.querySelectorAll(".desk .ch")) {
-        const ch = strip.querySelector("[data-ch]").dataset.ch;
-        strip.classList.toggle("ch-off", NAMES.includes(ch) && gainOf(ch) === 0);
-      }
-      applyGains();
-    });
+
+  // THE PLAYER: ‹ and › change the song. The take stops, the desk is
+  // rebuilt with the new song's strips, and its stems load on the next play.
+  function setSong(next) {
+    song = (next + SONGS.length) % SONGS.length;
+    const s = SONGS[song];
+    pause();
+    ctx?.close();
+    ctx = null; buffers = null; loading = null; chans = {}; offset = 0;
+    solo.clear(); muted.clear();
+    NAMES = Object.keys(s.stems);
+    desk.innerHTML = strips(s);
+    desk.setAttribute("aria-label", "consola: " + NAMES.length + " stems");
+    desk.scrollLeft = 0;
+    $("#song-n").textContent = String(song + 1).padStart(2, "0") + " / " + String(SONGS.length).padStart(2, "0");
+    $("#song-title").textContent = s.titulo;
+    $("#song-note").textContent = s.nota;
+    $("#take-note").textContent = s.toma;
+    $("#desk-note").textContent = s.texto;
+    for (const input of desk.querySelectorAll("[data-ch]")) update(input);
+    showTake();
+    vus = findVus();
+    showTransport();
+    tickClock();
   }
-  for (const name of NAMES) root.querySelector(`[data-ch="${name}"]`).addEventListener("input", applyGains);
+  $("#song-prev").addEventListener("click", () => setSong(song - 1));
+  $("#song-next").addEventListener("click", () => setSong(song + 1));
+  for (const input of desk.querySelectorAll("[data-ch]")) update(input);
+  showTake();
 
   // The meter bridge: each needle reads its stem's real level (RMS, in
   // db, -40 to 0 across the scale), with a little of a VU's slowness.
-  const vus = [...root.querySelectorAll("[data-vu]")].map((vu) => ({ name: vu.dataset.vu, needle: vu.querySelector(".vu-needle"), angle: -48 }));
-  let frame = 0;
+  const findVus = () => [...desk.querySelectorAll("[data-vu]")].map((vu) => ({ name: vu.dataset.vu, needle: vu.querySelector(".vu-needle"), angle: -48 }));
+  let vus = findVus(), frame = 0;
   function swing() {
     for (const vu of vus) {
       let target = -48;
