@@ -59,6 +59,9 @@ const MEDIA = {
   // AUDIO: the fragment heard once the signal is tuned (mp3 or m4a).
   // Empty = a test chord made by the browser.
   frecuencia: "/cabina/audio/todo-cae-fragmento.m4a",   // Todo Cae, 1:48–2:48 (mix of the seven stems)
+  // A second, weaker signal elsewhere on the dial: a spoiler of something
+  // that isn't out yet. It has static baked in and never comes in clean.
+  interferencia: "/cabina/audio/interferencia.m4a",
   // STEMS: the official stems of Todo Cae (Nach MIX v2, Drive "Stems Todo
   // Cae"), one per channel, left to right. The same 60 seconds of each
   // (from 1:48), so they play in sync; all faders at 0 db = Nach's mix.
@@ -1090,7 +1093,7 @@ function makeStatic(canvas, level) {
    106.0, from 106.0078°W. Close to it, the static and its hiss fade
    and the fragment comes into focus; on it, the fragment collapses.
    --------------------------------------------------------------- */
-const FQ = { min: 87.5, max: 108, target: 106.0, start: 93.1, turns: 2 };
+const FQ = { min: 87.5, max: 108, target: 106.0, start: 93.1, turns: 2, ghost: 101.1 };
 
 function setupFrecuencia() {
   const box = $("#fq"), dial = $("#fq-dial"), knob = $(".dial-knob"), sp = $("#fq-sp");
@@ -1100,13 +1103,16 @@ function setupFrecuencia() {
   const noise = makeStatic($(".fq-screen canvas"), () => level);
 
   const closeness = (f) => Math.max(0, 1 - Math.abs(f - FQ.target) / 1.2);
+  // The weak signal: narrower, and it never gets clean.
+  const ghostness = (f) => MEDIA.interferencia ? Math.max(0, 1 - Math.abs(f - FQ.ghost) / .8) : 0;
 
   function setFreq(f) {
     raw = Math.min(FQ.max, Math.max(FQ.min, f));
     const shown = Math.round(raw * 10) / 10;
     const tuned = Math.abs(shown - FQ.target) < .01;
-    const c = closeness(raw);
-    const words = tuned ? "señal limpia" : c > .6 ? "casi" : c > 0 ? "interferencia" : "ruido";
+    const c = closeness(raw), g = ghostness(raw);
+    const ghost = g > 0 && Math.abs(shown - FQ.ghost) < .01;
+    const words = tuned ? "señal limpia" : ghost ? "señal débil" : c > .6 ? "casi" : g > .5 ? "algo suena" : c > 0 || g > 0 ? "interferencia" : "ruido";
 
     mhz.textContent = shown.toFixed(1);
     status.textContent = words;
@@ -1114,13 +1120,15 @@ function setupFrecuencia() {
     knob.style.setProperty("--angle", ((raw - FQ.min) / (FQ.max - FQ.min) * 360 * FQ.turns).toFixed(1) + "deg");
     dial.setAttribute("aria-valuenow", shown.toFixed(1));
     dial.setAttribute("aria-valuetext", shown.toFixed(1) + " megahertz, " + words);
-    const bars = Math.round(c * 12);
+    const bars = Math.round(Math.max(c, g * .5) * 12);
     meter.replaceChildren("señal ", el("b", "", "|".repeat(bars)), "·".repeat(12 - bars));
     box.classList.toggle("tuned", tuned);
     sp.style.setProperty("--c", (tuned ? 1 : c * .85).toFixed(3));
-    level = tuned ? .05 : 1 - c * .9;
+    level = tuned ? .05 : 1 - Math.max(c, g * .5) * .9;
     if (noMotion.matches) noise.draw();
-    if (audio) quietOrSet(c, tuned);
+    if (audio) quietOrSet(c, tuned, g, ghost);
+    if (ghost && live.textContent === "") live.textContent = "señal débil. algo suena, pero todavía no se entiende.";
+    if (!ghost && !tuned && live.textContent.startsWith("señal débil")) live.textContent = "";
 
     // Hold the signal for half a second and the fragment collapses.
     if (tuned && !collapsed && !holdTimer) {
@@ -1159,15 +1167,15 @@ function setupFrecuencia() {
   }
 
   // While the single is on air (tuned and collapsed) the test chord stays quiet.
-  function quietOrSet(c, tuned) {
+  function quietOrSet(c, tuned, g = 0, ghost = false) {
     if (tuned && collapsed && !MEDIA.frecuencia) audio.hush();
-    else audio.set(c, tuned);
+    else audio.set(c, tuned, g, ghost);
   }
 
   // Sound needs a tap or a key first (browsers block autoplay).
   function wakeAudio() {
     if (!sound) return;
-    if (!audio) { audio = makeRadio(); if (audio) quietOrSet(closeness(raw), box.classList.contains("tuned")); }
+    if (!audio) { audio = makeRadio(); if (audio) setFreq(raw); }
     else audio.resume();
   }
 
@@ -1197,6 +1205,7 @@ function setupFrecuencia() {
     dial.classList.remove("grabbing");
     // A gentle lock: let go close to the signal and the dial settles on it.
     if (Math.abs(raw - FQ.target) < .15) setFreq(FQ.target);
+    else if (ghostness(raw) && Math.abs(raw - FQ.ghost) < .1) setFreq(FQ.ghost);
   };
   dial.addEventListener("pointerup", release);
   dial.addEventListener("pointercancel", release);
@@ -1241,7 +1250,8 @@ function setupFrecuencia() {
 
 /* The radio: static (white noise through a band-pass) and the signal,
    crossfaded by how close the dial is. The signal is MEDIA.frecuencia,
-   or a slow test chord while there is no audio file. */
+   or a slow test chord while there is no audio file. The weak signal
+   (MEDIA.interferencia) has its own fader and keeps some hiss on it. */
 function makeRadio() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtx) return null;
@@ -1292,19 +1302,33 @@ function makeRadio() {
     }
   }
 
+  const ghostGain = ctx.createGain();
+  ghostGain.gain.value = 0;
+  ghostGain.connect(out);
+  let ghostTrack = null;
+  if (MEDIA.interferencia) {
+    ghostTrack = new Audio(MEDIA.interferencia);
+    ghostTrack.loop = true;
+    ctx.createMediaElementSource(ghostTrack).connect(ghostGain);
+    ghostTrack.play().catch(() => {});
+  }
+
   return {
-    set(c, tuned) {
+    set(c, tuned, g = 0, ghost = false) {
       const now = ctx.currentTime;
-      hissGain.gain.setTargetAtTime(tuned ? .015 : (1 - c) * .22 + .03, now, .06);
+      const near = Math.max(c, g);
+      hissGain.gain.setTargetAtTime(tuned ? .015 : ghost ? .07 : (1 - near) * .22 + .03, now, .06);
       signalGain.gain.setTargetAtTime(tuned ? .9 : c * c * .6, now, .08);
+      ghostGain.gain.setTargetAtTime(ghost ? .8 : g * g * .55, now, .08);
     },
     hush() {
       const now = ctx.currentTime;
       hissGain.gain.setTargetAtTime(0, now, .3);
       signalGain.gain.setTargetAtTime(0, now, .3);
+      ghostGain.gain.setTargetAtTime(0, now, .3);
     },
-    resume() { ctx.resume(); track?.play().catch(() => {}); },
-    close() { track?.pause(); ctx.close(); },
+    resume() { ctx.resume(); track?.play().catch(() => {}); ghostTrack?.play().catch(() => {}); },
+    close() { track?.pause(); ghostTrack?.pause(); ctx.close(); },
   };
 }
 
