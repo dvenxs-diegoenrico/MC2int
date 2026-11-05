@@ -1121,6 +1121,8 @@
     .fe-shop .buy-now { background: var(--fe-blue) !important; color: var(--fe-cream) !important; border: 2px solid var(--fe-navy); }
     @media (hover: hover) { .fe-shop .buy-now:hover { background: var(--fe-red) !important; color: var(--fe-cream) !important; box-shadow: 0 8px 20px rgba(46,34,32,.3); } }
     .fe-shop .product-photo .no-photo { color: var(--fe-ink); }
+    .product-photo.two-sided { cursor: pointer; }
+    .product-photo.two-sided.flipped .alt { opacity: 1; }
     .shop-sub { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase; margin: 2.5rem 0 1rem; }
     .shop-sub:first-of-type { margin-top: 0; }
     #shop-now { margin-bottom: 1rem; }
@@ -2094,6 +2096,8 @@
        - link  = its payment link (Mercado Pago, Stripe…); while it is
                  empty the card says "Muy pronto" instead of "Comprar"
        - photo = its photo in /photos/; null shows an empty frame
+       - back  = (optional) its other side: shown on hover, or with a tap
+                 on phones
        --------------------------------------------------------------- */
     const forSale = [
       {
@@ -2102,7 +2106,8 @@
         description: "La púa de Dstance (plumilla, espiga, como le digas), verde menta. Al frente dice DSTANCE; por detrás, Falsas Expectativas.",
         price: null,
         link: "",
-        photo: { src: "/photos/shop-plumillas.jpg", width: 1200, height: 1200, alt: "El frente y la vuelta de la plumilla verde menta: al frente dice DSTANCE y por detrás Falsas Expectativas en letra manuscrita" },
+        photo: { src: "/photos/shop-plumilla-frente.jpg", width: 1200, height: 1200, alt: "El frente de la plumilla verde menta: dice DSTANCE" },
+        back:  { src: "/photos/shop-plumilla-vuelta.jpg", width: 1200, height: 1200, alt: "La vuelta de la plumilla: dice Falsas Expectativas en letra manuscrita" },
       },
       {
         sku: "FE-CD-01",
@@ -2121,6 +2126,12 @@
       const figure = document.createElement("figure");
       figure.className = "product-photo";
       figure.append(item.photo ? makeImage(item.photo) : makeText("span", "no-photo", "foto muy pronto"));
+      if (item.back) {
+        // The other side: the hover swaps to it (.alt); a tap flips it on phones.
+        figure.append(makeImage(item.back, "alt"));
+        figure.classList.add("two-sided");
+        figure.addEventListener("click", () => figure.classList.toggle("flipped"));
+      }
       figure.append(makeText("figcaption", "sku", item.sku));
       card.append(figure, makeText("h3", "", item.name), makeText("p", "", item.description));
       if (item.price != null) card.append(makeText("p", "sale-price", pesos.format(item.price) + " MXN"));
