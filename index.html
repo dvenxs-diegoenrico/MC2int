@@ -1072,6 +1072,14 @@
     /* Shop: the pieces are MC², so they sit on a black sheet even in daylight. */
     .shop .products { padding: clamp(1rem, 3vw, 2rem); background: var(--washed-black); color: var(--ivory); }
     .shop-intro { max-width: 58ch; margin-bottom: 2rem !important; }
+    .shop-sub { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase; margin: 2.5rem 0 1rem; }
+    .shop-sub:first-of-type { margin-top: 0; }
+    #shop-now { margin-bottom: 1rem; }
+    /* A piece on sale: its price, and a button to the payment page. */
+    .product .sale-price { font: 700 1rem var(--font-mono); letter-spacing: .06em; color: var(--ivory); margin-top: .8rem; }
+    .product .buy-now { margin-top: .9rem; align-self: flex-start; text-align: center; }
+    .product .soon { font: 700 .72rem var(--font-mono); letter-spacing: .18em; text-transform: uppercase; color: var(--sepia); margin-top: .9rem; }
+    .product-photo .no-photo { position: absolute; inset: 0; display: grid; place-items: center; color: var(--sepia); font: 700 .7rem var(--font-mono); letter-spacing: .2em; text-transform: uppercase; }
     .shop-note { margin-top: 1.4rem !important; font: 400 .74rem var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
     .shop-note .link { background: none; border: 0; padding: 0; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 
@@ -1380,9 +1388,16 @@
     <section class="ds shop" id="shop" aria-labelledby="shop-title">
       <span class="eyebrow">Shop // Dstance</span>
       <h2 id="shop-title">Shop</h2>
-      <p class="shop-intro">Todo lo de Dstance en un lugar. Hoy: la colección MC² de Música Cuántica. Todavía no está a la venta: únete a la lista de espera y te avisamos el día del drop.</p>
+      <p class="shop-intro">Todo lo de Dstance en un lugar. Ya a la venta: la plumilla y el CD de <em>Falsas Expectativas</em>.</p>
+      <!-- DISPONIBLE AHORA: what can be bought today, each with its price
+           and a "Comprar" button that opens its payment link. -->
+      <h3 class="shop-sub" id="shop-now-title">Disponible ahora</h3>
+      <div class="products" id="shop-now" aria-labelledby="shop-now-title"></div>
+      <!-- MC²: the collection of Música Cuántica, still a waiting list. -->
+      <h3 class="shop-sub" id="shop-mc2-title">Colección MC²</h3>
+      <p class="shop-intro">La colección de Música Cuántica todavía no está a la venta: únete a la lista de espera y te avisamos el día del drop.</p>
       <p class="shop-cta"><button class="btn" type="button" data-waitlist="drop">Unirme a la lista de espera</button></p>
-      <div class="products" id="shop-all"></div>
+      <div class="products" id="shop-all" aria-labelledby="shop-mc2-title"></div>
       <p class="shop-note">La tienda de MC² también vive adentro del estudio. <button class="link lights-btn" type="button" aria-pressed="false">Apagar la luz</button></p>
     </section>
 
@@ -2015,6 +2030,58 @@
       videoFrame.replaceChildren();
       videoFrom?.focus({ preventScroll: true });
     });
+
+    /* ---------------------------------------------------------------
+       DISPONIBLE AHORA: Dstance pieces on sale today (outside shop only).
+       To change one, edit its line here:
+       - price = the price in pesos (MXN), with shipping or not, as Dany
+                 decides; leave null and it is not shown
+       - link  = its payment link (Mercado Pago, Stripe…); while it is
+                 empty the card says "Muy pronto" instead of "Comprar"
+       - photo = its photo in /photos/; null shows an empty frame
+       --------------------------------------------------------------- */
+    const forSale = [
+      {
+        sku: "DS-PUA-01",
+        name: "Plumilla Dstance",
+        description: "La púa de Dstance (plumilla, espiga, como le digas).",
+        price: null,
+        link: "",
+        photo: null,
+      },
+      {
+        sku: "FE-CD-01",
+        name: "CD Falsas Expectativas",
+        description: "El álbum de 2025 en físico: 10 canciones.",
+        price: null,
+        link: "",
+        photo: { src: "/photos/disco-falsas-expectativas.jpg", width: 640, height: 640, alt: "Portada de Falsas Expectativas" },
+      },
+    ];
+    const pesos = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
+    function renderForSale(item) {
+      const card = document.createElement("article");
+      card.className = "product";
+      card.dataset.sku = item.sku;
+      const figure = document.createElement("figure");
+      figure.className = "product-photo";
+      figure.append(item.photo ? makeImage(item.photo) : makeText("span", "no-photo", "foto muy pronto"));
+      figure.append(makeText("figcaption", "sku", item.sku));
+      card.append(figure, makeText("h3", "", item.name), makeText("p", "", item.description));
+      if (item.price != null) card.append(makeText("p", "sale-price", pesos.format(item.price) + " MXN"));
+      if (item.link) {
+        const buy = makeText("a", "btn buy-now", "Comprar ↗");
+        buy.href = item.link;
+        buy.target = "_blank";
+        buy.rel = "noopener";
+        buy.setAttribute("aria-label", "Comprar " + item.name);
+        card.append(buy);
+      } else {
+        card.append(makeText("p", "soon", "Muy pronto"));
+      }
+      return card;
+    }
+    document.getElementById("shop-now").append(...forSale.map(renderForSale));
 
     // The same pieces in both shops: MC² inside (lights off), all of Dstance outside.
     document.getElementById("products").append(...products.map(renderProduct));
