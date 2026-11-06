@@ -380,7 +380,7 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 .fq-links a { display: inline-flex; align-items: center; text-decoration: none; background: rgba(10,10,10,.6); }
 
 /* ---------- 02 CONSOLA: you are at the desk ---------- */
-.desk-wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 1rem; min-width: 0; }
+.desk-wrap { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; min-width: 0; }
 .take {
   margin: 0; padding: .8rem 1rem; border: 1px solid var(--line); background: rgba(10,10,10,.75);
   display: grid; gap: .3rem; position: relative;
@@ -413,7 +413,8 @@ html.cabina-on, html.cabina-on body { overflow: hidden; }
 /* Eight strips (seven stems + overdubs). Wide screens fit them all; on a
    phone the desk scrolls sideways, strip by strip, like a real console. */
 .desk {
-  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(76px, 150px); justify-content: center; gap: .3rem;
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(76px, 150px); gap: .3rem;
+  width: max-content; max-width: 100%; margin-inline: auto;   /* centered when it fits; when it doesn't, it scrolls from the first channel */
   padding: .8rem .4rem 1.2rem; border: 1px solid var(--line);
   background: rgba(42,41,37,.82) var(--wash) center / 300px;
   overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: thin;
