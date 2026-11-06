@@ -55,7 +55,12 @@
          Space Mono  = the "technical studio" voice: coordinates, SKUs, the acta. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,300..900&family=Space+Mono:wght@400;700&family=Sacramento&family=Sancreek&display=swap" rel="stylesheet">
+  <!-- Loaded without blocking the first paint: the page shows at once
+       with the fallback fonts and swaps when these arrive. -->
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,300..900&family=Space+Mono:wght@400;700&family=Sacramento&family=Sancreek&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..100,300..900&family=Space+Mono:wght@400;700&family=Sacramento&family=Sancreek&display=swap"></noscript>
+  <!-- The cover photo is the biggest thing on the first screen: ask for it first. -->
+  <link rel="preload" as="image" href="/photos/ds-campo-dia-800.webp" imagesrcset="/photos/ds-campo-dia-800.webp 800w, /photos/ds-campo-dia.webp 1400w" imagesizes="100vw" fetchpriority="high">
 
   <style>
     /* ---------------------------------------------------------------
@@ -125,7 +130,7 @@
     .wordmark { grid-column: 2; text-decoration: none; font-weight: 800; font-size: 1.1rem; letter-spacing: .04em; text-align: center; }
     .site-header .cart-link { grid-column: 3; justify-self: end; }
     .site-header .cart-link { white-space: nowrap; }
-    @media (max-width: 420px) { .site-header .cart-link { letter-spacing: .12em; font-size: .68rem; } }
+    @media (max-width: 420px) { .site-header .cart-link { letter-spacing: .1em; font-size: .7rem; } }
     /* The menu button: three lines, the middle one shorter, like a fader scale. */
     .burger {
       grid-column: 1; justify-self: start;
@@ -643,7 +648,7 @@
     .bundle .product-photo { aspect-ratio: 4 / 5; }
     .bundle .product-photo img:first-child { object-position: center 30%; }
     .bundle h3 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; line-height: .95; margin: 0 0 .9rem; }
-    .bundle .kicker { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .22em; text-transform: uppercase; color: var(--chem-green); margin-bottom: .8rem; }
+    .bundle .kicker { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .22em; text-transform: uppercase; color: var(--chem-green); margin-bottom: .8rem; }
     .bundle-text p { max-width: 46ch; }
     .extras { list-style: none; padding: 0; margin: 1.1rem 0 0; display: grid; gap: .45rem; }
     .extras li {
@@ -872,7 +877,7 @@
     html:not([data-lights="off"]) .burger { color: var(--washed-black); }
     html:not([data-lights="off"]) .site-footer { color: #5a5752; border-image: linear-gradient(to right, transparent, rgba(10,10,10,.15) 20%, rgba(10,10,10,.15) 80%, transparent) 1; }
     html:not([data-lights="off"]) .site-footer .link { color: inherit; }
-    .ds .eyebrow { color: var(--sepia); }
+    .ds .eyebrow { color: #6A5A43; }   /* a darker sepia: readable on the light paper (contrast 5.9:1) */
     .ds h2 {
       font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
       font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.02em; line-height: .9; margin: 0 0 1.4rem;
@@ -985,7 +990,7 @@
     }
     .video-title, .video-year { position: absolute; z-index: 1; left: 1rem; }
     .video-title { bottom: 2.1rem; font: 900 clamp(1.3rem, 2.6vw, 1.8rem)/1 var(--font-display); font-stretch: 62%; text-transform: uppercase; }
-    .video-year { bottom: 1rem; font: 400 .68rem var(--font-mono); letter-spacing: .18em; }
+    .video-year { bottom: 1rem; font: 400 .75rem var(--font-mono); letter-spacing: .18em; }
     @media (hover: hover) { .video:hover img { transform: scale(1.04); } .video:hover .video-play { transform: scale(1.1); background: var(--washed-black); } }
 
     /* The video pop-up: as big as the screen allows at 16:9. It grows out
@@ -1014,7 +1019,7 @@
     .video-pop.closing .vp-cap, .video-pop.closing .vp-close { opacity: 0; transition: opacity .15s ease; }
 
     /* En vivo: under the press kit's night sky. */
-    .envivo { background: #0b1016 url("/photos/ds-cielo.jpg") center top / cover; color: #fff; }
+    .envivo { background: #0b1016 url("/photos/ds-cielo.webp") center top / cover; color: #fff; }
     .envivo .eyebrow { color: rgba(255,255,255,.65); }
     .ds.envivo .no-shows { border-color: rgba(255,255,255,.45); }
     .envivo .btn-ghost { color: #fff; border-color: rgba(255,255,255,.7); }
@@ -1054,13 +1059,19 @@
     .release h3 { font: 900 clamp(1.3rem, 3.4vw, 2.2rem)/1 var(--font-display); text-transform: uppercase; letter-spacing: -.01em; margin: .2rem 0 .35rem; }
     .release h3 a { text-decoration: none; }
     @media (hover: hover) { .release h3 a:hover { text-decoration: underline; } }
-    .release .rel-link + .rel-link { margin-left: 1rem; }
+    .release .rel-link { margin-right: 1.2rem; }   /* space after each, so a link that wraps starts flush left */
     .release p { margin: 0; }
-    .rel-year { font: 700 .78rem var(--font-mono); letter-spacing: .2em; color: var(--sepia); }
+    .rel-year { font: 700 .78rem var(--font-mono); letter-spacing: .2em; color: #6A5A43; }
     .rel-meta { font: 400 .72rem var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
     .rel-link {
       display: inline-block; margin-top: .7rem; padding: 0; background: none; border: 0; cursor: pointer; color: inherit;
       font: 700 .72rem var(--font-mono); letter-spacing: .2em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px;
+    }
+    /* TOUCH SCREENS: the small text links get a finger-sized hit area
+       (about 44px tall) without changing how they look. */
+    @media (pointer: coarse) {
+      .rel-link { margin-top: 0; padding-block: .75rem; }
+      .site-footer .social a, .menu-social a, .tour-source a, .shop .shop-note .link { padding-block: .75rem; }
     }
     /* The record still to come: a black square, MC² waiting in it. */
     .rel-dark {
@@ -1343,27 +1354,27 @@
       <h2 id="tray-title">Discografía</h2>
       <ol class="timeline">
         <li class="release">
-          <img src="/photos/disco-nina-bonita-acustico.jpg" width="640" height="640" loading="lazy" alt="Portada de Niña Bonita (Acústico)">
+          <img src="/photos/disco-nina-bonita-acustico.webp" width="480" height="480" loading="lazy" alt="Portada de Niña Bonita (Acústico)">
           <div><p class="rel-year">2020</p><h3><a href="/nina-bonita/">Niña Bonita</a></h3><p class="rel-meta">Sencillo · acústico y con Melissa Robles</p>
           <a class="rel-link" href="/nina-bonita/">Versiones y video</a> <a class="rel-link" href="https://open.spotify.com/track/0z05t8LJ4GYWqqVBZBqjYK" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="/photos/disco-estaciones.jpg" width="640" height="640" loading="lazy" alt="Portada de Estaciones">
+          <img src="/photos/disco-estaciones.webp" width="480" height="480" loading="lazy" alt="Portada de Estaciones">
           <div><p class="rel-year">2020</p><h3>Estaciones</h3><p class="rel-meta">EP · 5 canciones</p>
           <a class="rel-link" href="https://open.spotify.com/album/7Jc5DUUeQ1E7zAiJRvosZr" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="/photos/disco-hasta-que-la-vida-diga-adios.jpg" width="640" height="640" loading="lazy" alt="Portada de Hasta Que la Vida Diga Adiós">
+          <img src="/photos/disco-hasta-que-la-vida-diga-adios.webp" width="480" height="480" loading="lazy" alt="Portada de Hasta Que la Vida Diga Adiós">
           <div><p class="rel-year">2022</p><h3>Hasta Que la Vida Diga Adiós</h3><p class="rel-meta">Álbum · 11 canciones · con Josean Log y Los Rumberos</p>
           <a class="rel-link" href="https://open.spotify.com/album/14Ca0sNQjuJT8hWTolmxUG" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="/photos/disco-falsas-expectativas.jpg" width="640" height="640" loading="lazy" alt="Portada de Falsas Expectativas">
+          <img src="/photos/disco-falsas-expectativas.webp" width="480" height="480" loading="lazy" alt="Portada de Falsas Expectativas">
           <div><p class="rel-year">2025</p><h3>Falsas Expectativas</h3><p class="rel-meta">Álbum · 10 canciones</p>
           <a class="rel-link" href="https://open.spotify.com/album/3lN91lruKySYJbYIHwqYIf" target="_blank" rel="noopener">Spotify ↗</a></div>
         </li>
         <li class="release">
-          <img src="/photos/todo-cae.jpg" width="1000" height="1000" loading="lazy" alt="Portada de Todo Cae">
+          <img src="/photos/todo-cae.webp" width="800" height="800" loading="lazy" alt="Portada de Todo Cae">
           <div><p class="rel-year">2026</p><h3><a href="/todo-cae/">Todo Cae</a></h3><p class="rel-meta">Sencillo · el primero de Música Cuántica</p>
           <a class="rel-link" href="/todo-cae/">Letra y créditos</a>
           <a class="rel-link" href="https://open.spotify.com/album/135QtRswX1tefmyG1kXxxh" target="_blank" rel="noopener">Spotify ↗</a></div>
@@ -1382,33 +1393,33 @@
       <span class="eyebrow">Videografía</span>
       <h2 id="videos-title">Videos</h2>
       <ul class="videos">
-          <li><button class="video" type="button" data-yt="U9XBk22Vr_w" aria-label="Ver Niña Bonita (2020)">
-            <img src="/photos/video-nina-bonita.jpg" width="960" height="540" loading="lazy" alt="">
+          <li><button class="video" type="button" data-yt="U9XBk22Vr_w"><span class="sr-only">Ver video: </span>
+            <img src="/photos/video-nina-bonita.webp" width="640" height="360" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Niña Bonita</span><span class="video-year">2020</span>
           </button></li>
-          <li><button class="video" type="button" data-yt="A24SmyaCDxU" aria-label="Ver La Peor Droga de Todas (2021)">
-            <img src="/photos/video-la-peor-droga.jpg" width="960" height="540" loading="lazy" alt="">
+          <li><button class="video" type="button" data-yt="A24SmyaCDxU"><span class="sr-only">Ver video: </span>
+            <img src="/photos/video-la-peor-droga.webp" width="640" height="360" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">La Peor Droga de Todas</span><span class="video-year">2021</span>
           </button></li>
-          <li><button class="video" type="button" data-yt="QEESLSNo-Ec" aria-label="Ver No Me Falta Nada (2022)">
-            <img src="/photos/video-no-me-falta-nada.jpg" width="960" height="540" loading="lazy" alt="">
+          <li><button class="video" type="button" data-yt="QEESLSNo-Ec"><span class="sr-only">Ver video: </span>
+            <img src="/photos/video-no-me-falta-nada.webp" width="640" height="360" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">No Me Falta Nada</span><span class="video-year">2022</span>
           </button></li>
-          <li><button class="video" type="button" data-yt="khfSRTsbQXY" aria-label="Ver Si Fui Yo (2023)">
-            <img src="/photos/video-si-fui-yo.jpg" width="960" height="540" loading="lazy" alt="">
+          <li><button class="video" type="button" data-yt="khfSRTsbQXY"><span class="sr-only">Ver video: </span>
+            <img src="/photos/video-si-fui-yo.webp" width="640" height="360" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Si Fui Yo</span><span class="video-year">2023</span>
           </button></li>
-          <li><button class="video" type="button" data-yt="YQ3rtjxuTKc" aria-label="Ver Calma (2025)">
-            <img src="/photos/video-calma.jpg" width="960" height="540" loading="lazy" alt="">
+          <li><button class="video" type="button" data-yt="YQ3rtjxuTKc"><span class="sr-only">Ver video: </span>
+            <img src="/photos/video-calma.webp" width="640" height="360" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Calma</span><span class="video-year">2025</span>
           </button></li>
-          <li><button class="video" type="button" data-yt="9jpzjeNJ354" aria-label="Ver Tiempo a Solas (2025)">
-            <img src="/photos/video-tiempo-a-solas.jpg" width="960" height="540" loading="lazy" alt="">
+          <li><button class="video" type="button" data-yt="9jpzjeNJ354"><span class="sr-only">Ver video: </span>
+            <img src="/photos/video-tiempo-a-solas.webp" width="640" height="360" loading="lazy" alt="">
             <span class="video-play" aria-hidden="true">▶</span>
             <span class="video-title">Tiempo a Solas</span><span class="video-year">2025</span>
           </button></li>
@@ -1507,7 +1518,7 @@
          to Frecuencia, where the song is the signal to find. -->
     <section class="single mq" id="todo-cae" aria-labelledby="single-title">
       <figure class="single-cover">
-        <img src="/photos/todo-cae.jpg" width="1000" height="1000" loading="lazy"
+        <img src="/photos/todo-cae.webp" width="800" height="800" loading="lazy"
              alt="Portada de Todo Cae: un perfil casi negro dibujado por ramas iluminadas en verde">
       </figure>
       <div>
@@ -2109,8 +2120,8 @@
         description: "La púa de Dstance (plumilla, espiga, como le digas), verde menta. Al frente dice DSTANCE; por detrás, Falsas Expectativas.",
         price: null,
         link: "",
-        photo: { src: "/photos/shop-plumilla-frente.jpg", width: 1200, height: 1200, alt: "El frente de la plumilla verde menta: dice DSTANCE" },
-        back:  { src: "/photos/shop-plumilla-vuelta.jpg", width: 1200, height: 1200, alt: "La vuelta de la plumilla: dice Falsas Expectativas en letra manuscrita" },
+        photo: { src: "/photos/shop-plumilla-frente.webp", width: 800, height: 800, alt: "El frente de la plumilla verde menta: dice DSTANCE" },
+        back:  { src: "/photos/shop-plumilla-vuelta.webp", width: 800, height: 800, alt: "La vuelta de la plumilla: dice Falsas Expectativas en letra manuscrita" },
       },
       {
         sku: "FE-CD-01",
@@ -2118,7 +2129,7 @@
         description: "El álbum de 2025 en físico: 10 canciones.",
         price: null,
         link: "",
-        photo: { src: "/photos/shop-cd-falsas-expectativas.jpg", width: 1200, height: 1200, alt: "El CD de Falsas Expectativas en su estuche de cartón, con la ilustración de la portada" },
+        photo: { src: "/photos/shop-cd-falsas-expectativas.webp", width: 800, height: 800, alt: "El CD de Falsas Expectativas en su estuche de cartón, con la ilustración de la portada" },
       },
       {
         sku: "FE-BUNDLE-01",
@@ -2128,7 +2139,7 @@
         extras: ["CD Falsas Expectativas", "Plumilla Dstance (frente y vuelta)", "Carta firmada por Dstance"],
         price: null,
         link: "",
-        photo: { src: "/photos/shop-bundle-falsas-expectativas.jpg", width: 1200, height: 1200, alt: "El CD de Falsas Expectativas, la plumilla verde menta y una carta escrita a mano" },
+        photo: { src: "/photos/shop-bundle-falsas-expectativas.webp", width: 800, height: 800, alt: "El CD de Falsas Expectativas, la plumilla verde menta y una carta escrita a mano" },
       },
     ];
     const pesos = new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 });
@@ -2169,6 +2180,20 @@
       return card;
     }
     document.getElementById("shop-now").append(...forSale.map(renderForSale));
+    // For Google Shopping: a piece becomes a Product with its price once
+    // it has a price and a payment link.
+    const onSale = forSale.filter((item) => item.price != null && item.link);
+    if (onSale.length) {
+      const ld = document.createElement("script");
+      ld.type = "application/ld+json";
+      ld.textContent = JSON.stringify({ "@context": "https://schema.org", "@graph": onSale.map((item) => ({
+        "@type": "Product", sku: item.sku, name: item.name, description: item.description,
+        image: item.photo ? "https://dstance.com.mx" + item.photo.src : undefined,
+        brand: { "@type": "Brand", name: "Dstance" },
+        offers: { "@type": "Offer", price: item.price, priceCurrency: "MXN", availability: "https://schema.org/InStock", url: item.link },
+      })) });
+      document.head.append(ld);
+    }
 
     // The same pieces in both shops: MC² inside (lights off), all of Dstance outside.
     document.getElementById("products").append(...products.map(renderProduct));
@@ -2727,6 +2752,38 @@
       lista: "/mc2/lista/", formatos: "/mc2/formatos/", sesion: "/mc2/sesion/",
     };
     const sectionAt = Object.fromEntries(Object.entries(SECTIONS).map(([id, path]) => [path, id]));
+
+    /* WHAT GOOGLE SEES ON EACH ADDRESS: its own title, description and
+       canonical link, so /shows/ can rank for "dstance boletos" and /shop/
+       for "dstance merch". Google runs this script and reads them. They
+       change with every address change (scrolling or La Cabina). */
+    const SITE = "https://dstance.com.mx";
+    const META = {
+      "/": ["DSTANCE · Sitio oficial", "Sitio oficial de Dstance, pop alternativo desde Puebla: música, videos, shows, shop y Música Cuántica, el disco nuevo grabado en Sonic Ranch."],
+      "/links/": ["Links · DSTANCE", "Escucha y sigue a Dstance: Spotify, Apple Music, YouTube, Instagram, TikTok y Facebook."],
+      "/discografia/": ["Discografía · DSTANCE", "Los discos y sencillos de Dstance: Todo Cae, Falsas Expectativas, Hasta Que la Vida Diga Adiós, Estaciones y Niña Bonita."],
+      "/videos/": ["Videos · DSTANCE", "Videos oficiales de Dstance: Niña Bonita, La Peor Droga de Todas, No Me Falta Nada, Si Fui Yo, Calma y Tiempo a Solas."],
+      "/shows/": ["Shows y boletos · DSTANCE", "Próximos conciertos de Dstance y dónde comprar boletos."],
+      "/shop/": ["Shop · DSTANCE", "Tienda oficial de Dstance: la plumilla, el CD de Falsas Expectativas, el bundle con carta firmada y la colección MC²."],
+      "/contacto/": ["Contacto, booking y prensa · DSTANCE", "Booking, prensa y contacto de Dstance."],
+      "/mc2/": ["Música Cuántica (MC²) · DSTANCE", "Música Cuántica, el disco nuevo de Dstance grabado en vivo en Sonic Ranch: Todo Cae, Session 01 y la lista de espera."],
+      "/cabina/": ["La Cabina · DSTANCE", "Entra a La Cabina: el cuarto de control donde Dstance grabó Música Cuántica en Sonic Ranch. Gira la perilla, mueve la consola y firma tu acta."],
+    };
+    const metaFor = (path) => META[path] ? path : path.startsWith("/mc2/") ? "/mc2/" : isCabina(path) ? "/cabina/" : "/";
+    function setMeta(path) {
+      const key = metaFor(path), [title, description] = META[key];
+      document.title = title;
+      document.querySelector('meta[name="description"]')?.setAttribute("content", description);
+      document.querySelector('link[rel="canonical"]')?.setAttribute("href", SITE + key);
+      document.querySelector('meta[property="og:title"]')?.setAttribute("content", title);
+      document.querySelector('meta[property="og:url"]')?.setAttribute("content", SITE + key);
+    }
+    // Every address change goes through these two, from this page or La Cabina.
+    for (const method of ["pushState", "replaceState"]) {
+      const original = history[method].bind(history);
+      history[method] = (state, unused, url) => { original(state, unused, url); setMeta(location.pathname); };
+    }
+    addEventListener("popstate", () => setMeta(location.pathname));
     const isCabina = (path) => path === "/cabina" || path.startsWith("/cabina/");
     const seen = new Set();
     function report(path) {
@@ -2746,9 +2803,23 @@
       document.getElementById(id)?.scrollIntoView({ behavior: smooth && !noMotion.matches ? "smooth" : "auto" });
     }
     fromHash();
+    setMeta(location.pathname);
     if (sectionAt[location.pathname] && location.pathname !== "/") {
-      showSection(sectionAt[location.pathname]);
-      addEventListener("load", () => showSection(sectionAt[location.pathname]), { once: true });   // again, once the photos have their size
+      const landing = sectionAt[location.pathname];
+      showSection(landing);
+      // Content above can still grow after the first scroll (photos taking
+      // their size, the Bandsintown dates arriving), pushing the section
+      // down. Until the visitor moves the page themselves (or 6 seconds
+      // pass), keep the section where it should be.
+      if (window.ResizeObserver) {
+        const keep = new ResizeObserver(() => document.getElementById(landing)?.scrollIntoView());
+        keep.observe(document.body);
+        const stop = () => { keep.disconnect(); for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) removeEventListener(type, stop); };
+        for (const type of ["wheel", "touchstart", "keydown", "pointerdown"]) addEventListener(type, stop, { passive: true });
+        setTimeout(stop, 6000);
+      } else {
+        addEventListener("load", () => showSection(landing), { once: true });   // again, once the photos have their size
+      }
     }
     report(location.pathname);
 
@@ -2946,10 +3017,7 @@
             const li = document.createElement("li");
             const row = document.createElement(link ? "a" : "div");
             row.className = "tour-date";
-            if (link) {
-              row.href = link; row.target = "_blank"; row.rel = "noopener";
-              row.setAttribute("aria-label", (offer ? "Boletos: " : "Más info: ") + (v.name || ev.title || "Dstance en vivo") + ", " + Number(m[3]) + " " + MESES[Number(m[2]) - 1] + " " + m[1] + (lugar ? ", " + lugar : ""));
-            }
+            if (link) { row.href = link; row.target = "_blank"; row.rel = "noopener"; }   // its name is what it shows: date, place, "Boletos"
             const day = document.createElement("p");
             day.className = "td-day";
             const d = document.createElement("b"); d.textContent = String(Number(m[3]));
@@ -2963,17 +3031,24 @@
             row.append(day, place);
             if (link) {
               const cta = document.createElement("span");
-              cta.className = "btn"; cta.setAttribute("aria-hidden", "true");
+              cta.className = "btn";
               cta.textContent = offer ? "Boletos ↗" : "Más info ↗";
               row.append(cta);
             }
             li.append(row);
             list.append(li);
+            // For Google's events: name, date, place with its address,
+            // performer, image, and the tickets as an offer.
             shows.push({ "@type": "MusicEvent", name: "Dstance" + (v.name ? " en " + v.name : ""), startDate: ev.datetime,
+              description: "Dstance en vivo" + (v.name ? " en " + v.name : "") + (lugar ? ", " + lugar : "") + ".",
+              image: "https://dstance.com.mx/photos/ds-campo-dia.jpg",
               eventStatus: "https://schema.org/EventScheduled", eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
-              location: { "@type": "Place", name: v.name || lugar, address: lugar },
+              location: { "@type": "Place", name: v.name || lugar,
+                address: { "@type": "PostalAddress", addressLocality: v.city || "", addressRegion: v.region || "", addressCountry: v.country || "" } },
               performer: { "@type": "MusicGroup", name: "Dstance", url: "https://dstance.com.mx/" },
-              ...(link ? { url: link } : {}) });
+              organizer: { "@type": "MusicGroup", name: "Dstance", url: "https://dstance.com.mx/" },
+              ...(link ? { url: link } : {}),
+              ...(offer ? { offers: { "@type": "Offer", url: link, availability: "https://schema.org/InStock" } } : {}) });
           }
           if (!shows.length) return;
           list.hidden = false;
